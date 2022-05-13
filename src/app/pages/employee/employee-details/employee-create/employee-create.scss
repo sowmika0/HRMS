@@ -1,0 +1,15 @@
+.create-employee-footer {
+    text-align: right;
+    
+    button {
+        &:first-child {
+            margin-right: 15px;
+        }
+    }
+}
+
+.create-employee-modal {
+    .modal-footer {
+        display: none;
+    }
+}

@@ -1,0 +1,151 @@
+.ks-dropdown {
+  .dropdown-toggle {
+    cursor: pointer;
+
+    &.button {}
+
+    &.image {
+      img {
+        width: 50px;
+        height: 50px;
+        border-radius: 100px;
+        cursor: pointer;
+      }
+    }
+
+    &.show-caret {
+      &:after {
+        margin-left: $spacing-xs;
+      }
+    }
+
+    &.hide-caret {
+      &::after {
+        content: none;
+      }
+    }
+  }
+
+  .dropdown-menu {
+    font-size: inherit;
+    font-weight: inherit;
+    box-shadow: 3px 6px 10px 0px $light-grey;
+    border: 2px solid rgba(200, 200, 200, 0.2);
+    padding: 0;
+    font-size: $font-size-sm;
+    margin-bottom: $spacing-md;
+
+    .dropdown-header {
+      color: inherit;
+      font-weight: 500;
+      padding: 10px;
+      text-transform: uppercase;
+      font-size: $font-size-xxs;
+      letter-spacing: 1px;
+      color: $mid-grey;
+    }
+
+    li {
+      .dropdown-item {
+        cursor: pointer;
+        font-weight: inherit;
+        padding: 10px 20px;
+
+        &:active {
+          background-color: $mid-grey;
+        }
+      }
+
+      .dropdown-items-flex {
+        display: flex;
+
+        >div {
+          flex: 1;
+        }
+      }
+
+      &:first-of-type {
+        .dropdown-item {
+          border-radius: 3px 3px 0 0;
+        }
+      }
+
+      &:last-of-type {
+        .dropdown-item {
+          border-radius: 0 0 3px 3px;
+        }
+      }
+    }
+
+    &.compact {
+      .dropdown-item {
+        padding: 5px 10px;
+        font-size: $font-size-xs;
+      }
+    }
+
+    &.no-shadow {
+      box-shadow: none;
+    }
+
+    &.dropdown-menu-xs {
+      width: 150px;
+    }
+
+    &.dropdown-menu-sm {
+      width: 250px;
+    }
+
+    &.dropdown-menu-md {
+      width: 350px;
+    }
+
+    &.dropdown-menu-lg {
+      width: 450px;
+    }
+  }
+}
+
+
+@mixin dropdown-colors {
+  .ks-dropdown {
+    .dropdown-menu {
+
+      @each $c,
+      $value in $button-colors {
+        .dropdown-item {
+          &.dropdown-item-#{$c} {
+            color: map-deep-get($button-colors, $c, 'back');
+
+            &.hover {
+              color: initial;
+
+              &:hover {
+                color: map-deep-get($button-colors, $c, 'back');
+              }
+            }
+
+            &.solid {
+              background-color: map-deep-get($button-colors, $c, 'back');
+              color: map-deep-get($button-colors, $c, 'fore');
+
+              &.hover {
+                background-color: initial;
+                color: initial;
+
+                &:hover {
+                  background-color: map-deep-get($button-colors, $c, 'back');
+                  color: map-deep-get($button-colors, $c, 'fore');
+                }
+              }
+            }
+          }
+        }
+      }
+
+    }
+  }
+
+}
+
+@include dropdown-colors();

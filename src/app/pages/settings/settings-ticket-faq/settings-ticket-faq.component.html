@@ -1,0 +1,99 @@
+<div class="settings-container settings-ticket-faq p-sm">
+  <div *ngIf="activeTicketFaqs.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(ticketFaqForm)">New Ticket Faq</button>
+  </div>
+
+  <div *ngIf="activeTicketFaqs.length > 0" class="added-ticketfaq-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger" class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 30%;">Faq Title</th>
+          <th style="width: 50%;">Faq Answer</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeTicketFaqs">
+          <td>
+            <span>{{ item.faqTitle }}</span>
+          </td>
+          <td>
+            <div [innerHTML]="item.description"></div>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit team information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [tooltip]="'Delete this faq.'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="activeTicketFaqs.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No ticket faqs added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new ticket faq.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(ticketFaqForm)">New Ticket Faq</button>
+    </div>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Ticket Faq</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #ticketFaqModal
+    [title]=" ticketFaq.ticketFaqId ? 'Update Ticket Faq Details' : 'Add New Ticket Faq'"
+    [subTitle]="'Enter the details for the ticket faq to add or update.'" [modalSize]="'lg'">
+    <div class="new-ticket-faq">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The ticket faq you are trying to add is already present. Try another ticket faq.
+      </div>
+      <form #ticketFaqForm="ngForm" class="form show-character-count">
+
+        <div class="form-group">
+          <label class="form-title required">Faq Title</label>
+          <label class="form-explanation">Enter the title for the ticket faq.</label>
+          <input #titleVar="ngModel" characterCount characterLimit='200' class="form-control" name="ticketFaqTitle"
+            [(ngModel)]="ticketFaq.faqTitle" type="text" required [disabled]="isUpdating" />
+          <app-custom-validation [model]="titleVar" [required]="'Enter the title for the ticket faq.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Faq Answer</label>
+          <label class="form-explanation">Enter the answer to be shown for the faq when selected.</label>
+          <quill-editor #answerVar="ngModel" [styles]="{height: '200px'}" [name]="'description'"
+            [(ngModel)]="ticketFaq.description" [placeholder]="'Enter the answer here'" [sanitize]="true"
+            [format]="'html'" [modules]="quillConfig">
+          </quill-editor>
+
+          <app-custom-validation [model]="answerVar" [required]="'Enter the answer for the faq.'">
+          </app-custom-validation>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ ticketFaq.ticketFaqId ? 'Update Ticket Faq' : 'Add Ticket Faq' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

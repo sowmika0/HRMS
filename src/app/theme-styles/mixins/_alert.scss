@@ -1,0 +1,35 @@
+@mixin alert-style() {
+
+  @each $c,
+  $color in $button-colors {
+
+    .alert-#{$c} {
+      background-color: lighten($color: map-deep-get($button-colors, $c, 'back'), $amount: 35);
+      color: map-deep-get($button-colors, $c, 'back');
+      border: 1px solid map-deep-get($button-colors, $c, 'back');
+
+      .alert-icon {
+        color: map-deep-get($button-colors, $c, 'back');
+      }
+
+      .alert-header {
+        color: map-deep-get($button-colors, $c, 'back');
+      }
+
+      .alert-outline {
+        background-color: $white;
+        color: map-deep-get($button-colors, $c, 'back');
+        border: 1px solid map-deep-get($button-colors, $c, 'back');
+      }
+
+      .alert-solid {
+        background-color: map-deep-get($button-colors, $c, 'back');
+        color: map-deep-get($button-colors, $c, 'fore');
+        border: 1px solid map-deep-get($button-colors, $c, 'back');
+      }
+    }
+
+  }
+}
+
+@include alert-style();

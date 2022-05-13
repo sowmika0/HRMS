@@ -1,0 +1,32 @@
+.btn-group {}
+
+.input-group {}
+
+
+@mixin input-group {
+
+  @each $c,
+  $color in $button-colors {
+    .input-group {
+      &.input-group-#{$c} {
+        .input-group-prepend {
+          .input-group-text {
+            background-color: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+          }
+        }
+      }
+
+      .input-group-prepend {
+        &.input-group-prepend-#{$c} {
+          .input-group-text {
+            background-color: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+          }
+        }
+      }
+    }
+  }
+}
+
+@include input-group();

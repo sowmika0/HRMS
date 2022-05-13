@@ -1,0 +1,38 @@
+<swal #sweetAlert [options]="swalOptions" [showCancelButton]="alertData.showCancelButton" [showConfirmButton]="true"
+  (beforeOpen)="checkDeletionConfirmationText()" (confirm)="callSweetAlertConfirmCallback($event)">
+  <div *swalPartial="swalTargets.content" class="c-alert">
+    <div class="c-alert-header">
+      <div class="c-alert-emoji">
+        <img *ngIf="!alertData.isEmojiLottie" [src]="alertData.emoji" />
+      </div>
+      <div class="c-alert-title">
+        <span>{{ alertData.header }}</span>
+      </div>
+    </div>
+    <div class="c-alert-content">
+      <div class="c-alert-subtitle">
+        <span *ngFor="let content of alertData.content">{{ content }}</span>
+      </div>
+      <div class="c-alert-confirm" *ngIf="alertData.confirmText !== '' && alertData.confirmText !== null">
+        <form>
+          <div class="c-alert-form-group form-group">
+            <label for=""> Type </label>
+            <label class="c-alert-form-confirm-text">{{
+            alertData.confirmText.trim()
+          }}</label>
+            <label for=""> below to confirm.</label>
+            <input name="alert-confirm-text" class="form-control" placeholder="{{ alertData.confirmText.trim() }}"
+              type="text" [(ngModel)]="alertTypedText" (ngModelChange)="checkDeletionConfirmationText()" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *swalPartial="swalTargets.confirmButton">
+    {{ alertData.confirmButtonText }}
+  </ng-container>
+  <ng-container *swalPartial="swalTargets.cancelButton">
+    {{ alertData.cancelButtonText }}
+  </ng-container>
+</swal>

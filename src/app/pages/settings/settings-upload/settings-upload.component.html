@@ -1,0 +1,152 @@
+<div class="settings-container settings-announcement-type-container p-sm">
+  <div class="">Choose the type of data update and enter the file path to get the data for upload.</div>
+
+  <div class="form mt-md">
+
+    <div class="form-group">
+      <label class="form-title required">Employee data upload or Settings data upload?</label>
+      <label class="form-explanation">Check the box if you want upload employee details or company settings.</label>
+
+      <div class="row no-x-m">
+        <div class="col-6">
+          <input #uploadEmpVar="ngModel" name="upload-radio" class="custom-radio primary" id="upload-yes-radio"
+            type="radio" [value]="'employee'" [(ngModel)]="upload">
+          <label for="upload-yes-radio">
+            <span class="text">Employee Details</span>
+          </label>
+        </div>
+
+        <div class="col-6">
+          <input #uploadCompVar="ngModel" name="upload-radio" class="custom-radio primary" id="upload-no-radio"
+            type="radio" [value]="'company'" [(ngModel)]="upload">
+          <label for="upload-no-radio">
+            <span class="text">Company Settings</span>
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="upload === 'company'">
+    <h5 class="mb-sm">Company settings data upload</h5>
+    <form #uploadForm="ngForm" class="form show-character-count row no-x-m mt-md">
+      <div class="col-lg-4">
+
+        <div class="form-group">
+          <label class="form-title required">Data upload type</label>
+          <label class="form-explanation">Choose the type of data upload to perform.</label>
+          <ng-select #uploadVar="ngModel" name="uploadVar" [(ngModel)]="uploadTypeSelection"
+            (change)="uploadType = $event.value" [items]="uploadSettingsTypeOptions" placeholder="Choose upload type"
+            [multiple]="false" [clearable]="false" required>
+          </ng-select>
+          <app-custom-validation [model]="uploadVar" [required]="'Choose the data upload type.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Skip Lines</label>
+          <label class="form-explanation">Enter number of lines to skip to reach the content.</label>
+          <input #skipLinesVar="ngModel" class="form-control" name="skipLinesVar" [(ngModel)]="skipLines" type="number"
+            required />
+
+          <app-custom-validation [model]="skipLinesVar" [required]="'Enter the skip lines count.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Upload data file</label>
+          <label class="form-explanation">Choose the file that contains the data for the upload.</label>
+
+          <div *ngIf="invalidFile" class="alert alert-danger alert-sm">
+            The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+            upload is not allowed. Please choose a file below
+            5MB.
+          </div>
+
+          <div *ngIf="file" class="">
+            <span>File selected - {{ file.name }}</span>
+          </div>
+
+          <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'upload'" [accept]="fileFormats"
+            [multiple]="false" [maxFileSize]="5000000" (change)="onFileUploaded($event)">
+            <button class="btn btn-primary btn-sm">
+              <span>Choose Upload File</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-md btn-primary" [disabled]="uploadForm.invalid || isProcessing" (click)="uploadData()"
+            [ngClass]="isProcessing ? 'spinning' : ''">
+            <span>Upload data</span>
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+  </div>
+
+  <div *ngIf="upload === 'employee'">
+    <h5 class="mb-sm">Employee details data upload</h5>
+    <form #employeeForm="ngForm" class="form show-character-count row no-x-m mt-md">
+      <div class="col-lg-4">
+
+        <div class="form-group">
+          <label class="form-title required">Data upload type</label>
+          <label class="form-explanation">Choose the type of data upload to perform.</label>
+          <ng-select #uploadVar="ngModel" name="uploadVar" [(ngModel)]="uploadTypeSelection"
+            (change)="uploadType = $event.value" [items]="employeeUploadTypeOptions" placeholder="Choose upload type"
+            [multiple]="false" [clearable]="false" required>
+          </ng-select>
+          <app-custom-validation [model]="uploadVar" [required]="'Choose the data upload type.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Skip Lines</label>
+          <label class="form-explanation">Enter number of lines to skip to reach the content.</label>
+          <input #skipLinesVar="ngModel" class="form-control" name="skipLinesVar" [(ngModel)]="skipLines" type="number"
+            required />
+
+          <app-custom-validation [model]="skipLinesVar" [required]="'Enter the skip lines count.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Upload data file</label>
+          <label class="form-explanation">Choose the file that contains the data for the upload.</label>
+
+          <div *ngIf="invalidFile" class="alert alert-danger alert-sm">
+            The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+            upload is not allowed. Please choose a file below
+            5MB.
+          </div>
+
+          <div *ngIf="file" class="">
+            <span>File selected - {{ file.name }}</span>
+          </div>
+
+          <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'upload'" [accept]="fileFormats"
+            [multiple]="false" [maxFileSize]="5000000" (change)="onFileUploaded($event)">
+            <button class="btn btn-primary btn-sm">
+              <span>Choose Upload File</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button class="btn btn-md btn-primary" [disabled]="employeeForm.invalid || isProcessing"
+            (click)="uploadData()" [ngClass]="isProcessing ? 'spinning' : ''">
+            <span>Upload data</span>
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+  </div>
+
+
+</div>

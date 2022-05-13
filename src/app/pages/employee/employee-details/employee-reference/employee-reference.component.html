@@ -1,0 +1,161 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Reference details.</h4>
+  <div class="text-sm text-grey">You cannot view the reference details for this employee.</div>
+</div>
+<div class="employee-container employee-reference-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activeReferences.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit || !canAdd" (click)="add(referenceForm)">New Reference</button>
+  </div>
+
+  <div *ngIf="activeReferences.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No references added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new reference.</div>
+    <h4 *ngIf="!canAdd" class="">References can be added only for employees joined later
+      than 1st
+      August 2020.</h4>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit || !canAdd"
+        (click)="add(referenceForm)">New
+        Reference</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeReferences.length > 0" class="added-reference-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Name</th>
+          <th style="width: 15%;">Company</th>
+          <th style="width: 20%;">Designation</th>
+          <th style="width: 15%;">Phone</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeReferences">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.company }}</span>
+          </td>
+          <td>
+            <span>{{ item.designation }}</span>
+          </td>
+          <td>
+            <span>{{ item.phone }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit reference information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [tooltip]="'Delete this reference.'"
+              [disabled]="!canEdit || this.role !== 'hr'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeeReferences()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save References</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #referenceModal [title]="isUpdating ? 'Update Reference Details' : 'Add New Reference'"
+    [subTitle]="'Enter the details for the reference to add or update the information.'" [modalSize]="'lg'">
+    <div *ngIf="reference" class="new-reference">
+      <form #referenceForm="ngForm" class="form show-character-count row no-x-m">
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Reference Name</label>
+            <label class="form-explanation">Enter the name of the reference.</label>
+            <input #referenceVar="ngModel" class="form-control" name="reference" [(ngModel)]="reference.name"
+              type="text" required placeholder="Enter the name of the person" [disabled]="!canEdit" />
+            <app-custom-validation [model]="referenceVar" [required]="'Enter the name for the reference.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Company</label>
+            <label class="form-explanation">Enter the company of the reference.</label>
+            <input #companyVar="ngModel" class="form-control" name="companyVar" [(ngModel)]="reference.company"
+              type="text" placeholder="Enter the company the person is working currently" [disabled]="!canEdit" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Designation</label>
+            <label class="form-explanation">Enter the designation of the reference.</label>
+            <input #designationVar="ngModel" class="form-control" name="designationVar"
+              [(ngModel)]="reference.designation" type="text"
+              placeholder="Enter the designation of the person currently" [disabled]="!canEdit" />
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Phone</label>
+            <label class="form-explanation">Enter the contact number of the reference.</label>
+            <input #phoneVar="ngModel" class="form-control" name="phoneVar" [(ngModel)]="reference.phone" type="text"
+              required placeholder="Enter the contact number of the person" [pattern]="regex.phoneNumber"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="phoneVar" [required]="'Enter the contact number for the reference.'"
+              [pattern]="'Please enter phone number in proper format'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Email</label>
+            <label class="form-explanation">Enter the email of the reference.</label>
+            <input #emailVar="ngModel" class="form-control" name="emailVar" [(ngModel)]="reference.email" type="email"
+              ngvemail required placeholder="Enter the email of the person" [disabled]="!canEdit" />
+            <app-custom-validation [model]="emailVar" [required]="'Enter the email for the reference.'"
+              [email]="'Enter the email properly'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Remarks</label>
+            <label class="form-explanation">Enter the remarks given by the reference.</label>
+            <textarea #remarksVar="ngModel" class="form-control" name="remarksVar" [(ngModel)]="reference.remarks"
+              rows="10" type="text" placeholder="Enter the remarks from the reference" required
+              [disabled]="!canEdit"></textarea>
+            <app-custom-validation [model]="remarksVar" [required]="'Enter the remarks from the reference.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" [disabled]="referenceForm && !referenceForm.valid || !canEdit || !canAdd"
+        (click)="addOrUpdate()">
+        <span>{{ isUpdating ? 'Update Reference' : 'Add Reference' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

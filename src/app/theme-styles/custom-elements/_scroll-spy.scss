@@ -1,0 +1,57 @@
+.ks-scrollspy {
+  height: 100%;
+  border: 1px solid $lighter-grey;
+  width: 250px;
+  top: 60px;
+
+  .ks-scrollspy-content {
+
+    .ks-scrollspy-header {
+      text-transform: uppercase;
+      font-size: $font-size-xs;
+      color: $mid-grey;
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+
+    .ks-scrollspy-links {
+      list-style: none;
+      padding-left: 20px;
+
+      .ks-scrollspy-link {
+        padding: 5px 0;
+        font-size: $font-size-sm;
+        font-weight: 400;
+        display: block;
+        padding: 5px 10px;
+        position: relative;
+        transition: 0.3s;
+        cursor: pointer;
+
+        &.active {
+          color: $primary;
+          font-weight: 500;
+          transition: 0.3s;
+          background: $lighter-grey;
+          text-decoration: underline;
+          border-radius: 3px;
+
+          &:before {
+            content: '';
+            width: 3px;
+            background: $primary;
+            position: absolute;
+            left: -10px;
+            top: -5%;
+            height: 110%;
+          }
+        }
+      }
+    }
+  }
+
+  &.fixed {
+    position: fixed;
+    right: 0;
+  }
+}

@@ -1,0 +1,85 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Reportees details.</h4>
+  <div class="text-sm text-grey">You cannot view the reportees details for this employee.</div>
+</div>
+<div class="employee-section-container employee-reportees-section p-sm" *ngIf="haveAccess">
+  <div class="employees-list">
+
+    <div class="employees-list mt-md">
+      <table *ngIf="employees.length > 0" datatable [dtOptions]="dtOptions" class="table table-striped">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Department</th>
+            <th>Designation</th>
+            <th>Grade</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of employees">
+            <td class="text-center">
+              <div class="login-status">
+                <div *ngIf="item.canLogin" class="status-indicator status-indicator-xs status-indicator-success"
+                  [tooltip]="'Login Enabled'">
+                </div>
+                <div *ngIf="!item.canLogin" class="status-indicator status-indicator-xs status-indicator-danger"
+                  [tooltip]="'Login Disabled'">
+                </div>
+              </div>
+            </td>
+            <td>
+              <div>{{ item.name }}</div>
+              <div *ngIf="item.role !== 'Admin'">
+                <div *ngIf="item.code && item.code !== ''" class="text-xxs mt-xxs text-primary"><b>{{ item.code }}</b>
+                </div>
+                <div *ngIf="!item.code || item.code === ''" class="text-xxs mt-xxs text-danger"><b>NOT SET</b></div>
+              </div>
+            </td>
+            <td>{{ item.emailId }}</td>
+            <td>
+              <div *ngIf="item.role === 'Admin'" class="badge badge-primary badge-alternate">
+                <span>{{ item.role }}</span>
+              </div>
+              <div *ngIf="item.role === 'HR'" class="badge badge-warning badge-alternate">
+                <span>{{ item.role }}</span>
+              </div>
+              <div *ngIf="item.role === 'Employee'" class="badge badge-blue badge-alternate">
+                <span>{{ item.role }}</span>
+              </div>
+            </td>
+            <td>{{ item.department }}</td>
+            <td>{{ item.designation }}</td>
+            <td>{{ item.grade }}</td>
+            <td>{{ item.location }}</td>
+            <td>
+              <div *ngIf="item.status && item.status === 'on-roll'" class="badge badge-success badge-alternate">
+                <span>On Roll</span>
+              </div>
+              <div *ngIf="item.status && item.status !== 'on-roll'" class="badge badge-danger badge-alternate">
+                <span>Off Roll</span>
+              </div>
+            </td>
+            <td class="text-center">
+              <button class="btn btn-primary btn-outline btn-xs mr-sm" disabled="true"
+                [tooltip]="'View employee information'" (click)="view(item)">
+                <i class="fas fa-eye"></i>
+                <!-- <span>Edit</span> -->
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+</div>

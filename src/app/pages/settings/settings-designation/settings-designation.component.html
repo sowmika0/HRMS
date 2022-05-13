@@ -1,0 +1,97 @@
+<div class="settings-container settings-designation-container p-sm">
+  <div *ngIf="activeDesignations.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(designationForm)">New Designation</button>
+  </div>
+
+  <div *ngIf="activeDesignations.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No designations added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new designation.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(designationForm)">New Designation</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeDesignations.length > 0" class="added-designation-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger" class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Designation Name</th>
+          <th style="width: 45%;">Description</th>
+          <th style="width: 15%;">Employee Count</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeDesignations">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.employeesCount }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit designation information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs"
+              [tooltip]="item.employeesCount > 0 ? 'Cannot delete this designation as employees are assigned to it.' : 'Delete this designation.'"
+              [disabled]="item.employeesCount > 0" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Designations</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #designationModal
+    [title]=" designation.designationId ? 'Update Designation Details' : 'Add New Designation'"
+    [subTitle]="'Enter the details for the designation to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The designation you are trying to add is already present. Try another designation.
+      </div>
+      <form #designationForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Designation Name</label>
+          <label class="form-explanation">Enter the name of the designation.</label>
+          <input #designationVar="ngModel" class="form-control" name="designation" [(ngModel)]="designation.name"
+            type="text" required [disabled]="isUpdating" />
+          <app-custom-validation [model]="designationVar" [required]="'Enter the name for the designation.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title">Designation Description</label>
+          <label class="form-explanation">Enter the description for the designation that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description"
+            [(ngModel)]="designation.description" rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ designation.designationId ? 'Update Designation' : 'Add Designation' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

@@ -1,0 +1,8 @@
+<div *ngIf="model && model.invalid && (model.dirty || model.touched) && model.errors">
+  <div class="form-error-icon">
+    <i class="fa fa-times"></i>
+  </div>
+  <div *ngFor="let item of validationsToShow" class="form-error-text">
+    {{ item.validationErrorMessage }}
+  </div>
+</div>

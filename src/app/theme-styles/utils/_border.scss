@@ -1,0 +1,25 @@
+$sides: ('top':'t',
+  'right':'r',
+  'left':'l',
+  'bottom': 'b');
+
+@mixin border-sides {
+
+  @each $side,
+  $svalue in $sides {
+
+    @each $color,
+    $cvalue in $button-colors {
+      .b-#{$svalue}-#{$color} {
+        border-#{$side}: 1px solid map-deep-get($button-colors, $color, 'back');
+      }
+    }
+
+    .b-#{$svalue} {
+      border-#{$side}: 1px solid $light-grey;
+    }
+
+  }
+}
+
+@include border-sides();

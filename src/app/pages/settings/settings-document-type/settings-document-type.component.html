@@ -1,0 +1,115 @@
+<div class="settings-container settings-document-type-container p-sm">
+  <div *ngIf="activeDocumentTypes.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(documentTypeForm)">New Document Type</button>
+  </div>
+
+  <div *ngIf="activeDocumentTypes.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No document types added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new document type.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(documentTypeForm)">New Document Type</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeDocumentTypes.length > 0" class="added-documentType-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger" class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Document Type</th>
+          <th style="width: 40%;">Description</th>
+          <th style="width: 10%;">Is Restricted</th>
+          <th style="width: 10%;">Documents Count</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeDocumentTypes">
+          <td>
+            <span>{{ item.documentType }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.isRestricted ? 'Yes' : 'No' }}</span>
+          </td>
+          <td>
+            <span>{{ item.documentsCount }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit document type information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <div class="d-inline-block" [tooltip]="'Delete this document type.'">
+              <button class="btn btn-danger btn-xs" (click)="deleteAlert(item)">
+                <i class="fas fa-trash"></i>
+                <!-- <span>Delete</span> -->
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Document Types</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #documentTypeModal
+    [title]=" documentType.documentTypeId ? 'Update Document Type Details' : 'Add New Document Type'"
+    [subTitle]="'Enter the details for the documentType to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The document type you are trying to add is already present. Try another document type.
+      </div>
+      <form #documentTypeForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Document Type</label>
+          <label class="form-explanation">Enter the name of the document type.</label>
+          <input #documentTypeVar="ngModel" class="form-control" name="documentType"
+            [(ngModel)]="documentType.documentType" type="text" required [disabled]="isUpdating" />
+          <app-custom-validation [model]="documentTypeVar" [required]="'Enter the name for the documentType.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title required">Document Restriction</label>
+          <label class="form-explanation">Select the checkbox if this type of document can only be uploaded by users
+            with access.</label>
+
+          <div class="col-12">
+            <input #isRestrictedVar="ngModel" name="restricted-checkbox" class="custom-checkbox primary"
+              id="restricted-checkbox" type="checkbox" [value]="true" [(ngModel)]="documentType.isRestricted">
+            <label for="restricted-checkbox">
+              <span class="text">Is Restricted</span>
+            </label>
+          </div>
+
+        </div>
+        <div class="form-group">
+          <label class="form-title">Document Type Description</label>
+          <label class="form-explanation">Enter the description for the document type that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description"
+            [(ngModel)]="documentType.description" rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ documentType.documentTypeId ? 'Update Document Type' : 'Add Document Type' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

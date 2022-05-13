@@ -1,0 +1,213 @@
+<div class="audit-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Audits</h3>
+        <div class="sub-title">All the audits for the employees portal can be tracked here.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline"
+          (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+      </div>
+
+      <div *ngIf="auditList.length > 0" class="audit-list mt-md">
+        <table id="auditTable" class="table table-striped" datatable [dtOptions]="dtOptions" [dtTrigger]="auditTrigger">
+          <thead>
+            <tr>
+              <th style="width: 7%">Module</th>
+              <th style="width: 10%">Employee</th>
+              <th style="width: 10%">Field Name</th>
+              <th style="width: 20%">Old Value</th>
+              <th style="width: 23%">New Value</th>
+              <th style="width: 15%">Updated</th>
+              <th style="width: 15%">Verified</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of auditList">
+              <td>
+                <div class="badge badge-sm badge-primary">{{ item.module }}</div>
+              </td>
+              <td>
+                <div><b>{{ item.employeeName }}</b></div>
+                <div>{{ item.employeeCode }}</div>
+              </td>
+              <td>
+                <div>{{ item.fieldName }}</div>
+              </td>
+              <td>
+                <div style="word-break: break-all;">{{ item.oldValue }}</div>
+              </td>
+              <td>
+                <div style="word-break: break-all;">{{ item.newValue }}</div>
+              </td>
+              <td>
+                <div> {{ item.updatedBy }}</div>
+                <div class="text-xs">{{ item.formattedUpdated }}</div>
+              </td>
+              <td>
+                <div> {{ item.verifiedBy }}</div>
+                <div class="text-xs">{{ item.formattedVerified }}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="auditList.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+        <h4 *ngIf="!isFilterSet">No audits present.</h4>
+        <div *ngIf="!isFilterSet" class="text-sm text-grey">Check with the admin of the application if you are not
+          seeing
+          any audits.</div>
+
+        <h4 *ngIf="isFilterSet">No audits present based on the filter condition.</h4>
+        <div *ngIf="isFilterSet" class="text-sm text-grey">There are no audits returned based on the search filter set.
+          Please try another filter conditions.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<app-custom-modal #filterModal [title]="'Filter Audit'"
+  [subTitle]="'Choose various filters to refine the audit search.'" [modalSize]="'lg'">
+  <div class="filter-audit">
+
+    <form #filtersForm="ngForm" class="row no-x-m">
+
+      <div class="form-group col-6">
+        <label class="form-title">Module</label>
+        <label class="form-explanation">Choose the audit module to search for.</label>
+        <ng-select #modulesVar="ngModel" name="modulesVar" [(ngModel)]="auditFilter.modulesSelection"
+          (change)="auditFilter.modules = selectMultiple($event)" [items]="modulesOptions" [multiple]="true"
+          [clearable]="true">
+        </ng-select>
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Employees</label>
+        <label class="form-explanation">Choose the employees to filter to.</label>
+        <ng-select #employeesVar="ngModel" name="employeesVar" [(ngModel)]="auditFilter.employeeIdsSelection"
+          (change)="auditFilter.employeeIds = selectMultipleEmp($event)" [items]="employeesList"
+          placeholder="Choose employees" [multiple]="true" [clearable]="true" class="reporting-top-select"
+          [searchFn]="reportingSearchFunction">
+
+          <ng-template ng-label-tmp let-item="item">
+            {{ item.employeeName }}
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+            <div class="reporting-to-dropdown-item">
+              <div class="employee-name">{{ item.employeeName }}</div>
+              <div class="employee-code">{{ item.employeeCode }}</div>
+            </div>
+
+          </ng-template>
+        </ng-select>
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Updated Start Date</label>
+        <label class="form-explanation">Choose the start date on the training.</label>
+        <input #updatedDateStartVar="ngModel" [(ngModel)]="auditFilter.startDate" name="updatedDateStartVar" type="text"
+          placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Updated End Date</label>
+        <label class="form-explanation">Choose the end date on the training.</label>
+        <input #updatedDateEndVar="ngModel" [(ngModel)]="auditFilter.endDate" name="updatedDateEndVar" type="text"
+          placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Verified Start Date</label>
+        <label class="form-explanation">Choose the start date on the training.</label>
+        <input #verifiedDateStartVar="ngModel" [(ngModel)]="auditFilter.verifiedStartDate" name="verifiedDateStartVar"
+          type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Updated End Date</label>
+        <label class="form-explanation">Choose the end date on the training.</label>
+        <input #verifiedDateEndVar="ngModel" [(ngModel)]="auditFilter.verifiedEndDate" name="verifiedDateEndVar"
+          type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Verified employees</label>
+        <label class="form-explanation">Choose the verified employees to filter to.</label>
+        <ng-select #verifiedEmpVar="ngModel" name="verifiedEmpVar" [(ngModel)]="auditFilter.verifiedEmpIdsSelection"
+          (change)="auditFilter.verifiedEmpIds = selectMultipleEmp($event)" [items]="employeesList"
+          placeholder="Choose employees" [multiple]="true" [clearable]="true" class="reporting-top-select"
+          [searchFn]="reportingSearchFunction">
+
+          <ng-template ng-label-tmp let-item="item">
+            {{ item.employeeName }}
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+            <div class="reporting-to-dropdown-item">
+              <div class="employee-name">{{ item.employeeName }}</div>
+              <div class="employee-code">{{ item.employeeCode }}</div>
+            </div>
+
+          </ng-template>
+        </ng-select>
+      </div>
+
+      <div class="form-group col-6">
+        <label class="form-title">Updated employees</label>
+        <label class="form-explanation">Choose the updated employees to filter to.</label>
+        <ng-select #updatedEmpVar="ngModel" name="updatedEmpVar" [(ngModel)]="auditFilter.updatedEmpIdsSelection"
+          (change)="auditFilter.updatedEmpIds = selectMultipleEmp($event)" [items]="employeesList"
+          placeholder="Choose employees" [multiple]="true" [clearable]="true" class="reporting-top-select"
+          [searchFn]="reportingSearchFunction">
+
+          <ng-template ng-label-tmp let-item="item">
+            {{ item.employeeName }}
+          </ng-template>
+
+          <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+            <div class="reporting-to-dropdown-item">
+              <div class="employee-name">{{ item.employeeName }}</div>
+              <div class="employee-code">{{ item.employeeCode }}</div>
+            </div>
+
+          </ng-template>
+        </ng-select>
+      </div>
+
+
+    </form>
+
+  </div>
+
+  <div footer-buttons class="footer-buttons">
+
+    <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+      <span>Clear Filter</span>
+    </button>
+
+    <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+      (click)="applyFilter()">
+      <span>Apply Filter</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+  </div>
+
+</app-custom-modal>

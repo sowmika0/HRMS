@@ -1,0 +1,588 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Task & Time Sheet Module
+  description: Task and timesheet modlue API details
+  termsOfService: 'http://localhost:86/api'
+  contact:
+    name: gowtham
+    url: 'http://localhost:85'
+    email: gowthamgurumoorthy@gmail.com
+basePath: /api/v1
+host: 'localhost:85'
+tags:
+  - name: Project
+    description: Project or activity related API's
+  - name: Task
+    description: Task related API's
+  - name: Comments
+    description: Comments related API's
+schemes:
+  - http
+  - https
+paths:
+  /projects/allProjects:
+    get:
+      tags:
+        - Project
+      summary: List of all project details
+      description: List of all projecte details based on employee code
+      operationId: getProjectdet
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+  /projects/findByStatus:
+    get:
+      tags:
+        - Project
+      summary: Display the project details based on Tag
+      description: List of all projecte details based tags
+      operationId: findProjectByStatus
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+        - name: ProjectStatus
+          in: query
+          required: true
+          description: capture the Project Status from Dropdown (open & closed)
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+  /projects:
+    post:
+      tags:
+        - Project
+      summary: Add a new project
+      description: Add new project from form data
+      operationId: addProject
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Project details need to add in the database
+          required: true
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        '405':
+          description: Invalid input
+  '/projects/{id}':
+    get:
+      tags:
+        - Project
+      summary: Find the project based on ID
+      description: Returns a single Project detail
+      operationId: getProjectById
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of project to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Project'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Project not found
+    post:
+      tags:
+        - Project
+      summary: Updates a project status basedon project ID
+      description: ''
+      operationId: updateProject
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of project that needs to be updated
+          required: true
+          type: integer
+          format: int64
+        - name: ProjectStatus
+          in: formData
+          description: Updated status of the project
+          required: true
+          type: string
+      responses:
+        '405':
+          description: Invalid input
+    delete:
+      tags:
+        - Project
+      summary: allow to delete a project if not used in Tasks
+      description: ''
+      operationId: deleteProject
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: >-
+            basedon project id need to delete the record if project not used in
+            task module
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Project not found
+  /tasks/allTasks:
+    get:
+      tags:
+        - Task
+      summary: List of all task details
+      description: List of all task details based on employee code
+      operationId: getTaskdet
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+      responses:
+        '200':
+          description: Success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Tasks'
+  /tasks/findByStatus:
+    get:
+      tags:
+        - Task
+      summary: Display the task details based on the status
+      description: List of all task details based on the status
+      operationId: findTaskByStatus
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+        - name: TaskStatus
+          in: query
+          required: true
+          description: >-
+            capture the Task Status from Dropdown
+            (Pending,Inprogress,hold,completed & Cancelled)
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Tasks'
+  /tasks/findByPriority:
+    get:
+      tags:
+        - Task
+      summary: Display the task details based on the Task priority
+      description: List of all task details based on the Priority
+      operationId: findTaskByPeriority
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+        - name: TaskPriority
+          in: query
+          required: true
+          description: 'capture the Task priority from dropdown (Low,medium & High)'
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Tasks'
+  /tasks/findByProject:
+    get:
+      tags:
+        - Task
+      summary: Display the task details based on the Project
+      description: List of all task details based on the Project
+      operationId: findTaskByProject
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+        - name: ProjectName
+          in: query
+          required: true
+          description: capture the Task priority from project dropdown
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Tasks'
+  /tasks:
+    post:
+      tags:
+        - Task
+      summary: Add a new Task
+      description: Add new Task from form data
+      operationId: addTask
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Task details need to add in the database
+          required: true
+          schema:
+            $ref: '#/definitions/Tasks'
+      responses:
+        '405':
+          description: Invalid input
+  '/task/{id}':
+    get:
+      tags:
+        - Task
+      summary: Find the Task based on ID
+      description: Returns a single Task Detail
+      operationId: getTaskById
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of task to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Tasks'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Task not found
+    post:
+      tags:
+        - Task
+      summary: Updates a Task status based on task ID
+      description: ''
+      operationId: updateTask
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of project that needs to be updated
+          required: true
+          type: integer
+          format: int64
+        - name: TaskStatus
+          in: formData
+          description: Updated status of the Task
+          required: false
+          type: string
+        - name: TaskPriority
+          in: formData
+          description: Updated Priority of the Task
+          required: false
+          type: string
+      responses:
+        '405':
+          description: Invalid input
+  '/taskhistory/{Taskid}':
+    get:
+      tags:
+        - Task
+      summary: Find the Taskhistory based on ID
+      description: Returns a single Task Detail
+      operationId: getTaskHistoryById
+      produces:
+        - application/json
+      parameters:
+        - name: Taskid
+          in: path
+          description: ID of task to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/TaskHistory'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Task not found
+    post:
+      tags:
+        - Task
+      summary: Add the Task history based on task ID
+      description: ''
+      operationId: AddTaskHistory
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - name: Taskid
+          in: path
+          description: Task ID of task
+          required: true
+          type: integer
+        - name: TaskStatus
+          in: formData
+          description: Updated status of the Task
+          required: true
+          type: string
+        - name: StartDate
+          in: formData
+          description: Updated Priority of the Task
+          required: true
+          type: string
+        - name: EndDate
+          in: formData
+          description: Updated Priority of the Task
+          required: true
+          type: string
+        - name: SessionDuration
+          in: formData
+          description: Updated Priority of the Task
+          required: true
+          type: string
+        - name: UpdatedBy
+          in: formData
+          description: Updated Priority of the Task
+          required: true
+          type: string
+      responses:
+        '405':
+          description: Invalid input
+  /comments/findByProjectName:
+    get:
+      tags:
+        - Comments
+      summary: Display the comments against the project
+      description: List of all comments based on the project name
+      operationId: findCommentsByProject
+      produces:
+        - application/json
+      parameters:
+        - name: employeeId
+          in: query
+          required: true
+          description: Capture the employeed code from the Login
+          type: integer
+        - name: ProjectName
+          in: query
+          required: true
+          description: capture the Project Name from Dropdown
+          type: string
+      responses:
+        '200':
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProjectComments'
+  /comments:
+    post:
+      tags:
+        - Comments
+      summary: Add a new comment
+      description: Add new comment against the project
+      operationId: addComments
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Comments details need to add in the database
+          required: true
+          schema:
+            $ref: '#/definitions/ProjectComments'
+      responses:
+        '405':
+          description: Invalid input
+  '/comments/{id}':
+    delete:
+      tags:
+        - Comments
+      summary: allow to delete a Comments based on employee login
+      description: ''
+      operationId: deleteComments
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: >-
+            allow user to delete their own comment need to display message like
+            'comment deleted by {employee name}'
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Project not found
+definitions:
+  Project:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      projectName:
+        type: string
+      projectDescription:
+        type: string
+      projectStatus:
+        type: string
+        pattern: "On Going|Completed|Hold"
+      color:
+        type: string
+        pattern: "#B80000|#DB3E00|#FCCB00|#008B02|#006B76|#1273DE|#004DCF"  
+      projectType:
+        type: string
+        pattern: "Self|Public"
+      employeeId:
+        type: integer
+      createdDate:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      modifiedDate:
+        type: string
+        format: date-time
+      modifiedBy:
+        type: string
+  Tasks:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      taskName:
+        type: string
+      taskDescription:
+        type: string
+      projectName:
+        type: string
+      taskStatus:
+        type: string
+        pattern: "In Progress|Completed|Hold"
+      taskType:
+        type: string
+        pattern: "Self|Public"
+      taskAssignTo:
+        type: string
+      employeeId:
+        type: integer
+      taskPriority:
+        type: integer
+      createdDate:
+        type: string
+        format: date-time
+      createdBy:
+        type: string
+      modifiedDate:
+        type: string
+        format: date-time
+      modifiedBy:
+        type: string
+  TaskHistory:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      taskId:
+        type: integer
+        format: int64
+      startDate:
+        type: string
+        format: date-time
+      endDate:
+        type: string
+        format: date-time
+      taskStatus:
+        type: string
+      updateBy:
+        type: string
+      sessionDuration:
+        type: number
+  ProjectComments:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int64
+      projectName:
+        type: string
+      comments:
+        type: string
+      commentBy:
+        type: string
+      commentDate:
+        type: string
+        format: date-time

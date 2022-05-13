@@ -1,0 +1,188 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Work Experience details.</h4>
+  <div class="text-sm text-grey">You cannot view the work experience details for this employee.</div>
+</div>
+<div class="employee-section-container employee-contact-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activePreviousCompanies.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(previousCompanyForm)">New Previous
+      Company</button>
+  </div>
+
+  <div *ngIf="activePreviousCompanies.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No previous companies added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new previous company.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(previousCompanyForm)">New
+        Previous
+        Company</button>
+    </div>
+  </div>
+
+  <div *ngIf="activePreviousCompanies.length > 0" class="added-previous-company-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Employer</th>
+          <th style="width: 20%;">Designation</th>
+          <th style="width: 15%;">Department</th>
+          <th style="width: 15%;">Date of Join</th>
+          <th style="width: 15%;">Date of Exit</th>
+          <th style="width: 15%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activePreviousCompanies">
+          <td>
+            <span>{{ item.employer }}</span>
+          </td>
+          <td>
+            <span>{{ item.designation }}</span>
+          </td>
+          <td>
+            <span>{{ item.department }}</span>
+          </td>
+          <td>
+            <span>{{ item.dateOfJoinText }}</span>
+          </td>
+          <td>
+            <span>{{ item.dateOfExitText }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit previous company information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [tooltip]="'Delete this previous company.'"
+              [disabled]="!canEdit || this.role !== 'hr'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeePreviousCompany()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Previous Company</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+
+  <app-custom-modal #previousCompanyModal
+    [title]="isUpdating ? 'Update Previous Company Details' : 'Add New Previous Company'"
+    [subTitle]="'Enter the details for the previous company to add or update the information.'" [modalSize]="'xl'">
+    <div class="new-previous-company">
+      <form #previousCompanyForm="ngForm" class="form show-character-count row no-row-xm">
+
+        <div *ngIf="previousCompany" class="col-lg-4">
+          <div class="form-group">
+            <label class="form-title required">Company Name</label>
+            <label class="form-explanation">Enter your previous company name.</label>
+            <input #nameVar="ngModel" class="form-control" name="nameVar" [(ngModel)]="previousCompany.employer"
+              type="text" required placeholder="Enter the previous company name" [disabled]="!canEdit" />
+            <app-custom-validation [model]="nameVar" [required]="'Enter the previous company name.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Department</label>
+            <label class="form-explanation">Enter the department you worked in your previous company.</label>
+            <input #departmentVar="ngModel" class="form-control" name="departmentVar"
+              [(ngModel)]="previousCompany.department" type="text" required
+              placeholder="Enter the department you worked in previous company" [disabled]="!canEdit" />
+            <app-custom-validation [model]="departmentVar"
+              [required]="'Enter the department you worked in your previous company.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Designation</label>
+            <label class="form-explanation">Enter the designation you worked in your previous company.</label>
+            <input #designationVar="ngModel" class="form-control" name="designationVar"
+              [(ngModel)]="previousCompany.designation" type="text" required placeholder="Enter your designation"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="designationVar"
+              [required]="'Enter the designation you worked in your previous company.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+        <div *ngIf="previousCompany" class="col-lg-4">
+
+          <div class="form-group">
+            <label class="form-title required">Last Drawn CTC</label>
+            <label class="form-explanation">Enter the last drawn CTC in your previous company.</label>
+            <input #ctcVar="ngModel" class="form-control" name="ctcVar" [(ngModel)]="previousCompany.ctc" type="number"
+              required placeholder="Enter your designation" min="0" [disabled]="!canEdit" />
+            <app-custom-validation [model]="ctcVar" [min]="'Amount cannot be less than 0'"
+              [required]="'Enter the last drawn CTC in your previous company.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Date of Joining</label>
+            <label class="form-explanation">Choose the date of joining in the previous company.</label>
+            <input #dojVar="ngModel" [(ngModel)]="previousCompany.dateOfJoin" name="dojVar" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+              (bsValueChange)="joinDateSelected($event)" required [maxDate]="maxDateOfJoin" [disabled]="!canEdit">
+            <app-custom-validation [model]="dojVar" [required]="'Choose the date of joining.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Date of Exit</label>
+            <label class="form-explanation">Choose the date of exiting in the previous company.</label>
+            <input #doeVar="ngModel" [(ngModel)]="previousCompany.dateOfExit" (bsValueChange)="exitDateSelected($event)"
+              name="doeVar" type="text" placeholder="Select a date" class="form-control" bsDatepicker
+              [bsConfig]="datePickerOptions" required [maxDate]="maxDateOfExit" [disabled]="!canEdit">
+            <app-custom-validation [model]="doeVar" [required]="'Choose the date of exit.'">
+            </app-custom-validation>
+          </div>
+
+        </div>
+
+        <div *ngIf="previousCompany" class="col-lg-4">
+          <div class="form-group">
+            <label class="form-title required">Reason For Change</label>
+            <label class="form-explanation">Enter the reason for your change from the previous company.</label>
+            <textarea #reasonVar="ngModel" class="form-control" name="reasonVar"
+              [(ngModel)]="previousCompany.reasonForChange" type="text" required rows="10"
+              placeholder="Enter the reason for the change" [disabled]="!canEdit"></textarea>
+            <app-custom-validation [model]="reasonVar"
+              [required]="'Enter the reason for the change from your previous company.'">
+            </app-custom-validation>
+          </div>
+
+        </div>
+
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!previousCompanyForm.valid || !canEdit">
+        <span>{{ isUpdating ? 'Update Previous Company' : 'Add Previous Company' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+
+</div>

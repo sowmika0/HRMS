@@ -1,0 +1,81 @@
+$font-family-main: 'Roboto',
+sans-serif !default;
+$font-family-heading: "Roboto",
+ !default;
+$font-family-alt: 'Roboto',
+sans-serif !default;
+
+$font-awesome: 'Font Awesome 5 Free';
+
+// Colors
+$primary: #368487 !default;
+$white: #fff !default;
+$danger: #E63946 !default;
+$warning: #ffb738 !default;
+$success: #66BB6A !default;
+$secondary: #F06292 !default;
+$light: #ffffff !default;
+$grey: #cccccc !default;
+$dark: #383943 !default;
+$blue: #0168fa !default;
+
+// Greyscales
+$almost-white: #fefefe;
+$very-light-grey: #f6f6f6;
+$lighter-grey: #EFF1F3;
+$light-grey: #c6ccd3;
+$mid-grey: #8e92a2;
+$dark-grey: #50515E;
+
+$background: $very-light-grey;
+
+// Font sizes
+$font-size-base: 0.9rem !default;
+$font-size-xxs: 0.7 * $font-size-base;
+$font-size-xs: 0.8 * $font-size-base;
+$font-size-sm: 0.9 * $font-size-base;
+$font-size-md: 1 * $font-size-base;
+$font-size-lg: 1.1 * $font-size-base;
+$font-size-xl: 1.2 * $font-size-base;
+
+// Mixin Variables
+$font-sizes: ('xxs': $font-size-xxs,
+  'xs': $font-size-xs,
+  'sm': $font-size-sm,
+  'md': $font-size-md,
+  'lg': $font-size-lg,
+  'xl': $font-size-xl);
+
+$colors: ('primary': $primary,
+  'success': $success,
+  'danger': $danger,
+  'warning': $warning,
+  'dark': $dark,
+  'light': $light,
+  'secondary': $secondary,
+  'blue': $blue,
+  'grey': $mid-grey);
+
+$button-colors: ('primary': ('back': $primary, 'fore': $white, 'border':$primary),
+  'success': ('back' : $success, 'fore': $white, 'border':$success),
+  'danger': ('back': $danger, 'fore': $white, 'border':$danger),
+  'warning': ('back': $warning, 'fore': $dark-grey, 'border':$warning),
+  'dark': ('back': $dark, 'fore': $white, 'border':$dark),
+  'light': ('back': $light, 'fore': $dark-grey, 'border':$dark-grey),
+  'secondary': ('back': $secondary, 'fore': $white, 'border':$secondary),
+  'blue': ('back': $blue, 'fore': $white, 'border':$blue),
+  'grey': ('back': $mid-grey, 'fore': $white, 'border':$mid-grey),
+  'default': ('back':$light-grey, 'fore': $dark-grey, 'border':$dark-grey));
+
+$breakpoints: ('xs': 576px,
+  'sm': 768px,
+  'md': 992px,
+  'lg': 1200px,
+  'xlg': 1440px,
+  'xxlg': 1920px);
+
+$font-weights: ('thin': 200,
+  'light': 300,
+  'regular': 400,
+  'bold': 600,
+  'bolder': 700);

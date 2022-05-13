@@ -1,0 +1,51 @@
+.application-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 1112;
+  color: $white;
+  opacity: 0;
+  visibility: hidden;
+  transition: 1s;
+  display: block;
+
+  .loader {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 10px;
+    height: 60px;
+    min-width: 350px;
+    border-radius: 5px;
+    background-color: $primary;
+    display: flex;
+    align-items: center;
+    font-size: $font-size-base;
+    padding-left: 40px;
+    transform: translateX(500px);
+    transition: 0.5s;
+
+    i {
+      font-size: $font-size-base * 0.8;
+    }
+
+    span {
+      margin-left: 20px;
+    }
+  }
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    transition: 1s;
+
+    .loader {
+      transform: translateX(0);
+      transition: 0.5s;
+    }
+  }
+
+}

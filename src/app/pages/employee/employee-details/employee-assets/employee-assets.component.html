@@ -1,0 +1,139 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Asset details.</h4>
+  <div class="text-sm text-grey">You cannot view the asset details for this employee.</div>
+</div>
+<div class="employee-container employee-assets-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="assets.length !== 0 && canEdit" class="text-right">
+    <button class="btn btn-primary" (click)="add(assetForm)">New Asset</button>
+  </div>
+
+  <div *ngIf="activeAssets.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No assets added yet.</h4>
+    <div *ngIf="canEdit" class="text-sm text-grey">Click the button below to add new asset.</div>
+    <div *ngIf="canEdit" class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(assetForm)">New Asset</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeAssets.length > 0" class="added-asset-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 10%;">Asset Category</th>
+          <th style="width: 20%;">Asset Unique Code</th>
+          <th style="width: 20%;">Description</th>
+          <th style="width: 10%;">Given On</th>
+          <th style="width: 20%;">Last Updated By</th>
+          <th *ngIf="canEdit" style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeAssets">
+          <td>
+            <span>{{ item.assetIdSelection ? item.assetIdSelection.label : '' }}</span>
+          </td>
+          <td>
+            <span>{{ item.assetUniqueId }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.givenOnText }}</span>
+          </td>
+          <td>
+            <span>{{ item.lastUpdatedBy }}</span>
+          </td>
+          <td *ngIf="canEdit">
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit asset information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button [disabled]="item.assetUniqueId || !canEdit" class="btn btn-danger btn-xs"
+              [tooltip]="item.assetUniqueId ? 'Asset cannot be deleted when it has asset id.'  : 'Delete this asset.'"
+              (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button *ngIf="canEdit" class="btn btn-primary" (click)="updateEmployeeAssets()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Assets</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #assetModal [title]="isUpdating ? 'Update Asset Details' : 'Add New Asset'"
+    [subTitle]="'Enter the details for the asset to add or update the information.'">
+    <div class="new-asset">
+      <form #assetForm="ngForm" class="form show-character-count">
+
+        <div *ngIf="assetUniqueId !== ''" class="alert alert-sm alert-danger alert-outline">
+          <span>Asset Id <b>{{assetUniqueId}}</b> is already used. Please try with a different asset id.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Asset Category</label>
+          <label class="form-explanation">Choose the asset from the options below.</label>
+          <ng-select #assetNameVar="ngModel" name="assetNameVar" [(ngModel)]="asset.assetIdSelection"
+            (change)="asset.assetId = $event.value" placeholder="Choose the asset type" [items]="assetTypes"
+            [multiple]="false" [clearable]="false" [disabled]="!canEdit">
+          </ng-select>
+          <app-custom-validation [model]="assetNameVar" [required]="'Choose the asset type.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Description</label>
+          <label class="form-explanation">Enter a description for the asset given.</label>
+          <input #descriptionVar="ngModel" class="form-control" name="descriptionVar"
+            placeholder="Enter the description" [(ngModel)]="asset.description" type="text" [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Asset Unique Id</label>
+          <label class="form-explanation">Enter a unique id for the asset to track.</label>
+          <input #assetUniqueVar="ngModel" class="form-control" name="assetUniqueVar"
+            placeholder="Enter the asset unique id" [(ngModel)]="asset.assetUniqueId" type="text"
+            [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Given On</label>
+          <label class="form-explanation">Choose the date at which the asset was given to the employee.</label>
+          <input #givenDateVar="ngModel" [(ngModel)]="asset.givenOn" name="givenDateVar" type="text"
+            placeholder="Select a date" [maxDate]="maxDate" class="form-control" bsDatepicker [disabled]="!canEdit"
+            [bsConfig]="datePickerOptions">
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!assetForm.valid || !canEdit">
+        <span>{{ isUpdating ? 'Update Asset' : 'Add Asset' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

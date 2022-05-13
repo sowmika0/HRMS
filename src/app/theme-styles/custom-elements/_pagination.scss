@@ -1,0 +1,95 @@
+.pagination {
+  font-weight: 400;
+
+  .page-item {
+
+    .page-link {
+      padding: 0;
+      min-width: 35px;
+      height: 35px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      line-height: inherit;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &.pagination-sm {
+    font-size: $font-size-xs;
+
+    .page-link {
+      min-width: 30px;
+      height: 30px;
+    }
+  }
+
+  &.pagination-md {
+    font-size: $font-size-md;
+  }
+
+  &.pagination-lg {
+    font-size: $font-size-lg;
+
+    .page-link {
+      min-width: 40px;
+      height: 40px;
+      padding: 10px 15px;
+    }
+  }
+
+  &.pagination-rounded {
+    .page-item {
+      .page-link {
+        border-radius: 5px;
+      }
+    }
+  }
+
+  &.pagination-circle {
+    .page-item {
+      margin: 0 5px;
+
+      .page-link {
+        border-radius: 100px;
+      }
+    }
+  }
+
+  &.pagination-separated {
+    .page-item {
+      margin: 0 5px;
+    }
+  }
+}
+
+@mixin pagination-colors {
+
+  @each $s,
+  $value in $button-colors {
+    .pagination {
+      &.pagination-#{$s} {
+        .page-item {
+          .page-link {
+            color: map-deep-get($button-colors, $s, 'back');
+            background-color: map-deep-get($button-colors, $s, 'fore');
+          }
+
+          &.active {
+            .page-link {
+              border: none;
+              color: map-deep-get($button-colors, $s, 'fore');
+              background-color: map-deep-get($button-colors, $s, 'back');
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include pagination-colors();

@@ -1,0 +1,99 @@
+<div class="settings-container settings-announcement-type-container p-sm">
+  <div *ngIf="activeAnnouncementTypes.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(announcementTypeForm)">New Announcement Type</button>
+  </div>
+
+  <div *ngIf="activeAnnouncementTypes.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No announcement types added.</h4>
+    <div class="text-sm text-grey">Click the button below to add new announcementType.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(announcementTypeForm)">New Announcement
+        Type</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeAnnouncementTypes.length > 0" class="added-announcementType-container mt-md">
+    <table datatable [dtOptions]="dtOptions" [dtTrigger]=" dtTrigger" class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Announcement Type</th>
+          <th style="width: 45%;">Description</th>
+          <th style="width: 15%;">Total Announcements</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeAnnouncementTypes">
+          <td>
+            <span>{{ item.announcementType }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.announcementCount }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit announcementType information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <div class="d-inline-block">
+              <button class="btn btn-danger btn-xs" (click)="deleteAlert(item)" [disabled]="item.announcementCount > 0 "
+                [tooltip]="item.announcementCount > 0 ? 'Cannot delete this announcement type as announcements are created with it.' : 'Delete this announcement type.'">
+                <i class="fas fa-trash"></i>
+                <!-- <span>Delete</span> -->
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Announcement Types</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #announcementTypeModal
+    [title]=" announcementType.announcementTypeId ? 'Update Announcement Type Details' : 'Add New AnnouncementType'"
+    [subTitle]="'Enter the details for the announcementType to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The announcement type you are trying to add is already present. Try another announcement type.
+      </div>
+      <form #announcementTypeForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Announcement Type</label>
+          <label class="form-explanation">Enter the name of the announcement type.</label>
+          <input #announcementTypeVar="ngModel" class="form-control" name="announcementType"
+            [(ngModel)]="announcementType.announcementType" type="text" required [disabled]="isUpdating" />
+          <app-custom-validation [model]="announcementTypeVar" [required]="'Enter the name for the announcementType.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title">Announcement Type Description</label>
+          <label class="form-explanation">Enter the description for the announcement type that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description"
+            [(ngModel)]="announcementType.description" rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ announcementType.announcementTypeId ? 'Update Announcement Type' : 'Add Announcement Type' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

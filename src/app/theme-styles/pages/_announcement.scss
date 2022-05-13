@@ -1,0 +1,29 @@
+.new-annoucement-modal {
+  .uploaded-file-info {
+    .file-name {
+      width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .image-preview {
+    cursor: pointer;
+  }
+
+  .popover-preview {
+    height: 300px !important;
+    width: auto;
+
+    img {
+      width: auto;
+      max-width: 100%;
+    }
+  }
+}
+
+.announcement-content {
+  max-width: 100%;
+  word-break: break-all;
+}

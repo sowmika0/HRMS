@@ -1,0 +1,349 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Contact details.</h4>
+  <div class="text-sm text-grey">You cannot view the contact details for this employee.</div>
+</div>
+<div class="employee-section-container employee-contact-container p-sm" *ngIf="haveAccess">
+
+  <div *ngIf="employeeContact" class="row no-x-m">
+    <form #contactForm="ngForm" class="form row no-x-m">
+
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Personal Contact Number</label>
+          <label class="form-explanation">Enter your personal contact number (if not exists enter default number
+            9000000000).</label>
+          <input #contactVar="ngModel" class="form-control" name="contactVar"
+            placeholder="Enter the personal phone number" [(ngModel)]="employeeContact.contactNumber" type="text"
+            required [pattern]="regex.phoneNumber" [disabled]="!canEdit" />
+          <app-custom-validation [model]="contactVar" [required]="'Enter the personal contact number.'"
+            [pattern]="'Please enter phone number in proper format'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Alternate Contact Number</label>
+          <label class="form-explanation">Enter your alternate personal contact number/Leave Blank / Enter 9000000000
+            for default number.</label>
+          <input #alternateContactVar="ngModel" class="form-control" name="alternateContactVar"
+            [pattern]="regex.phoneNumber" placeholder="Enter the alternate phone number"
+            [(ngModel)]="employeeContact.alternateContactNumber" type="text" [disabled]="!canEdit" />
+          <app-custom-validation [model]="alternateContactVar" [pattern]="'Please enter phone number in proper format'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Official Contact Number</label>
+          <label class="form-explanation">Enter your official contact number.</label>
+          <input #officialContactVar="ngModel" class="form-control" name="officialContactVar"
+            placeholder="Enter the official phone number" [pattern]="regex.phoneNumber"
+            [(ngModel)]="employeeContact.officialContactNumber" type="tel" [disabled]="!canEdit" />
+          <app-custom-validation [model]="officialContactVar" [pattern]="'Please enter phone number in proper format'">
+          </app-custom-validation>
+        </div>
+
+      </div>
+
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Personal Email</label>
+          <label class="form-explanation">Enter your personal email address.</label>
+          <input #personalEmailVar="ngModel" class="form-control" name="personalEmailVar"
+            [(ngModel)]="employeeContact.personalEmail" type="email" required ngvemail
+            placeholder="Enter the personal email" [disabled]="!canEdit" />
+          <app-custom-validation [model]="personalEmailVar" [required]="'Enter the personal email.'"
+            [email]="'Enter a valid email.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Official Email</label>
+          <label class="form-explanation">Enter your official email address.</label>
+          <input #officialEmailVar="ngModel" class="form-control" name="officialEmailVar"
+            [(ngModel)]="employeeContact.officialEmail" type="email" required ngvemail
+            placeholder="Enter the official email" [disabled]="!canEdit" />
+          <app-custom-validation [model]="officialEmailVar" [required]="'Enter the official email.'"
+            [email]="'Enter a valid email.'">
+          </app-custom-validation>
+        </div>
+
+      </div>
+
+      <div class="col-lg-12 mt-md">
+        <h5>Present Address</h5>
+        <div>Enter the details below with respect to the Present address you are residing in.</div>
+
+        <div class="row no-x-m mt-md">
+          <div class="col-lg-4">
+
+            <div class="form-group">
+              <label class="form-title">Door No</label>
+              <label class="form-explanation">Enter your door no.</label>
+              <input #presentAddressDoorVar="ngModel" class="form-control" name="presentAddressDoorVar"
+                placeholder="Enter the door no" [(ngModel)]="employeeContact.presentAddress.doorNo" type="text"
+                [disabled]="!canEdit" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Street / Area</label>
+              <label class="form-explanation">Enter your street and area information.</label>
+              <textarea #presentAddressStreetVar="ngModel" class="form-control" name="presentAddressStreetVar"
+                placeholder="Enter the street no or area details" [(ngModel)]="employeeContact.presentAddress.street"
+                type="text" required rows="10" [disabled]="!canEdit"></textarea>
+              <app-custom-validation [model]="presentAddressStreetVar"
+                [required]="'Enter the street no or area details.'">
+              </app-custom-validation>
+            </div>
+
+            <!-- <div class="form-group">
+              <label class="form-title required">Village / Town</label>
+              <label class="form-explanation">Enter your village or town.</label>
+              <input #presentAddressVillageVar="ngModel" class="form-control" name="presentAddressVillageVar"
+                placeholder="Enter the village or the town." [(ngModel)]="employeeContact.presentAddress.village"
+                type="text" required />
+              <app-custom-validation [model]="presentAddressVillageVar" [required]="'Enter the village or the town.'">
+              </app-custom-validation>
+            </div> -->
+          </div>
+
+          <div class="col-lg-4">
+
+            <div class="form-group">
+              <label class="form-title">Nearest Landmark</label>
+              <label class="form-explanation">Enter the nearest landmark.</label>
+              <input #presentAddressLandmarkVar="ngModel" class="form-control" name="presentAddressLandmarkVar"
+                placeholder="Enter the nearest landmark." [(ngModel)]="employeeContact.presentAddress.landmark"
+                type="text" [disabled]="!canEdit" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">City</label>
+              <label class="form-explanation">Enter the city.</label>
+              <input #presentAddressCityVar="ngModel" class="form-control" name="presentAddressCityVar"
+                placeholder="Enter the city." [(ngModel)]="employeeContact.presentAddress.city" type="text" required
+                [disabled]="!canEdit" />
+              <app-custom-validation [model]="presentAddressCityVar" [required]="'Enter the city.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">District</label>
+              <label class="form-explanation">Enter the district.</label>
+              <input #presentAddressDistrictVar="ngModel" class="form-control" name="presentAddressDistrictVar"
+                placeholder="Enter the district." [(ngModel)]="employeeContact.presentAddress.district" type="text"
+                required [disabled]="!canEdit" />
+              <app-custom-validation [model]="presentAddressDistrictVar" [required]="'Enter the district.'">
+              </app-custom-validation>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="form-group">
+              <label class="form-title required">Pincode</label>
+              <label class="form-explanation">Enter the pincode.</label>
+              <input #presentAddressPincodeVar="ngModel" class="form-control" name="presentAddressPincodeVar"
+                placeholder="Enter the district." [(ngModel)]="employeeContact.presentAddress.pincode" type="text"
+                required [pattern]="regex.pincode" [disabled]="!canEdit" />
+              <app-custom-validation [model]="presentAddressPincodeVar" [required]="'Enter the pincode.'"
+                [pattern]="'Enter proper pincode.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">State</label>
+              <label class="form-explanation">Enter the state.</label>
+              <ng-select #stateVar="ngModel" name="stateVar" [(ngModel)]="employeeContact.presentAddress.stateSelection"
+                (change)="employeeContact.presentAddress.state = $event.value" placeholer="Choose the state"
+                [items]="statesList" [multiple]="false" [clearable]="false" [disabled]="!canEdit">
+              </ng-select>
+              <app-custom-validation [model]="stateVar" [required]="'Choose the state.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Country</label>
+              <label class="form-explanation">Enter the country.</label>
+              <input #countryVar="ngModel" class="form-control" name="countryVar" placeholder="Enter the country"
+                [(ngModel)]="employeeContact.presentAddress.country" type="text" required disabled value="India"
+                [disabled]="!canEdit" />
+              <app-custom-validation [model]="countryVar" [required]="'Enter the country.'">
+              </app-custom-validation>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-12 mt-md">
+        <h5>Permanent Address</h5>
+        <div>Enter the details below with respect to the Permanent address you are residing in.</div>
+
+        <div class="col-12 mt-sm mb-sm p-0">
+          <input #sameAsPresentVar="ngModel" name="same-checkbox" class="custom-checkbox primary" id="same-checkbox"
+            type="checkbox" [value]="true" [disabled]="!canEdit" [(ngModel)]="employeeContact.permanentAddressSame">
+          <label for="same-checkbox">
+            <span class="text">Same as present address ?</span>
+          </label>
+        </div>
+
+        <div *ngIf="!employeeContact.permanentAddressSame" class="row no-x-m mt-md">
+          <div class="col-lg-4">
+
+            <div class="form-group">
+              <label class="form-title">Door No</label>
+              <label class="form-explanation">Enter your door no.</label>
+              <input #permanentAddressDoorVar="ngModel" class="form-control" name="permanentAddressDoorVar"
+                placeholder="Enter the door no" [(ngModel)]="employeeContact.permanentAddress.doorNo" type="text"
+                [disabled]="!canEdit" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Street / Area</label>
+              <label class="form-explanation">Enter your street and area information.</label>
+              <textarea #permanentAddressStreetVar="ngModel" class="form-control" name="permanentAddressStreetVar"
+                placeholder="Enter the street no or area details" [(ngModel)]="employeeContact.permanentAddress.street"
+                type="text" required rows="10" [disabled]="!canEdit"></textarea>
+              <app-custom-validation [model]="permanentAddressStreetVar"
+                [required]="'Enter the street no or area details.'">
+              </app-custom-validation>
+            </div>
+
+            <!-- <div class="form-group">
+              <label class="form-title required">Village / Town</label>
+              <label class="form-explanation">Enter your village or town.</label>
+              <input #permanentAddressVillageVar="ngModel" class="form-control" name="permanentAddressVillageVar"
+                placeholder="Enter the village or the town." [(ngModel)]="employeeContact.permanentAddress.village"
+                type="text" required />
+              <app-custom-validation [model]="permanentAddressVillageVar" [required]="'Enter the village or the town.'">
+              </app-custom-validation>
+            </div> -->
+          </div>
+
+          <div class="col-lg-4">
+
+            <div class="form-group">
+              <label class="form-title">Nearest Landmark</label>
+              <label class="form-explanation">Enter the nearest landmark.</label>
+              <input #permanentAddressLandmarkVar="ngModel" class="form-control" name="permanentAddressLandmarkVar"
+                placeholder="Enter the nearest landmark." [(ngModel)]="employeeContact.permanentAddress.landmark"
+                type="text" [disabled]="!canEdit" />
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">City</label>
+              <label class="form-explanation">Enter the city.</label>
+              <input #permanentAddressCityVar="ngModel" class="form-control" name="permanentAddressCityVar"
+                placeholder="Enter the city." [disabled]="!canEdit" [(ngModel)]="employeeContact.permanentAddress.city"
+                type="text" required />
+              <app-custom-validation [model]="permanentAddressCityVar" [required]="'Enter the city.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">District</label>
+              <label class="form-explanation">Enter the district.</label>
+              <input #permanentAddressDistrictVar="ngModel" class="form-control" name="permanentAddressDistrictVar"
+                placeholder="Enter the district." [disabled]="!canEdit"
+                [(ngModel)]="employeeContact.permanentAddress.district" type="text" required />
+              <app-custom-validation [model]="permanentAddressDistrictVar" [required]="'Enter the district.'">
+              </app-custom-validation>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="form-group">
+              <label class="form-title required">Pincode</label>
+              <label class="form-explanation">Enter the pincode.</label>
+              <input #permanentAddressPincodeVar="ngModel" class="form-control" name="permanentAddressPincodeVar"
+                placeholder="Enter the district." [(ngModel)]="employeeContact.permanentAddress.pincode" type="text"
+                [minlength]="6" [maxLength]="6" required [pattern]="regex.pincode" [disabled]="!canEdit" />
+              <app-custom-validation [model]="permanentAddressPincodeVar" [required]="'Enter the pincode.'"
+                [pattern]="'Enter proper pincode.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">State</label>
+              <label class="form-explanation">Enter the state.</label>
+              <ng-select #statePermVar="ngModel" name="statePermVar" [disabled]="!canEdit"
+                [(ngModel)]="employeeContact.permanentAddress.stateSelection"
+                (change)="employeeContact.permanentAddress.state = $event.value" placeholder="Choose the state"
+                [items]="statesList" [multiple]="false" [clearable]="false" [disabled]="!canEdit">
+              </ng-select>
+              <app-custom-validation [model]="statePermVar" [required]="'Choose the state.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Country</label>
+              <label class="form-explanation">Enter the country.</label>
+              <input #countryVar="ngModel" class="form-control" name="countryVar" placeholder="Enter the country"
+                [(ngModel)]="employeeContact.permanentAddress.country" type="text" required disabled value="India"
+                [disabled]="!canEdit" />
+              <app-custom-validation [model]="countryVar" [required]="'Enter the country.'">
+              </app-custom-validation>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-12 text-center mt-lg">
+        <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm"
+          [disabled]="isProcessing || !contactForm.valid" [ngClass]="isProcessing ? 'spinning' : ''"
+          (click)="verifyChanges()">
+          <span>Verify Changes</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+
+        <button class="btn btn-primary" (click)="saveEmployeeContactInfo()"
+          [disabled]="isProcessing || !canEdit || !contactForm.valid" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Update Employee Contact Info</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+  <div *ngIf="families.length > 0" class="added-contacts mt-lg">
+    <h5>Family members added as emergency contacts</h5>
+    <table class="table table-responsive table-striped mt-md">
+      <thead>
+        <tr>
+          <th style="width: 40%;">Name</th>
+          <th style="width: 15%;">Relation</th>
+          <th style="width: 15%;">Phone</th>
+          <th style="width: 15%;">Is Dependant</th>
+          <th style="width: 15%;">Is Mediclaim Opted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of families">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.relationSelection ? item.relationSelection.label : '' }}</span>
+          </td>
+          <td>
+            <span>{{ item.phone }}</span>
+          </td>
+          <td>
+            <span *ngIf="item.isDependant" class="badge badge-success badge-alternate">
+              Yes
+            </span>
+          </td>
+          <td>
+            <span *ngIf="item.isOptedForMediclaim" class="badge badge-success badge-alternate">
+              Yes
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

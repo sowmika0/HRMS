@@ -1,0 +1,126 @@
+<div class="roles-tab-container tab-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Roles</h3>
+        <div class="sub-title">All the trainings that are conducted in the company will be shown here .</div>
+      </div>
+    </div>
+    <div class="box-content">
+      <div class="roles-container">
+        <tabset #rolesTabs [vertical]="false" class="tab-container tab-horizontal">
+          <tab>
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-content">
+                  <div class="header no-m"><i class="fas fa-user"></i> HR Roles</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <table class="table table-responsive" datatable [dtOptions]="dtOptionsForHr"
+              *ngIf="rolesModulesServerData && rolesModulesServerData.length">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">Module</th>
+                    <th>HR Users</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of rolesModulesServerData">
+                    <td style="width: 40%;">{{item.moduleSlug}}</td>
+                    <td>
+                      <div *ngIf="hrEmployeesOptions && hrEmployeesOptions.length">
+                        <ng-select #hrUsersVar="ngModel" name="hrUsersVar" [(ngModel)]="item.selected_HrUsers"
+                          (change)="item.hr_Users = selectMultiple($event)" [items]="hrEmployeesOptions"
+                          [multiple]="true" [clearable]="true" placeholder="Choose HR Users">
+                        </ng-select>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="text-center">
+                <button class="btn btn-primary" (click)="saveHrRoles()">Save HR Roles</button>
+              </div>
+            </div>
+          </tab>
+          <tab>
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-content">
+                  <div class="header no-m"><i class="fas fa-users"></i> RM & L2 Roles</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                  <table class="table table-responsive" datatable [dtOptions]="dtOptionsForRML2"
+                  *ngIf="rolesModulesServerData && rolesModulesServerData.length">
+                    <thead>
+                      <tr>
+                        <th style="width: 50%;">Module</th>
+                        <th>RM & L2 Access</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of rolesModulesServerData; let i = index;">
+                        <td style="width: 50%;">{{item.moduleSlug}}</td>
+                        <td>
+                          <input #rowCheckbox="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+                            id="rm-checkbox{{i}}" type="checkbox" [value]="false" [(ngModel)]="item.rmL2selected">
+                          <label class="form-check-label" for="rm-checkbox{{i}}"></label>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="text-center">
+                <button class="btn btn-primary" (click)="saveRmL2Roles()">Save RM & L2 Roles</button>
+              </div>
+            </div>
+          </tab>
+          <tab>
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-content">
+                  <div class="header no-m"><i class="fas fa-user-graduate"></i> Employee</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                  <table class="table table-responsive" datatable [dtOptions]="dtOptionsForEmployee"
+                  *ngIf="rolesModulesServerData && rolesModulesServerData.length">
+                    <thead>
+                      <tr>
+                        <th style="width: 50%;">Module</th>
+                        <th>Employee Access</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of rolesModulesServerData; let i = index;">
+                        <td style="width: 50%;">{{item.moduleSlug}}</td>
+                        <td>
+                          <input #rowCheckbox="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+                            id="employee-checkbox{{i}}" type="checkbox" [value]="false" [(ngModel)]="item.employeeSelected">
+                          <label class="form-check-label" for="employee-checkbox{{i}}"></label>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="text-center">
+                <button class="btn btn-primary" (click)="saveEmployeeRoles()">Save Employee Roles</button>
+              </div>
+            </div>
+          </tab>
+        </tabset>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+.ks-sortable-wrapper {
+
+  .ks-sortable-item {
+    padding: 10px;
+    cursor: grab;
+    border-bottom: 1px solid $light-grey;
+  }
+
+  .ks-sortable-item-active {
+    background-color: $light-grey;
+    box-shadow: 2px 2px 5px 5px $lighter-grey;
+  }
+
+  &.ks-sortable-bordered {
+    .ks-sortable-item {
+      border: 1px solid $light-grey;
+    }
+  }
+
+  &.ks-sortable-hover {
+    .ks-sortable-item {
+      &:hover {
+        background-color: $lighter-grey;
+      }
+    }
+  }
+}
+
+
+@mixin sortable-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .ks-sortable-wrapper {
+      &.ks-sortable-#{$c} {
+
+        .ks-sortable-item {
+          border-bottom: 1px solid map-deep-get($button-colors, $c, 'back');
+        }
+
+        .ks-sortable-item-active {
+          background-color: lighten(map-deep-get($button-colors, $c, 'back'), 30);
+          box-shadow: 2px 2px 5px 5px $lighter-grey;
+        }
+
+        &.ks-sortable-bordered {
+          .ks-sortable-item {
+            border: 1px solid map-deep-get($button-colors, $c, 'back');
+          }
+        }
+
+        &.ks-sortable-hover {
+          .ks-sortable-item {
+            &:hover {
+              background-color: lighten(map-deep-get($button-colors, $c, 'back'), 35);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include sortable-colors();

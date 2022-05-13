@@ -1,0 +1,132 @@
+/** Button Styles and Variables*/
+
+/** Button specific variables */
+$btn-xs-height: 20px;
+$btn-sm-height: 25px;
+$btn-md-height: 35px;
+$btn-lg-height: 40px;
+$btn-xl-height: 50px;
+
+/** Button styles */
+.btn {
+  font-size: $font-size-xs;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  word-break: break-all;
+  min-height: $btn-md-height;
+  max-height: $btn-md-height * 2;
+  padding: 6px 12px;
+  overflow: hidden;
+  font-weight: 500;
+  position: relative;
+
+  div {
+    margin: 0 5px;
+  }
+
+  .spinner {
+    display: none;
+    animation: rotate 0.75s infinite linear;
+  }
+
+  &.btn-uppercase {
+    text-transform: uppercase;
+  }
+
+  &.btn-block {
+    width: 100%;
+    display: block;
+  }
+
+  &.btn-transparent {
+    background: transparent;
+    border: none;
+    color: $mid-grey;
+
+    &:hover {
+      color: $dark-grey;
+    }
+  }
+
+  &.spinning {
+    span {
+      display: inline-block;
+    }
+
+    .spinner {
+      display: inline-block;
+      margin: 0 15px;
+    }
+  }
+
+  &.btn-big-border {
+    border-width: 2px;
+  }
+
+  &.btn-fab {
+    border-radius: 100px;
+    width: $btn-md-height;
+    height: $btn-md-height;
+
+    div {
+      display: none;
+    }
+
+    span {
+      display: none;
+    }
+
+    i {
+      display: none;
+    }
+
+    i {
+      &:first-of-type {
+        display: flex;
+      }
+    }
+  }
+
+  &.btn-pill {
+    border-radius: 50px;
+    padding: 0 15px;
+  }
+
+  &.btn-reveal {
+    div {
+      opacity: 0;
+      visibility: hidden;
+      width: 0px;
+      overflow: hidden;
+      white-space: nowrap;
+      margin: 0;
+      height: 0;
+      transition: .5s linear;
+    }
+
+    &:hover {
+      div {
+        display: inline-block;
+        opacity: 1;
+        visibility: visible;
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        margin: 0 5px;
+        height: auto;
+        transition: .5s linear;
+      }
+    }
+  }
+
+  &:focus {
+    @include button-focus-state();
+  }
+}
+
+@include button-sizes();
+@include button-air();
+@include button-outline();
+@include button-active();

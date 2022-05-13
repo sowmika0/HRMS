@@ -1,0 +1,25 @@
+<!-- <div class="appraisal-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Announcement Details</h3>
+        <div class="sub-title">Full content of the announcement can be viewed in this page.</div>
+      </div>
+    </div>
+
+    <div class="box-content"> -->
+
+      <div class="announcement-details row no-x-m mt-xl">
+        <div class="col-lg-8 col-md-10 m-auto">
+          <div class="text-center mb-md">
+            <h2>{{ announcement.title }}</h2>
+            <div>{{ announcement.subTitle }}</div>
+          </div>
+          <app-announcement-view *ngIf="showAnnouncementDetails" [announcement]="announcement">
+          </app-announcement-view>
+        </div>
+      </div>
+<!-- 
+    </div>
+  </div>
+</div> -->

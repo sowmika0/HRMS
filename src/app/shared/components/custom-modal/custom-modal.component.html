@@ -1,0 +1,23 @@
+<div bsModal #modalTemplate="bs-modal" class="modal fade" [ngClass]="blurBackdrop ? 'blur-backdrop': ''" tabindex="-1"
+  role="dialog" aria-labelledby="modal" [config]="modalConfig">
+  <div class="modal-dialog" [ngClass]="'modal-' + modalSize">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title heading">{{ title }}</h3>
+        <div class="modal-sub-title sub-title">{{ subTitle }}</div>
+        <span class="close pull-right" aria-label="Close" (click)="hideModal()">
+          <span aria-hidden="true">
+            <i class="fas fa-times"></i>
+          </span>
+        </span>
+      </div>
+      <div class="modal-body">
+        <ng-content></ng-content>
+      </div>
+      <div class="modal-footer" *ngIf="!hideCloseButton">
+        <button type="button" class="btn btn-dark btn-outline" (click)="hideModal()">Close</button>
+        <ng-content select="[footer-buttons]"></ng-content>
+      </div>
+    </div>
+  </div>
+</div>

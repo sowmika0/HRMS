@@ -1,0 +1,450 @@
+<div class="appraisal-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Announcements</h3>
+        <div class="sub-title">All the announcements that are added for the company is shown here. You can manage the
+          announcements that needs to be shown and other details of the announcements here.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline" (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addNewAnnouncement(announcementForm)">
+          <span>Add Announcement</span>
+        </button>
+      </div>
+
+      <div *ngIf="announcements.length > 0" class="announcement-list mt-md">
+        <table class="table table-striped" datatable [dtOptions]="dtOptions">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th style="width: 40%">Title</th>
+              <th>Type</th>
+              <th>Show From</th>
+              <th>Show Until</th>
+              <th>Is Published</th>
+              <th>Attachments</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of announcements">
+              <td>
+                <div>{{ item.dateText }}</div>
+              </td>
+              <td>
+                <div><b>{{ item.title }}</b></div>
+                <div>{{ item.subTitle }}</div>
+              </td>
+              <td>
+                <div *ngIf="item.announcementType" class="badge badge-secondary badge-sm badge-alternate">
+                  {{ item.announcementType }}
+                </div>
+              </td>
+              <td>
+                <div>{{ item.startDateText }}</div>
+              </td>
+              <td>
+                <div>{{ item.endDateText }}</div>
+              </td>
+              <td>
+                <div *ngIf="item.isPublished" class="badge badge-sm badge-success badge-alternate">Published</div>
+                <div *ngIf="!item.isPublished" class="badge badge-sm badge-danger badge-alternate">Draft</div>
+              </td>
+              <td>
+                <div>{{ item.attachmentCount }} Attachments</div>
+              </td>
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Announcement Actions</h6>
+                      <li>
+                        <a class="dropdown-item default" (click)="viewPreview(item)">
+                          <span class="mr-sm"><i class="fas fa-eye"></i></span>
+                          <span>View Preview</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item default" (click)="edit(item)">
+                          <span class="mr-sm"><i class="fas fa-pen"></i></span>
+                          <span>Edit Announcement</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item dropdown-item-danger" (click)="deleteAnnouncementAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-trash"></i></span>
+                          <span>Delete Announcement</span>
+                        </a>
+                      </li>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="announcements.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+        <h4>No announcements added.</h4>
+        <div class="text-sm text-grey">Click the button below to add new announcement.</div>
+        <div class="text-center mt-md">
+          <button class="btn btn-primary btn-sm btn-outline" (click)="addNewAnnouncement(announcementForm)">New
+            Announcement</button>
+        </div>
+      </div>
+    </div>
+
+    <app-custom-modal #announcementViewModal [title]="announcement.title" [subTitle]="announcement.subTitle"
+      [modalSize]="'lg'">
+      <app-announcement-view *ngIf="announcement.announcementId" [announcement]="announcement">
+      </app-announcement-view>
+    </app-custom-modal>
+
+    <app-custom-modal #announcementModal [title]="isUpdating ? 'Edit Annoucement Info' :'Add New Annoucement' "
+      [subTitle]="'Enter the details of the annoucement to be added or updated'" [modalSize]="'xl'">
+      <div class="new-annoucement-modal">
+        <form #announcementForm="ngForm" class="form show-character-count row no-x-m">
+
+          <div class="col-lg-4">
+            <h5>Annoucement Details</h5>
+
+            <div class="form-group">
+              <label class="form-title required">Annoucement Title</label>
+              <label class="form-explanation">Enter the title for the annoucement window.</label>
+              <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="announcement.title"
+                type="text" required />
+              <app-custom-validation [model]="titleVar" [required]="'Enter the title for the announcement.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Annoucement Subtitle</label>
+              <label class="form-explanation">Enter the sub title to show for the annoucement.</label>
+              <textarea #subTitleVar="ngModel" class="form-control" name="subTitleVar"
+                [(ngModel)]="announcement.subTitle" rows="5" type="text"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Announcement Date</label>
+              <label class="form-explanation">Choose the date to display for the announcement.</label>
+              <input #dateVar="ngModel" [(ngModel)]="announcement.date" name="dateVar" type="text"
+                placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions" required>
+              <app-custom-validation [model]="dateVar" [required]="'Choose the date to show for the announcement.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="row no-x-m">
+
+              <div class="form-group col-lg-6 pl-0">
+                <label class="form-title required">Show From</label>
+                <label class="form-explanation">Choose the date to start showing the announcement.</label>
+                <input #startDateVar="ngModel" [(ngModel)]="announcement.startDate" name="startDateVar" type="text"
+                  placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+                  (bsValueChange)="startDateSelected($event)" required>
+                <app-custom-validation [model]="startDateVar" [required]="'Choose the announcement start date.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group col-lg-6 pr-0">
+                <label class="form-title">Show Until</label>
+                <label class="form-explanation">Choose the date to end showing the announcement.</label>
+                <input #endDateVar="ngModel" [(ngModel)]="announcement.endDate" name="endDateVar" type="text"
+                  placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+                  (bsValueChange)="endDateSelected($event)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Announcement Type</label>
+              <label class="form-explanation">Choose the announcement type.</label>
+              <ng-select #typeVar="ngModel" name="typeVar" [(ngModel)]="announcement.announcementTypeSelection"
+                (change)="announcement.announcementType = $event.value" [items]="announcementTypeOptions"
+                [multiple]="false" [clearable]="false" placeholder="Choose announcement type" required>
+              </ng-select>
+              <app-custom-validation [model]="typeVar" [required]="'Choose the announcement type.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Locations</label>
+              <label class="form-explanation">Choose the locations this announcement is specifc to. If no location is
+                chosen it is general to all locations.</label>
+              <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="announcement.locationSelections"
+                (change)="onLocationSelect($event)" [items]="locationOptions" [multiple]="true" [clearable]="true"
+                placeholder="Choose locations">
+              </ng-select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Publish Announcement</label>
+              <label class="form-explanation">Check the box if you want the announcement to be active and displayed
+                during the time chosen. If unchecked, the announcement will be in draft mode and will not be displayed
+                to all employees.</label>
+
+              <div class="col-12 no-p">
+                <input #publishVar="ngModel" name="publish-checkbox" class="custom-checkbox primary"
+                  id="publish-checkbox" type="checkbox" [value]="true" [(ngModel)]="announcement.isPublished">
+                <label for="publish-checkbox">
+                  <span class="text">Publish Announcement</span>
+                </label>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="col-lg-8">
+
+            <div class="form-group">
+              <label class="form-title required">Announcement Content</label>
+              <label class="form-explanation">Enter the content to be shown for the announcement.</label>
+              <quill-editor #contentVar="ngModel" [styles]="{height: '200px'}" [name]="'contentVar'"
+                [(ngModel)]="announcement.content" [placeholder]="'Enter the announcement content'" [sanitize]="true"
+                [format]="'html'" [modules]="quillConfig" required>
+              </quill-editor>
+
+              <app-custom-validation [model]="contentVar" [required]="'Enter the announcement content.'">
+              </app-custom-validation>
+            </div>
+
+            <div *ngIf="isUpdating" class="form-group">
+              <label class="form-title">Added Attachments</label>
+              <label class="form-explanation">Already added attachments are shown below.</label>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Attachments</label>
+              <label class="form-explanation">Add the attachments that you want to upload as part of the
+                announcement.</label>
+
+              <div *ngIf="fileRejected" class="alert alert-danger alert-sm">
+                The size of one of the uploaded file is more than 5MB, which is the allowed limit. The file or files
+                will be omitted automatically.
+              </div>
+
+              <table *ngIf="newAttachmentInfo.length > 0 || activeAttachments.length > 0"
+                class="table table-compact mt-sm">
+                <thead>
+                  <tr>
+                    <th style="width: 40%;">File Info</th>
+                    <th style="width: 30%;">Name</th>
+                    <th style="width: 20%;">Type</th>
+                    <th style="width: 10%;"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of activeAttachments; let i = index;">
+                    <td>
+                      <div class=" uploaded-file-info text-sm">
+                        <div class="file-name" [tooltip]="item.fileName">{{ item.fileName }}</div>
+                        <div class="file-size text-xs"><b>{{ item.size | filesize }}</b></div>
+                        <div>
+                          <div class="badge badge-dark badge-alternate">{{ item.contentType }}</div>
+                          <div *ngIf="item.type && item.type === 'Image'"
+                            class="image-preview badge badge-success badge-alternate" [popover]="imagePreviewTemplate"
+                            [popoverTitle]="'Preview'" [outsideClick]="true">Preview
+                          </div>
+                          <div *ngIf="item.fileUrl" class="image-preview badge badge-success badge-alternate"
+                            [tooltip]="'Open the attachment'"><a [href]="item.fileUrl" target="_blank">Open</a>
+                          </div>
+                        </div>
+                        <ng-template #imagePreviewTemplate>
+                          <div class="popover-preview">
+                            <img [src]="item.fileUrl" [alt]="item.fileName" />
+                          </div>
+                        </ng-template>
+                      </div>
+                    </td>
+                    <td>
+                      <input #attachmentName="ngModel" class="form-control" [name]="'attachmentName-' + i"
+                        placeholder="Enter file name" [(ngModel)]="item.fileName" type="text" />
+                    </td>
+                    <td>
+                      <ng-select *ngIf="item.type && item.type.indexOf('Image') >= 0" #attachmentTypeVar="ngModel"
+                        [name]="'attachmentTypeVar-'+ i" [(ngModel)]="item.typeSelection"
+                        (change)="item.type = $event.value" [items]="attachmentTypeOptions" [multiple]="false"
+                        [clearable]="false" placeholder="File Type">
+                      </ng-select>
+                      <div *ngIf="!item.type || item.type.indexOf('Image') === -1">
+                        Document
+                      </div>
+                    </td>
+                    <td>
+                      <button class="btn btn-danger btn-sm" (click)="removeExistingFile(item)"
+                        [tooltip]="'Remove selected file'">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <tr *ngFor="let item of newAttachmentInfo; let i = index;">
+                    <td>
+                      <div class=" uploaded-file-info text-sm">
+                        <div class="file-name" [tooltip]="item.file.name">{{ item.file.name }}</div>
+                        <div class="file-size text-xs"><b>{{ item.file.size | filesize }}</b></div>
+                        <div>
+                          <div class="badge badge-dark badge-alternate">{{ item.file.type }}</div>
+                          <div *ngIf="item.isNew" class="badge badge-secondary badge-alternate">New</div>
+                          <div *ngIf="item.type === 'Image'" class="image-preview badge badge-success badge-alternate"
+                            [popover]="previewTemplate" [popoverTitle]="'Preview'" [outsideClick]="true">Preview</div>
+                        </div>
+                        <ng-template #previewTemplate>
+                          <ngx-dropzone-image-preview [removable]="false" [file]="item.file" class="popover-preview"
+                            ngProjectAs="ngx-dropzone-preview">
+                          </ngx-dropzone-image-preview>
+                        </ng-template>
+                      </div>
+                    </td>
+                    <td>
+                      <input #attachmentName="ngModel" class="form-control" [name]="'attachmentName-' + i"
+                        placeholder="Enter file name" [(ngModel)]="item.name" type="text" />
+                    </td>
+                    <td>
+                      <ng-select *ngIf="item.file.type.indexOf('image') >= 0" #attachmentTypeVar="ngModel"
+                        [name]="'attachmentTypeVar-'+ i" [(ngModel)]="item.typeSelection"
+                        (change)="item.type = $event.value" [items]="attachmentTypeOptions" [multiple]="false"
+                        [clearable]="false" placeholder="File Type">
+                      </ng-select>
+                      <div *ngIf="item.file.type.indexOf('image') === -1">
+                        Document
+                      </div>
+                    </td>
+                    <td>
+                      <button class="btn btn-danger btn-sm" (click)="removeUploadedFile(item)"
+                        [tooltip]="'Remove selected file'">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div *ngIf="activeAttachments.length === 0 && newAttachmentInfo.length === 0"
+                class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-paperclip"></i>
+                </div>
+                <h4>No attachments added.</h4>
+                <div class="text-sm text-grey">Click the button below to add new attachment.</div>
+                <div class="text-center mt-md">
+                  <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'file'" [accept]="fileFormats"
+                    [multiple]="true" [maxFileSize]="5000000" (change)="onFileSelected($event)">
+                    <button class="btn btn-primary btn-sm">
+                      <span>Add Attachments</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="activeAttachments.length > 0 || newAttachmentInfo.length > 0" class="text-center mt-md">
+                <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'file'" [accept]="fileFormats"
+                  [multiple]="true" [maxFileSize]="5000000" (change)="onFileSelected($event)">
+                  <button class="btn btn-primary">
+                    <span>Add Attachments</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </form>
+
+        <div *ngIf="uploadingPercentage !== 0" class="upload-progress mt-md">
+          <progressbar class="progress progress-bar progress-primary progress-centered progress-md" max="100"
+            [value]="uploadingPercentage" [striped]="true" [animate]="true">
+            <span>{{ uploadingPercentage }} % Uploaded</span>
+          </progressbar>
+        </div>
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+        <button type="submit" class="btn btn-primary" [disabled]="isProcessing || !announcementForm.valid"
+          [ngClass]="[isProcessing ? 'spinning' : '', !announcementForm.valid ? 'disabled' : '']"
+          (click)="updateAnnouncement(announcementForm)">
+          <span *ngIf="!isUpdating">Add New Annoucement</span>
+          <span *ngIf="isUpdating">Update Annoucement</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+    <app-custom-modal #filterModal [title]="'Filter Announcements'"
+      [subTitle]="'Choose various filters to refine the announcement search.'" [modalSize]="'lg'">
+      <div class="filter-announcement">
+
+        <form #filtersForm="ngForm" class="row no-x-m">
+
+          <div class="form-group col-6">
+            <label class="form-title">Announcement Title</label>
+            <label class="form-explanation">Enter the title of the announcement to search.</label>
+            <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="announcementFilter.title"
+              type="text" />
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Announcement Date</label>
+            <label class="form-explanation">Choose the date on the announcement.</label>
+            <input #dateVar="ngModel" [(ngModel)]="announcementFilter.date" name="dateVar" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Announcement Types</label>
+            <label class="form-explanation">Choose the announcement types to be searched for.</label>
+            <ng-select #typesVar="ngModel" name="typesVar" [(ngModel)]="announcementFilter.typesSelection"
+              (change)="announcementFilter.types = selectMultiple($event)" [items]="announcementTypeOptions"
+              [multiple]="true" [clearable]="true">
+            </ng-select>
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Announcement Published?</label>
+            <label class="form-explanation">Choose if you need filter announcements that are published or not.</label>
+            <ng-select #publishedVar="ngModel" name="publishedVar" [(ngModel)]="announcementFilter.publishSelection"
+              (change)="announcementFilter.publish = selectMultiple($event)" [items]="publishOptions" [multiple]="true"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+          (click)="applyFilter()">
+          <span>Apply Filter</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+  </div>
+</div>

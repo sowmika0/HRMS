@@ -1,0 +1,39 @@
+body {
+  background-color: $almost-white;
+  min-height: 100vh;
+}
+
+.no-m {
+  margin: 0;
+}
+
+.no-x-m {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.no-p {
+  padding: 0;
+}
+
+.app-content {
+  margin: 80px 20px 20px 220px;
+
+  &.no-extra-padding {
+    margin: 60px 0 0 200px;
+  }
+}
+
+hr {
+  margin: $spacing-md 0;
+}
+
+pre {
+  margin: 0;
+}
+
+.flex-centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

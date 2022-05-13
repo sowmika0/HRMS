@@ -1,0 +1,325 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Career Growth details.</h4>
+  <div class="text-sm text-grey">You cannot view the career growth details for this employee.</div>
+</div>
+<div class="employee-container employee-career-growth-container p-sm" *ngIf="haveAccess">
+  <tabset #careerTabs [vertical]="false" class="tab-container tab-horizontal">
+    <tab (selectTab)="onTabSelected('careermovement')">
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-pen"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">Career Movement</div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+        <div class="text-right mt-md">
+          <button class="btn btn-primary" [disabled]="!canEdit"
+            (click)="addTransferHistoryModal(transferHistoryForm)">Transfer</button>
+        </div>
+        <div *ngIf="employeeCareerData && employeeCareerData.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i [ngClass]="icon"></i>
+          </div>
+          <h4>No career movement added or attended for you yet.</h4>
+        </div>
+        <div *ngIf="employeeCareerData.length > 0" class="added-career-growth-container mt-md row"
+          style="overflow-x: auto;">
+          <div class="mt-md col-sm-12">
+            <table class="table table-responsive table-striped" id="employee-career-table"
+              style="max-width: 1800px; width: 1000px;">
+              <thead>
+                <tr>
+                  <th style="width: 5%;">Year</th>
+                  <th style="width: 5%;">Type</th>
+                  <th style="width: 5%;">Rating</th>
+                  <th style="width: 5%;">Class</th>
+                  <th style="width: 5%;">Grade</th>
+                  <th style="width: 5%;">Department</th>
+                  <th style="width: 5%;">Designation</th>
+                  <th style="width: 5%;">Location</th>
+                  <th style="width: 10%;">Effective From</th>
+                  <th style="width: 25%;">Rewards & Recognization</th>
+                  <th style="width: 5%;">Status</th>
+                  <th style="width: 5%;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of employeeCareerData">
+                  <td style="width: 5%;">
+                    <span>{{ item.appraisalYear }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.appraisalType }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.rating }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.description }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.grade }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.department }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.designation }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.location }}</span>
+                  </td>
+                  <td style="width: 10%;">
+                    <span>{{ item.effectiveFrom | date: 'dd-MMM-yy' }}</span>
+                  </td>
+                  <td style="width: 25%;">
+                    <span>{{ item.rnR }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <span>{{ item.movementStatus }}</span>
+                  </td>
+                  <td style="width: 5%;">
+                    <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit career information'"
+                      (click)="editEmployeeCareer(item)">
+                      <i class="fas fa-pen"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </tab>
+
+    <tab (selectTab)="onTabSelected('movementchart')">
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-pen"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">Movement Chart</div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+        <div *ngIf="movementChartData && movementChartData.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i [ngClass]="icon"></i>
+          </div>
+          <h4>No movement charts added or attended for you yet.</h4>
+        </div>
+        <div *ngIf="movementChartData.length > 0" class="added-career-growth-container mt-md">
+          <div class="employee-movement-chart">
+            <!-- <canvas ngChartjs *ngIf="movementChartData" [datasets]="movementChartData" [labels]="movementChartLabels"
+              [chartType]="movementChartType" [options]="movementChartOptions" height="100">
+            </canvas> -->
+            <canvas ngChartjs [datasets]="movementLineChartData" [labels]="movementLineChartLabels" [options]="movementLineChartOptions"
+              [legend]="true" [chartType]="movementLineChartType">
+            </canvas>
+          </div>
+        </div>
+      </div>
+    </tab>
+  </tabset>
+  <app-custom-modal #employeeCareerModal
+    [title]="isUpdating ? 'Update Employee Career Details' : 'Add New Employee Career'"
+    [subTitle]="'Enter the details for the employee to add or update the career information.'" [modalSize]="'lg'">
+    <div class="new-employee-career">
+      <form #employeeCareerForm="ngForm" class="form show-character-count row no-x-m">
+        <div class="col-3">
+          <label class="form-title">Year</label>
+          <input #appraisalYearVar="ngModel" [(ngModel)]="employeeCareer.appraisalYear" name="appraisalYear" type="text"
+            placeholder="Appraisal Year" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Type</label>
+          <input #appraisalTypeVar="ngModel" [(ngModel)]="employeeCareer.appraisalType" name="appraisalType" type="text"
+            placeholder="Appraisal Type" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Grade</label>
+          <input #gradeVar="ngModel" [(ngModel)]="employeeCareer.grade" name="grade" type="text" placeholder="Grade"
+            class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Designation</label>
+          <input #designationVar="ngModel" [(ngModel)]="employeeCareer.designation" name="designation" type="text"
+            placeholder="Designation" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Rating</label>
+          <input #ratingVar="ngModel" [(ngModel)]="employeeCareer.rating" name="rating" type="text" placeholder="Rating"
+            class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Class</label>
+          <input #descriptionVar="ngModel" [(ngModel)]="employeeCareer.description" name="description" type="text"
+            placeholder="Description" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Location</label>
+          <input #locationVar="ngModel" [(ngModel)]="employeeCareer.location" name="location" type="text"
+            placeholder="Location" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-3">
+          <label class="form-title">Department</label>
+          <input #departmentVar="ngModel" [(ngModel)]="employeeCareer.department" name="department" type="text"
+            placeholder="Department" class="form-control" [disabled]="true">
+        </div>
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Date Of Change</label>
+            <label class="form-explanation">Choose the date of change for the employee.</label>
+            <input #dateOfChangeVar="ngModel" [(ngModel)]="employeeCareer.dateofChange" name="dateOfChange" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions" required
+              [disabled]="true">
+            <app-custom-validation [model]="dateOfChangeVar" [required]="'Choose the date of change.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title required">Reason For Change</label>
+            <label class="form-explanation">Enter the reason for change.</label>
+            <input #reasonForChangeVar="ngModel" class="form-control" name="reasonForChangeVar"
+              [(ngModel)]="employeeCareer.reasonForChange" placeholder="Enter the reason for change" type="text"
+              required [disabled]="!canEdit" />
+            <app-custom-validation [model]="reasonForChangeVar" [required]="'Enter the reason for change.'">
+            </app-custom-validation>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Effective From</label>
+            <label class="form-explanation">Enter the effective from.</label>
+            <input #effectiveFromVar="ngModel" [(ngModel)]="employeeCareer.effectiveFrom" name="effectiveFromVar"
+              type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+              required [disabled]="!canEdit">
+            <app-custom-validation [model]="effectiveFromVar" [required]="'Enter the effective from.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title required">RnR</label>
+            <label class="form-explanation">Enter the RnR.</label>
+            <input #rnrVar="ngModel" class="form-control" name="rnrVar" [(ngModel)]="employeeCareer.rnR"
+              placeholder="Enter the RnR" type="text" required [disabled]="!canEdit" />
+            <app-custom-validation [model]="rnrVar" [required]="'Enter the RnR.'">
+            </app-custom-validation>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-title required">Remarks</label>
+            <label class="form-explanation">Enter the remarks.</label>
+            <textarea #remarksVar="ngModel" class="form-control" name="remarksVar" [(ngModel)]="employeeCareer.remarks"
+              placeholder="Enter the remarks" type="text" rows="3" required [disabled]="!canEdit"></textarea>
+            <app-custom-validation [model]="remarksVar" [required]="'Enter the remarks.'">
+            </app-custom-validation>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div *ngIf="!isUpdating || (isUpdating && role === 'hr')" footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="updateEmployeeCareer()"
+        [disabled]="!employeeCareerForm.valid || !canEdit">
+        <span>{{ isUpdating ? 'Update Employee Career' : 'Add Employee Career' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+  <app-custom-modal #transferHistoryModal
+    [title]="isUpdating ? 'Update Employee Transfer Details' : 'Add New Employee Transfer'"
+    [subTitle]="'Enter the details for the employee to add or update the transfer information.'" [modalSize]="'lg'">
+    <div class="new-employee-transfer">
+      <form #transferHistoryForm="ngForm" class="form show-character-count row no-x-m">
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Year</label>
+            <label class="form-explanation">Appraisal Year for the employee.</label>
+            <input #appraisalYearVar="ngModel" [(ngModel)]="transferHistory.appraisalYear" name="appraisalYear"
+              type="text" placeholder="Select an Appraisal Year" class="form-control" required [disabled]="true">
+            <app-custom-validation [model]="appraisalYearVar" [required]="'Choose the appraisal year.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title" [ngClass]="isLocationRequired ? 'required' : ''">Location</label>
+            <label class="form-explanation">Select the Location.</label>
+            <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="transferHistory.locationSelection"
+              (change)="onLocationChange($event)" [items]="locationOptions" [multiple]="false"
+              [placeholder]="'Select the Location'" [clearable]="false" [required]="isLocationRequired ? true : false"
+              [disabled]="!isLocationRequired">
+            </ng-select>
+            <app-custom-validation [model]="locationVar" [required]="'Select the Location.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title required">Effective From</label>
+            <label class="form-explanation">Enter the effective from.</label>
+            <input #effectiveFromVar="ngModel" [(ngModel)]="transferHistory.effectiveFrom" name="effectiveFromVar"
+              type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+              required [disabled]="!canEdit">
+            <app-custom-validation [model]="effectiveFromVar" [required]="'Enter the effective from.'">
+            </app-custom-validation>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Transfer Type</label>
+            <label class="form-explanation">Select the Transfer Type.</label>
+            <ng-select #transferTypeVar="ngModel" name="transferTypeVar"
+              [(ngModel)]="transferHistory.transferTypeSelection" (change)="onTransferTypeChange($event)"
+              [items]="transferTypeOptions" [multiple]="false" [placeholder]="'Select the Transfer Type'"
+              [clearable]="false" required [disabled]="!canEdit">
+            </ng-select>
+            <app-custom-validation [model]="transferTypeVar" [required]="'Select the Transfer Type.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title" [ngClass]="isDepartmentRequired ? 'required' : ''">Department</label>
+            <label class="form-explanation">Select the Department.</label>
+            <ng-select #departmentVar="ngModel" name="departmentVar" [(ngModel)]="transferHistory.departmentSelection"
+              (change)="onDepartmentChange($event)" [items]="departmentOptions" [multiple]="false"
+              [placeholder]="'Select the Department'" [clearable]="false"
+              [required]="isDepartmentRequired ? true : false" [disabled]="!isDepartmentRequired">
+            </ng-select>
+            <app-custom-validation [model]="departmentVar" [required]="'Select the Department.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title required">Reason For Change</label>
+            <label class="form-explanation">Enter the reason for change.</label>
+            <input #reasonForChangeVar="ngModel" class="form-control" name="reasonForChangeVar"
+              [(ngModel)]="transferHistory.reasonForChange" placeholder="Enter the reason for change" type="text"
+              required [disabled]="!canEdit" />
+            <app-custom-validation [model]="reasonForChangeVar" [required]="'Enter the reason for change.'">
+            </app-custom-validation>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-group">
+            <label class="form-title required">Remarks</label>
+            <label class="form-explanation">Enter the remarks.</label>
+            <textarea #remarksVar="ngModel" class="form-control" name="remarksVar" [(ngModel)]="transferHistory.remarks"
+              placeholder="Enter the remarks" type="text" rows="3" required [disabled]="!canEdit"></textarea>
+            <app-custom-validation [model]="remarksVar" [required]="'Enter the remarks.'">
+            </app-custom-validation>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div *ngIf="!isUpdating || (isUpdating && role === 'hr')" footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addTransferHistory()"
+        [disabled]="!transferHistoryForm.valid || !canEdit">
+        <span>{{ isUpdating ? 'Update Employee Transfer' : 'Add Employee Transfer' }}</span>
+      </button>
+    </div>
+  </app-custom-modal>
+</div>

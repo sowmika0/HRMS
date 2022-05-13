@@ -1,0 +1,1190 @@
+<app-menu-bar></app-menu-bar>
+<div class="app-content">
+  <div class="dashboard-container">
+    <h3 class="mb-lg">Dashboard</h3>
+
+    <div *ngIf="role === 'Employee' && !isManager" class="row no-x-m">
+
+      <div class="col-9 row no-x-m">
+
+        <div class="col-12">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>Announcements</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of announcements" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-type">
+                      <div *ngIf="item.announcementType" class="badge badge-secondary badge-sm badge-alternate">
+                        {{ item.announcementType }}
+                      </div>
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="announcements.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active announcements.</h4>
+                  <div class="text-sm text-grey">There are no active announcements that are relevant to you.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+
+          <div class=" content-box dashboard-box">
+            <div class="box-content">
+              <h4>Employee Referrals</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of referrals" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="referrals.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active referrals.</h4>
+                  <div class="text-sm text-grey">There are no active referrals that are relevant to you.</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+
+          <div class="content-box  dashboard-box">
+            <div class="box-content">
+              <h4>HR Systems</h4>
+
+              <div class="links-container">
+                <h5>Leave Management System</h5>
+                <div>
+                  <a target="_blank" href="http://172.20.92.13:8086/COSEC/Login">Inside Office Network</a>
+                </div>
+                <div>
+                  <a target="_blank" href="http://111.93.100.233:8086/COSEC">Outside Office Network</a>
+                </div>
+
+                <h5 class="mt-sm">Payroll-ESS</h5>
+                <div>
+                  <a target="_blank" href="https://abs.allsecsmartpay.com/smartess/login.jsp">Payroll - Employee Self
+                    Service</a>
+                </div>
+                <h5 class="mt-sm">Travel</h5>
+                <div>
+                  <a target="_blank" href="https://www.yatra.com/trip/home?unique=1620206574143&ref=uis">Yatra
+                    Portal</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mt-lg">
+          <div class="content-box">
+            <div class="box-content">
+              <h4>KAI Calendar</h4>
+              <div class="row no-x-m">
+                <div class="calendar-container col-12">
+
+                  <div class="row">
+
+                    <div class="col-12">
+                      <div class="col-md-12 mb-sm text-center">
+                        <h4>{{ viewDate | calendarDate:(calendarView + 'ViewTitle'):'en' }}</h4>
+                      </div>
+                      <div class="col-md-12 text-center mb-sm ">
+                        <div class="btn-group">
+                          <div class="btn btn-primary btn-sm" mwlCalendarPreviousView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Previous
+                          </div>
+                          <div class="btn btn-outline-secondary btn-sm" mwlCalendarToday [(viewDate)]="viewDate">
+                            Current Month
+                          </div>
+                          <div class="btn btn-primary btn-sm" mwlCalendarNextView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Next
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="isHr" class="col-md-4 m-auto">
+                        <div class="form-group">
+                          <!-- <label class="form-title">Location</label> -->
+                          <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="selectedLocationOption"
+                            (change)="locationChanged($event)" [items]="locationOptions" [multiple]="false"
+                            [clearable]="false" placeholder="Choose locataion">
+                          </ng-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <mwl-calendar-month-view [viewDate]="viewDate" [events]="currentEvents"
+                        [cellTemplate]="customCellTemplate">
+                      </mwl-calendar-month-view>
+
+                      <ng-template #customCellTemplate let-day="day" let-event="day.events[0]" let-locale="locale">
+                        <div class="cal-cell-top">
+                          <span class="cal-day-number">{{ day.date | calendarDate:'monthViewDayNumber':locale }}</span>
+                        </div>
+                        <div *ngIf="event" class="event" [ngStyle]="{ 'background-color': event.meta }">
+                          {{ event.title }}
+                        </div>
+                      </ng-template>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="holiday-types-container mb-md text-center">
+                        <div *ngFor="let item of holidayTypes" class="holiday-type m-xs">
+                          <div class="holiday-color" [ngStyle]="{ 'backgroundColor': item.color }"></div>
+                          <div class="holiday-type"> - {{ item.label }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-3">
+
+        <div class="content-box">
+          <div class="box-content birthday-container">
+            <h4 class="mb-md">Employee Birthdays</h4>
+            <div class="employee-birthday-container">
+              <div *ngFor="let item of birthdays" class="employee-item">
+                <div class="employee-image" [ngStyle]="{ 'background-image': 'url(\'' + item.image + '\')' }"></div>
+                <div class="employee-info">
+                  <div class="employee-name"
+                    [tooltip]="'(' + (item.location ? item.location : 'NA') + ')' + '(' +(item.department ? item.department : 'NA') + ')'">
+                    <span>{{ item.name }}</span>
+                  </div>
+                  <div class="employee-title">
+                    <span>Date: {{ item.birthDate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="birthdays.length === 0" class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="text-sm text-grey">No employee celebrates birthday today.</div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="role === 'Employee' && isManager && !isHr" class="row no-x-m">
+
+      <div class="row no-x-m col-12 mb-lg">
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employee status</h5>
+
+              <div class="employee-status-chart">
+                <canvas ngChartjs *ngIf="empStatusData" [datasets]="empStatusData.datasets"
+                  [labels]="empStatusData.labels" [chartType]="'doughnut'" height="170">
+                </canvas>
+              </div>
+
+              <h5 class="mt-sm">Average age of employees</h5>
+              <h2>{{ hrStat.averageAge }}</h2>
+            </div>
+          </div>
+        </div>
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Location wise head count</h5>
+
+              <div class="location-stats mt-md">
+                <table class="table table-compact table-border">
+                  <tbody>
+                    <tr *ngFor="let item of managerStat.locationWiseHeadCount" class="location-item">
+                      <td style="width: 60%;">
+                        <div class="location">{{ item.location }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-onroll text-primary text-right">{{ item.onRollCount }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-offroll text-danger text-right">{{ item.offRollCount }}</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!-- <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Upcoming new joiners</h5>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Confirmation due</h5>
+
+            </div>
+          </div>
+        </div>
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employees on notice period</h5>
+
+            </div>
+          </div>
+        </div> -->
+      </div>
+
+      <div class="col-9 row no-x-m">
+
+        <div class="col-12">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>Announcements</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of announcements" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-type">
+                      <div *ngIf="item.announcementType" class="badge badge-secondary badge-sm badge-alternate">
+                        {{ item.announcementType }}
+                      </div>
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="announcements.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active announcements.</h4>
+                  <div class="text-sm text-grey">There are no active announcements that are relevant to you.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content dashboard-box">
+              <h4>Employee Referrals</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of referrals" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="referrals.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active referrals.</h4>
+                  <div class="text-sm text-grey">There are no active referrals that are relevant to you.</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>HR Systems</h4>
+
+              <div class="links-container">
+                <h5 class="mt-sm">Leave Management System</h5>
+                <div>
+                  <a target="_blank" href="http://172.20.92.13:8086/COSEC/Login">Inside Office Network</a>
+                </div>
+                <div>
+                  <a target="_blank" href="http://111.93.100.233:8086/COSEC">Outside Office Network</a>
+                </div>
+
+                <h5 class="mt-sm">Payroll-ESS</h5>
+                <div>
+                  <a target="_blank" href="https://abs.allsecsmartpay.com/smartess/login.jsp">Payroll - Employee Self
+                    Service</a>
+                </div>
+                <h5 class="mt-sm">Travel</h5>
+                <div>
+                  <a target="_blank" href="https://www.yatra.com/trip/home?unique=1620206574143&ref=uis">Yatra
+                    Portal</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mt-lg">
+          <div class="content-box">
+            <div class="box-content">
+              <h4>KAI Calendar</h4>
+              <div class="row no-x-m">
+                <div class="calendar-container col-12">
+
+                  <div class="row">
+
+                    <div class="col-12">
+                      <div class="col-md-12 mb-sm text-center">
+                        <h4>{{ viewDate | calendarDate:(calendarView + 'ViewTitle'):'en' }}</h4>
+                      </div>
+                      <div class="col-md-12 text-center mb-sm ">
+                        <div class="btn-group">
+                          <div class="btn btn-primary btn-sm" mwlCalendarPreviousView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Previous
+                          </div>
+                          <div class="btn btn-outline-secondary btn-sm" mwlCalendarToday [(viewDate)]="viewDate">
+                            Current Month
+                          </div>
+                          <div class="btn btn-primary btn-sm" mwlCalendarNextView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Next
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="isHr" class="col-md-4 m-auto">
+                        <div class="form-group">
+                          <!-- <label class="form-title">Location</label> -->
+                          <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="selectedLocationOption"
+                            (change)="locationChanged($event)" [items]="locationOptions" [multiple]="false"
+                            [clearable]="false" placeholder="Choose locataion">
+                          </ng-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <mwl-calendar-month-view [viewDate]="viewDate" [events]="currentEvents"
+                        [cellTemplate]="customCellTemplate">
+                      </mwl-calendar-month-view>
+
+                      <ng-template #customCellTemplate let-day="day" let-event="day.events[0]" let-locale="locale">
+                        <div class="cal-cell-top">
+                          <span class="cal-day-number">{{ day.date | calendarDate:'monthViewDayNumber':locale }}</span>
+                        </div>
+                        <div *ngIf="event" class="event" [ngStyle]="{ 'background-color': event.meta }">
+                          {{ event.title }}
+                        </div>
+                      </ng-template>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="holiday-types-container mb-md text-center">
+                        <div *ngFor="let item of holidayTypes" class="holiday-type m-xs">
+                          <div class="holiday-color" [ngStyle]="{ 'backgroundColor': item.color }"></div>
+                          <div class="holiday-type"> - {{ item.label }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-3">
+
+        <div class="content-box">
+          <div class="box-content birthday-container">
+            <h4 class="mb-md">Employee Birthdays</h4>
+            <div class="employee-birthday-container">
+              <div *ngFor="let item of birthdays" class="employee-item">
+                <div class="employee-image" [ngStyle]="{ 'background-image': 'url(\'' + item.image + '\')' }"></div>
+                <div class="employee-info">
+                  <div class="employee-name"
+                    [tooltip]="'(' + (item.location ? item.location : 'NA') + ')' + '(' +(item.department ? item.department : 'NA') + ')' ">
+                    <span>{{ item.name }}</span>
+                  </div>
+                  <div class="employee-title">
+                    <span>Date: {{ item.birthDate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="birthdays.length === 0" class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="text-sm text-grey">No employee celebrates birthday today.</div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="role === 'HR' || role === 'Admin'" class="row no-x-m">
+
+      <div *ngIf="role === 'HR'" class="row no-x-m col-12 mb-lg">
+        <div class="col-4 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employee status</h5>
+
+              <div class="employee-status-chart">
+                <canvas ngChartjs *ngIf="empStatusData" [datasets]="empStatusData.datasets"
+                  [labels]="empStatusData.labels" [chartType]="'doughnut'" height="170">
+                </canvas>
+              </div>
+
+              <h5 class="mt-sm">Average age of employees</h5>
+              <h2>{{ hrStat.averageAge }}</h2>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Location wise head count</h5>
+
+              <div class="location-stats mt-md">
+                <table class="table table-compact table-border">
+                  <tbody>
+                    <tr *ngFor="let item of hrStat.locationWiseHeadCount" class="location-item">
+                      <td style="width: 60%;">
+                        <div class="location">{{ item.location }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-onroll text-primary text-right">{{ item.onRollCount }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-offroll text-danger text-right">{{ item.offRollCount }}</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Department wise head count</h5>
+
+
+              <div class="location-stats mt-md">
+                <table class="table table-compact table-border">
+                  <tbody>
+                    <tr *ngFor="let item of hrStat.departmentWiseHeadCount" class="location-item">
+                      <td style="width: 60%;">
+                        <div class="location">{{ item.location }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-onroll text-primary text-right">{{ item.onRollCount }}</div>
+                      </td>
+                      <td style="width: 20%;">
+                        <div class="location-offroll text-danger text-right">{{ item.offRollCount }}</div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Upcoming new joiners</h5>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employee Turnover</h5>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employee tenure</h5>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Confirmation due</h5>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-3 mt-md">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h5>Employees on notice period</h5>
+
+            </div>
+          </div>
+        </div> -->
+
+        <!-- <div class="col-3 mt-md">
+          <div class="content-box dashboard-box hierarchy-box">
+            <div class="box-content">
+              <h5>Download employee hierarchy</h5>
+
+              <div class="form-group">
+                <label class="form-title">Choose employee to download hierarchy</label>
+                <ng-select #reportingToVar="ngModel" name="reportingToVar" [(ngModel)]="hierarchyEmpSelection"
+                  (change)="hierarchyEmpId = $event ? $event.employeeId : null" [items]="allEmployees"
+                  placeholder="Choose employee" [multiple]="false" [clearable]="true" class="reporting-top-select"
+                  [searchFn]="reportingSearchFunction">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.employeeName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                    <div class="reporting-to-dropdown-item">
+                      <div class="employee-name">{{ item.employeeName }}</div>
+                      <div class="employee-code">{{ item.employeeCode }}</div>
+                    </div>
+
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <button class="btn btn-primary btn-md mt-md" (click)="printHierarchy()">
+                <i class="fas fa-print mr-xs"></i>
+                <span>Print hierarchy</span>
+              </button>
+
+              <button #printButton *ngIf="empHierarchy.length > 0" class="btn btn-primary btn-md mt-md d-none" ngxPrint
+                [useExistingCss]="true" printTitle="Hierarchy" [disabled]="!hierarchyEmpId || hierarchyEmpId === ''"
+                printSectionId="hierarchyPrint">
+                <i class="fas fa-print mr-xs"></i>
+                <span>Print hierarchy</span>
+              </button>
+
+              <div class="d-none">
+                <div id="hierarchyPrint" class="hierarchy-container">
+                  <div class="mt-lg mb-lg">
+                    <h2>Company organization</h2>
+                  </div>
+
+                  <ng-container *ngTemplateOutlet="recursiveListTmpl; context:{ list: empHierarchy }"></ng-container>
+
+                  <ng-template #recursiveListTmpl let-list="list">
+                    <div class="header" *ngFor="let item of list">
+                      <div *ngIf="item.children.length > 0" class="employee-reporting-container">
+                        <h5 class="mt-lg pt-lg">Employees reporting to - {{ item.name }}</h5>
+                        <div class="reporting-table-container mb-md">
+                          <table class="col-12 table table-bordered table-compact">
+                            <thead class="thead-light">
+                              <tr>
+                                <th style="width: 20%;">Name</th>
+                                <th style="width: 20%;">Code</th>
+                                <th style="width: 20%;">Department</th>
+                                <th style="width: 20%;">Designation</th>
+                                <th style="width: 20%;">Location</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr *ngFor="let emp of item.children">
+                                <td>{{ emp.name }}</td>
+                                <td>{{ emp.code }}</td>
+                                <td>{{ emp.department }}</td>
+                                <td>{{ emp.designation }}</td>
+                                <td>{{ emp.location }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      <ng-container *ngTemplateOutlet="recursiveListTmpl; context:{ list: item.children }">
+                      </ng-container>
+
+                    </div>
+
+                  </ng-template>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div> -->
+
+      </div>
+
+      <div class="col-9 row no-x-m">
+
+        <div class="col-12">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>Announcements</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of announcements" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-type">
+                      <div *ngIf="item.announcementType" class="badge badge-secondary badge-sm badge-alternate">
+                        {{ item.announcementType }}
+                      </div>
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="announcements.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active announcements.</h4>
+                  <div class="text-sm text-grey">There are no active announcements that are relevant to you.</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>Employee Referrals</h4>
+
+              <div class="announcements-list">
+                <div *ngFor="let item of referrals" class="announcement-item"
+                  [routerLink]="'/announcement/' + item.announcementId">
+                  <div class="announcement-header">
+                    <span>{{ item.title }}</span>
+                  </div>
+                  <div class="announcement-sub-title">
+                    {{ item.subTitle }}
+                  </div>
+                  <div class="announcement-meta">
+                    <div class="announcement-date">
+                      {{ item.dateText }}
+                    </div>
+                    <div class="announcement-attachments">
+                      <div>{{ item.attachmentCount }} Attachments</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="referrals.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <h4>No active referrals.</h4>
+                  <div class="text-sm text-grey">There are no active referrals that are relevant to you.</div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-6 mt-lg">
+
+          <div class="content-box dashboard-box">
+            <div class="box-content">
+              <h4>HR Systems</h4>
+
+              <div class="links-container">
+                <h5 class="mt-sm">Leave Management System</h5>
+                <div>
+                  <a target="_blank" href="http://172.20.92.13:8086/COSEC/Login">Inside Office Network</a>
+                </div>
+                <div>
+                  <a target="_blank" href="http://111.93.100.233:8086/COSEC">Outside Office Network</a>
+                </div>
+
+                <h5 class="mt-sm">Payroll-ESS</h5>
+                <div>
+                  <a target="_blank" href="https://abs.allsecsmartpay.com/smartess/login.jsp">Payroll - Employee Self
+                    Service</a>
+                </div>
+                <h5 class="mt-sm">Travel</h5>
+                <div>
+                  <a target="_blank" href="https://www.yatra.com/trip/home?unique=1620206574143&ref=uis">Yatra
+                    Portal</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 mt-lg">
+          <div class="content-box">
+            <div class="box-content">
+              <h4>KAI Calendar</h4>
+              <div class="row no-x-m">
+                <div class="calendar-container col-12">
+
+                  <div class="row">
+
+                    <div class="col-12">
+                      <div class="col-md-12 mb-sm text-center">
+                        <h4>{{ viewDate | calendarDate:(calendarView + 'ViewTitle'):'en' }}</h4>
+                      </div>
+                      <div class="col-md-12 text-center mb-sm ">
+                        <div class="btn-group">
+                          <div class="btn btn-primary btn-sm" mwlCalendarPreviousView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Previous
+                          </div>
+                          <div class="btn btn-outline-secondary btn-sm" mwlCalendarToday [(viewDate)]="viewDate">
+                            Current Month
+                          </div>
+                          <div class="btn btn-primary btn-sm" mwlCalendarNextView [view]="calendarView"
+                            [(viewDate)]="viewDate" (viewDateChange)="closeOpenMonthViewDay()">
+                            Next
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="isHr" class="col-md-4 m-auto">
+                        <div class="form-group">
+                          <!-- <label class="form-title">Location</label> -->
+                          <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="selectedLocationOption"
+                            (change)="locationChanged($event)" [items]="locationOptions" [multiple]="false"
+                            [clearable]="false" placeholder="Choose locataion">
+                          </ng-select>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <mwl-calendar-month-view [viewDate]="viewDate" [events]="currentEvents"
+                        [cellTemplate]="customCellTemplate">
+                      </mwl-calendar-month-view>
+
+                      <ng-template #customCellTemplate let-day="day" let-event="day.events[0]" let-locale="locale">
+                        <div class="cal-cell-top">
+                          <span class="cal-day-number">{{ day.date | calendarDate:'monthViewDayNumber':locale }}</span>
+                        </div>
+                        <div *ngIf="event" class="event" [ngStyle]="{ 'background-color': event.meta }">
+                          {{ event.title }}
+                        </div>
+                      </ng-template>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="holiday-types-container mb-md text-center">
+                        <div *ngFor="let item of holidayTypes" class="holiday-type m-xs">
+                          <div class="holiday-color" [ngStyle]="{ 'backgroundColor': item.color }"></div>
+                          <div class="holiday-type"> - {{ item.label }}</div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-3">
+
+        <div class="content-box">
+          <div class="box-content birthday-container">
+            <h4 class="mb-md">Employee Birthdays</h4>
+            <div class="employee-birthday-container">
+              <div *ngFor="let item of birthdays" class="employee-item">
+                <div class="employee-image" [ngStyle]="{ 'background-image': 'url(\'' + item.image + '\')' }"></div>
+                <div class="employee-info">
+                  <div class="employee-name"
+                    [tooltip]="'(' + (item.location ? item.location : 'NA') + ')' + '(' +(item.department ? item.department : 'NA') + ')' ">
+                    <span>{{ item.name }}</span>
+                  </div>
+                  <div class="employee-title">
+                    <span>Date: {{ item.birthDate }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="birthdays.length === 0" class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div class="text-sm text-grey">No employee celebrates birthday today.</div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="col-12 mt-lg">
+      <div class="content-box">
+        <div class="box-content">
+          <h4>Training Calendar</h4>
+          <div class="row no-x-m">
+            <div class="calendar-container col-12">
+
+              <div class="row">
+
+                <div class="col-12">
+                  <div class="col-md-12 mb-sm text-center">
+                    <h4>{{ trainingViewDate | calendarDate:(calendarView + 'ViewTitle'):'en' }}</h4>
+                  </div>
+                  <div class="col-md-12 text-center mb-sm ">
+                    <div class="btn-group">
+                      <div class="btn btn-primary btn-sm" mwlCalendarPreviousView [view]="trainingCalendarView"
+                        [(viewDate)]="trainingViewDate" (viewDateChange)="closeOpenMonthViewDayForTrainingCalendar()">
+                        Previous
+                      </div>
+                      <div class="btn btn-outline-secondary btn-sm" mwlCalendarToday [(viewDate)]="trainingViewDate">
+                        Current Month
+                      </div>
+                      <div class="btn btn-primary btn-sm" mwlCalendarNextView [view]="trainingCalendarView"
+                        [(viewDate)]="trainingViewDate" (viewDateChange)="closeOpenMonthViewDayForTrainingCalendar()">
+                        Next
+                      </div>
+                    </div>
+                  </div>
+                  <!-- <div *ngIf="isHr" class="col-md-4 m-auto">
+                    <div class="form-group">
+                      <ng-select #locationVarForTraining="ngModel" name="locationVarForTraining"
+                        [(ngModel)]="selectedLocationOptionForTrainingCalendar"
+                        (change)="locationChangedForTrainingCalendar($event)" [items]="locationOptions"
+                        [multiple]="false" [clearable]="false" placeholder="Choose locataion">
+                      </ng-select>
+                    </div>
+                  </div> -->
+                </div>
+
+                <div class="col-12">
+                  <mwl-calendar-month-view [viewDate]="trainingViewDate" [events]="currentTrainingEvents"
+                    (eventClicked)="onClickTraining($event.event)" [refresh]="refresh">
+                  </mwl-calendar-month-view>
+
+                  <ng-template #customCellTemplateForTraining let-eventClicked="onClickTraining" let-day="day"
+                    let-event="day.events[0]" let-locale="locale">
+                    <div class="cal-cell-top">
+                      <span class="cal-day-number">{{ day.date | calendarDate:'monthViewDayNumber':locale }}</span>
+                    </div>
+                    <div *ngIf="event" class="event" [ngStyle]="{ 'background-color': event.meta }">
+                      {{ event.title }}
+                    </div>
+                  </ng-template>
+                </div>
+
+                <div class="col-12">
+                  <div class="holiday-types-container mb-md text-center">
+                    <div class="holiday-type m-xs">
+                      <div class="holiday-color" [ngStyle]="{ 'backgroundColor': '#012e2d' }"></div>
+                      <div class="holiday-type"> - Confirmed and may available for nominate</div>
+                    </div>
+                    <div class="holiday-type m-xs">
+                      <div class="holiday-color" [ngStyle]="{ 'backgroundColor': '#e3bc08' }"></div>
+                      <div class="holiday-type"> - Yet to confirm</div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="showLoadingGif" class="mood-submitted-container elementToFadeInAndOut">
+      <img class="load-gif" width="95" height="95" src="assets/emoji/icons8-happy.gif"/>
+    </div>
+  </div>
+
+</div>
+
+<app-custom-modal #trainingCalendarModal [title]="'Training Details'" [subTitle]="''" [modalSize]="'lg'">
+  <div *ngIf="selectedTrainingEvent !== undefined">
+
+    <div class="trainingLegend warning" *ngIf="selectedTrainingEvent.isPastTraining">
+      <i class="fas fa-exclamation-circle mr-xs"></i>
+      Your viewing past training details.
+    </div>
+
+    <div class="trainingLegend info" *ngIf="selectedTrainingEvent.isAlreadyNominated">
+      <i class="fas fa-check-circle mr-xs"></i>
+      Brilliant. You already nominated !
+    </div>
+
+    <ul class="training-details">
+      <li>
+        <span> Training Title: </span>
+        <span>{{selectedTrainingEvent.trainingTitle}}</span>
+      </li>
+      <li>
+        <span> Trainer Name: </span>
+        <span>{{selectedTrainingEvent.trainerName}}</span>
+      </li>
+      <li>
+        <span> Training Category: </span>
+        <span>{{selectedTrainingEvent.trainingCategory}}</span>
+      </li>
+      <li>
+        <span> Training Incharge: </span>
+        <span>
+          <b *ngFor="let organizer of selectedTrainingEvent.selectedOrganizers">
+            {{organizer?.label}}
+          </b>
+        </span>
+      </li>
+      <li>
+        <span> Training Dates: </span>
+        <span>{{selectedTrainingEvent.selectedDate}}</span>
+      </li>
+      <li>
+        <span> Training Mode: </span>
+        <span>{{selectedTrainingEvent.trainingTypeSelection?.label}}</span>
+      </li>
+      <li>
+        <span> Training Code: </span>
+        <span> {{selectedTrainingEvent.trainingCode}}</span>
+      </li>
+      <li>
+        <span> Training Location: </span>
+        <span>{{selectedTrainingEvent.selectedLocation?.label}}</span>
+      </li>
+      <li>
+        <span> Training Time: </span>
+        <span>{{selectedTrainingEvent.timeOfDay}}</span>
+      </li>
+      <li>
+        <span> Training Outcome: </span>
+        <span> {{selectedTrainingEvent.description}}</span>
+      </li>
+
+      <li>
+        <span> Maximum Allowed: </span>
+        <span> {{selectedTrainingEvent.maxNominees}}</span>
+      </li>
+
+      <li>
+        <span> Nominated details: </span>
+        <span> {{selectedTrainingEvent.nominees.length}} peoples are nominated.</span>
+      </li>
+
+      <li>
+        <span> Grades: </span>
+        <span>
+          <b *ngFor="let grade of selectedTrainingEvent.selectedGrades">
+            {{grade?.label}}
+          </b>
+        </span>
+      </li>
+
+      <li>
+        <span></span>
+        <span></span>
+      </li>
+
+
+      <!-- <li>
+        <span> Office Location: </span>
+        <b *ngIf="selectedTrainingEvent.isOfficeLocation">Yes</b>
+        <b *ngIf="!selectedTrainingEvent.isOfficeLocation">No</b>
+      </li>
+      <li>
+        <span> Training Sub Category: </span> {{selectedTrainingEvent.trainingTypeSelection?.label}}
+      </li> -->
+
+
+    </ul>
+
+    <form #trainingNominationForm="ngForm" class="form row no-x-m" *ngIf="isEligibleForReporteesToNominate">
+
+      <div class="form-group col-12 mt-md">
+        <label class="form-title">Eligible reportees to nominate</label>
+        <ng-select #trainingNomineesSelectVar="ngModel" name="trainingNomineesSelectVar"
+          [(ngModel)]="selectedTrainingEvent.selectedReporteesForNominate" (change)="onChangeReporteeNomination()"
+          [items]="eligibleReporteesForNominate" [multiple]="true" [clearable]="true"
+          placeholder="Choose training nominees">
+        </ng-select>
+      </div>
+      <div class="col-12 form-group">
+        <button class="btn btn-primary" (click)="onRequestNominate(false)">Request Nominate</button>
+      </div>
+
+    </form>
+  </div>
+  <div footer-buttons class="footer-buttons" *ngIf="canSelfNominate">
+    <button class="btn btn-primary" (click)="onRequestNominate(true)">Self Nominate</button>
+  </div>
+</app-custom-modal>
+
+<app-custom-modal #moodTagsModal [title]="'How do you feel your day at work'" [subTitle]="'Add your feedbacks here'"
+  [modalSize]="'lg'">
+  <div>
+    <form #employeeMoodTagsForm="ngForm" class="no-x-m">
+      <div class="row">
+        <div class="col-lg-8 offset-lg-2">
+          <div class="row">
+            <div class="pointer col-lg-2" *ngFor="let m of moodNameList">
+              <img class="emoji" [tooltip]="m.mood" width="{{m.width}}" height="{{m.height}}" src="assets/emoji/{{m.source}}" (click)="getTags(m)" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row card pt-3" *ngIf="showTags">
+        <div class="col-lg-8 offset-lg-2">
+          <div class="d-inline-block mr-2" *ngFor="let t of tagsOptions; let i = index;">
+            <input #rowCheckbox="ngModel" name="canLogin-checkbox{{i}}" class="custom-checkbox primary"
+              id="tag-checkbox{{i}}" type="checkbox" [value]="false" [(ngModel)]="t.tagSelected">
+            <label class="form-check-label" for="tag-checkbox{{i}}">{{t.Tag}}</label>
+          </div>
+        </div>
+        <div class="col-lg-8 offset-lg-2 pt-2">
+          <div class="form-group">
+            <label class="form-title">Comments</label>
+            <label class="form-explanation">Enter the comments if any (optional).</label>
+            <textarea #commetnsVar="ngModel" class="form-control" name="commentsVar" [(ngModel)]="tagComments" rows="3"
+              type="text"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <div footer-buttons class="footer-buttons">
+
+    <button class="btn btn-primary" (click)="saveEmployeeMoodTags(employeeMoodTagsForm)">
+      <span>Save</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+  </div>
+
+</app-custom-modal>

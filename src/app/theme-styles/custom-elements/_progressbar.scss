@@ -1,0 +1,126 @@
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 16px 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+@keyframes progress-bar-forward-stripes {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 16px 0;
+  }
+}
+
+progressbar {
+  &.progress {
+    .progress-bar {
+      font-weight: 400;
+    }
+
+    &.progress-pill {
+      border-radius: 100px;
+    }
+
+    &.progress-xs {
+      height: 4px;
+
+      .progress-bar {
+        font-size: 0;
+        background-size: 4px 4px;
+
+        i {
+          display: none;
+        }
+      }
+    }
+
+    &.progress-sm {
+      height: 10px;
+
+      .progress-bar {
+        font-size: $font-size-xxs;
+        background-size: 10px 10px;
+      }
+    }
+
+    &.progress-md {
+      height: 15px;
+
+      .progress-bar {
+        font-size: $font-size-sm;
+        background-size: 15px 15px;
+      }
+    }
+
+    &.progress-lg {
+      height: 20px;
+
+      .progress-bar {
+        font-size: $font-size-md;
+        background-size: 20px 20px;
+      }
+    }
+
+    &.progress-xl {
+      height: 30px;
+
+      .progress-bar {
+        font-size: $font-size-md;
+        background-size: 30px 30px;
+      }
+    }
+
+    &.progress-from-right {
+      flex-direction: row-reverse;
+    }
+
+    &.progress-centered {
+      position: relative;
+
+      span {
+        position: absolute;
+        width: 100%;
+      }
+    }
+
+    &.progress-forward-stripes {
+      .progress-bar {
+        background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+        background-size: 1rem 1rem;
+
+        &.progress-bar-animated {
+          animation-name: progress-bar-forward-stripes;
+        }
+      }
+    }
+
+  }
+}
+
+@mixin progressbar-colors {
+
+  progressbar {
+    &.progress {
+
+      @each $c,
+      $value in $button-colors {
+        &.progress-#{$c} {
+          .progress-bar {
+            background-color: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+          }
+        }
+      }
+
+    }
+  }
+}
+
+@include progressbar-colors();

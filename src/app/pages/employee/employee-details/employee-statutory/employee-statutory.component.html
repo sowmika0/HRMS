@@ -1,0 +1,134 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Identity details.</h4>
+  <div class="text-sm text-grey">You cannot view the identity details for this employee.</div>
+</div>
+<div class="employee-section-container employee-personal-container p-sm" *ngIf="haveAccess">
+
+  <div *ngIf="employeeStatutory" class="row no-x-m">
+    <form #statutoryForm="ngForm" class="form row no-x-m">
+
+      <div class="col-lg-4">
+
+        <div class="form-group">
+          <label class="form-title required">Employee PAN Number</label>
+          <label class="form-explanation">AAAPL1234C</label>
+          <input #panVar="ngModel" class="form-control text-uppercase" name="panVar"
+            [(ngModel)]="employeeStatutory.panNumber" placeholder="Enter the PAN number" type="text" required
+            [pattern]="regex.panNumber" [disabled]="!canEdit" />
+          <app-custom-validation [model]="panVar" [required]="'Enter the PAN number for the employee.'"
+            [pattern]="'The PAN number doesnt seem proper. Please check again.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Employee PF Number</label>
+          <label class="form-explanation">Enter the PF account number of the employee.</label>
+          <input #pfNumVar="ngModel" class="form-control" name="pfNumVar" [(ngModel)]="employeeStatutory.pfNumber"
+            placeholder="Enter the PF number" type="text" [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Employee UAN Number</label>
+          <label class="form-explanation">Enter the UAN account number of the employee.</label>
+          <input #uanNumVar="ngModel" class="form-control" name="uanNumVar" [(ngModel)]="employeeStatutory.uanNumber"
+            placeholder="Enter the UAN number" type="text" [pattern]="regex.uan" [disabled]="!canEdit" />
+          <app-custom-validation [model]="uanNumVar"
+            [pattern]="'The UAN number entered is not proper. Please check again.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Employee AADHAR Number</label>
+          <label class="form-explanation">Enter the AADHAR account number of the employee.</label>
+          <input #aadharNumVar="ngModel" class="form-control" name="aadharNumVar" placeholder="Enter the AADHAR number"
+            [(ngModel)]="employeeStatutory.aadharNumber" type="text" required [pattern]="regex.aadhar"
+            [disabled]="!canEdit" />
+          <app-custom-validation [model]="aadharNumVar" [required]="'Enter the AADHAR account number for the employee.'"
+            [pattern]="'Enter AADHAR number properly'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Employee AADHAR Name</label>
+          <label class="form-explanation">Enter the name as per AADHAR records.</label>
+          <input #aadharNameVar="ngModel" class="form-control" name="aadharNameVar" placeholder="Enter the AADHAR name"
+            [(ngModel)]="employeeStatutory.aadharName" type="text" required [disabled]="!canEdit" />
+          <app-custom-validation [model]="aadharNameVar" [required]="'Enter the name as in AADHAR records.'">
+          </app-custom-validation>
+        </div>
+
+      </div>
+
+      <div class="col-lg-4">
+
+
+        <div class="form-group">
+          <label class="form-title">Driving License Number</label>
+          <label class="form-explanation">Enter the number on the Driving License that belongs to the employee.</label>
+          <input #dlNumVar="ngModel" class="form-control" name="dlNumVar" placeholder="Enter the Driving License number"
+            [(ngModel)]="employeeStatutory.drivingLicenseNumber" type="text" [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Driving License Validity</label>
+          <label class="form-explanation">Choose the valid upto date on the Driving License.</label>
+          <input #dlValidityVar="ngModel" [(ngModel)]="employeeStatutory.drivingLicenseValidity" name="dlValidityVar"
+            type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+            [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Passport Number</label>
+          <label class="form-explanation">Enter the passport number.</label>
+          <input #passportNumVar="ngModel" class="form-control" name="passportNumVar"
+            placeholder="Enter the Passport number" [(ngModel)]="employeeStatutory.passportNumber" type="text"
+            [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Passport Validity</label>
+          <label class="form-explanation">Choose the valid upto date on the Passport.</label>
+          <input #passportDateVar="ngModel" [(ngModel)]="employeeStatutory.passportValidity" name="passportDateVar"
+            type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+            [disabled]="!canEdit" />
+        </div>
+
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">ESI Number</label>
+          <label class="form-explanation">Enter the ESI number.</label>
+          <input #esiNumVar="ngModel" class="form-control" name="esiNumVar" [(ngModel)]="employeeStatutory.esiNumber"
+            placeholder="Enter the ESI number" type="text" [disabled]="!canEdit" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Gratuity - LIC ID</label>
+          <label class="form-explanation">Enter the Gratuity - LIC ID number.</label>
+          <input #licIdNumVar="ngModel" class="form-control" name="licIdNumVar" placeholder="Enter the LIC number"
+            [(ngModel)]="employeeStatutory.licIdNumber" type="text" [disabled]="!canEdit" />
+        </div>
+      </div>
+
+      <div class="col-lg-12 text-center mt-lg">
+        <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm"
+          [disabled]="statutoryForm.invalid || isProcessing" [ngClass]="isProcessing ? 'spinning' : ''"
+          (click)="verifyChanges()">
+          <span>Verify Changes</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+
+        <button class="btn btn-primary" (click)="updateStatutoryDetails()"
+          [disabled]="statutoryForm.invalid || isProcessing || !canEdit" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Update Employee Statutory Info</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

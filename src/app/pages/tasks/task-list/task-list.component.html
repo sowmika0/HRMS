@@ -1,0 +1,614 @@
+<div class="task-list-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Tasks</h3>
+        <div class="sub-title">Tasks list is displayed here. Tasks can be
+          searched or filtered using various filters available. Creating and updating tasks will also be done
+          from
+          this section.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline"
+          (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addTaskModal(taskForm)">
+          <span>Add Task</span>
+        </button>
+      </div>
+
+      <div class="tasks-list mt-md">
+        <table *ngIf="tasks.length > 0" datatable [dtOptions]="dtOptions" class="table table-borderless">
+          <thead>
+            <tr>
+              <th style="width: 3%"></th>
+              <th style="width: 30%">Task Content</th>
+              <th style="width: 10%">Status</th>
+              <th style="width: 10%">Priority</th>
+              <th style="width: 10%">Added On</th>
+              <th style="width: 10%">Due On</th>
+              <th style="width: 10%">Added By</th>
+              <th style="width: 10%">Assigned To</th>
+              <th style="width: 10%">Working Hours</th>
+              <th style="width: 10%">Completed in time</th>
+              <th style="width: 5%"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of tasks">
+              <td>
+                <div class="flex-centered pt-1">
+                  <div *ngIf="!item.isStarted" class="status-indicator status-indicator-xs status-indicator-danger">
+                  </div>
+                  <div *ngIf="item.isStarted && !item.isCompleted"
+                    class="status-indicator status-indicator-xs status-indicator-warning">
+                  </div>
+                  <div *ngIf="item.isCompleted && !item.isVerified"
+                    class="status-indicator status-indicator-xs status-indicator-secondary">
+                  </div>
+                  <div *ngIf="item.isVerified" class="status-indicator status-indicator-xs status-indicator-success">
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="task-content" [tooltip]="item.content">{{ item.content }}</div>
+              </td>
+              <td>
+                <div *ngIf="!item.isStarted" class="badge badge-danger badge-alternate">Not Started</div>
+                <div *ngIf="item.isStarted && !item.isCompleted" class="badge badge-warning badge-alternate">Started
+
+                </div>
+                <div *ngIf="item.isCompleted && !item.isVerified" class="badge badge-warning badge-alternate">
+                  Completed
+                </div>
+                <div *ngIf="item.isVerified" class="badge badge-success badge-alternate">Verified
+                </div>
+              </td>
+              <td>{{ item.priority }}</td>
+              <td>{{ item.addedOnText }}</td>
+              <td>{{ item.dueOnText }}</td>
+              <td>{{ item.addedBy }}</td>
+              <td>{{ item.isSelf ? 'Self' : item.assignedTo  }}</td>
+
+              <td></td>
+              <td>{{ item.isCompleted ? (item.completedInTime ? 'Yes' : 'No') : null }}</td>
+
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Task Actions</h6>
+
+                      <li>
+                        <a class="dropdown-item default" (click)="viewTaskDetails(item)">
+                          <span class="mr-sm"><i class="fas fa-info-circle"></i></span>
+                          <span>View Task Details</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a *ngIf="!item.isStarted && item.isSelf" class="dropdown-item dropdown-item-success"
+                          (click)="startTaskAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-play"></i></span>
+                          <span>Start Task</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a *ngIf="item.isStarted && !item.isCompleted && item.isSelf"
+                          class="dropdown-item dropdown-item-success" (click)="completeTaskAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Complete Task</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a *ngIf="item.isCompleted && !item.isVerified && item.isCreator"
+                          class="dropdown-item dropdown-item-success" (click)="verifyTaskAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-user-check"></i></span>
+                          <span>Verify Task</span>
+                        </a>
+                      </li>
+                      <li *ngIf="item.isCreator && !item.isStarted">
+                        <a class="dropdown-item dropdown-item-danger" (click)="deleteTaskAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-trash"></i></span>
+                          <span>Delete Task</span>
+                        </a>
+                      </li>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- <ng-container *ngFor="let date of dateWiseTask">
+        <tr>
+          <td colspan="8">
+            <div class="date-separator">
+              <div>{{ date.date }}</div>
+            </div>
+          </td>
+        </tr>
+
+        <tr *ngFor="let item of date.tasks;let i=index;">
+          <td>
+            <div class="flex-centered pt-xs">
+              <div *ngIf="!item.isStarted" class="status-indicator status-indicator-xs status-indicator-danger">
+              </div>
+              <div *ngIf="item.isStarted && !item.isCompleted"
+                class="status-indicator status-indicator-xs status-indicator-warning">
+              </div>
+              <div *ngIf="item.isCompleted && !item.isVerified"
+                class="status-indicator status-indicator-xs status-indicator-secondary">
+              </div>
+              <div *ngIf="item.isVerified" class="status-indicator status-indicator-xs status-indicator-success">
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="task-content" [tooltip]="item.content">{{ item.content }}</div>
+          </td>
+          <td>{{ item.assignedTo  }}</td>
+          <td>{{ item.addedBy }}</td>
+          <td>{{ item.addedOnText }}</td>
+
+          <td>
+            <div *ngIf="!item.isStarted" class="badge badge-danger badge-alternate">Not Started</div>
+            <div *ngIf="item.isStarted && !item.isCompleted" class="badge badge-warning badge-alternate">Started
+
+            </div>
+            <div *ngIf="item.isCompleted && !item.isVerified" class="badge badge-warning badge-alternate">
+              Completed
+            </div>
+            <div *ngIf="item.isVerified" class="badge badge-success badge-alternate">Verified
+            </div>
+          </td>
+
+          <td class="text-center">
+            <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+              <button type="button" dropdownToggle
+                class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-ellipsis-v"></i>
+              </button>
+              <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                <div>
+                  <h6 class="dropdown-header">Task Actions</h6>
+
+                  <li>
+                    <a class="dropdown-item default" (click)="viewTaskDetails(item)">
+                      <span class="mr-sm"><i class="fas fa-info-circle"></i></span>
+                      <span>View Task Details</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a *ngIf="!item.isStarted && item.isSelf" class="dropdown-item dropdown-item-success"
+                      (click)="startTaskAlert(item)">
+                      <span class="mr-sm"><i class="fas fa-play"></i></span>
+                      <span>Start Task</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a *ngIf="item.isStarted && !item.isCompleted && item.isSelf"
+                      class="dropdown-item dropdown-item-success" (click)="completeTaskAlert(item)">
+                      <span class="mr-sm"><i class="fas fa-check"></i></span>
+                      <span>Complete Task</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a *ngIf="item.isCompleted && !item.isVerified && item.isCreator"
+                      class="dropdown-item dropdown-item-success" (click)="verifyTaskAlert(item)">
+                      <span class="mr-sm"><i class="fas fa-user-check"></i></span>
+                      <span>Verify Task</span>
+                    </a>
+                  </li>
+                  <li *ngIf="item.isCreator && !item.isStarted">
+                    <a class="dropdown-item dropdown-item-danger" (click)="deleteTaskAlert(item)">
+                      <span class="mr-sm"><i class="fas fa-trash"></i></span>
+                      <span>Delete Task</span>
+                    </a>
+                  </li>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-container> -->
+
+
+      <div *ngIf="tasks.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+        <div *ngIf="isFilterSet">
+          <h4>No tasks matches the filter conditions set.</h4>
+          <div class="text-sm text-grey">Click the button below to change the filter.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="showFilters()">Filter</button>
+          </div>
+        </div>
+        <div *ngIf="!isFilterSet">
+          <h4>No tasks were added by you or by your reporting manager for you yet.</h4>
+          <div class="text-sm text-grey">Click the button below to add a new task for yourself.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="addTaskModal(taskForm)">New
+              Task</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <app-custom-modal #taskModal [title]="!isUpdating ? 'Add New Task' : 'Update Task'"
+      [modalSize]="isUpdating ? 'xl' : 'lg' "
+      [subTitle]="'Enter the details of the task to be added. Once added you can update more details in the task details page.'">
+      <div class="task-info-modal">
+        <form #taskForm="ngForm" class="form show-character-count">
+          <div class="row">
+            <div [ngClass]="!isUpdating ? 'col-12 row no-x-m' : 'col-4'">
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title required">Task Content</label>
+                <label class="form-explanation">Enter the content of the task.</label>
+                <textarea #taskContentVar="ngModel" class="form-control" name="taskContent" rows="5"
+                  [(ngModel)]="newTask.taskContent" type="text" required
+                  [disabled]="isUpdating && !isTaskCreator || newTask.isStarted"></textarea>
+                <app-custom-validation [model]="taskContentVar" [required]="'Enter the content for the task.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title "> Status</label>
+                <label class="form-explanation">Progress of the task can be seen here</label>
+                <div>
+                  <div *ngIf="!newTask.isStarted">
+                    <b class="badge badge-danger badge-alternate">Not Started</b>
+                  </div>
+                  <div *ngIf="newTask.isStarted">
+                    <b class="badge badge-warning badge-alternate">
+                      Started
+                    </b>
+                    <span class="text-sm"> on {{ newTask.startedOn }}</span>
+                  </div>
+                  <div *ngIf="newTask.isCompleted">
+                    <b class="badge badge-secondary badge-alternate">
+                      Completed
+                    </b>
+                    <span class="text-sm"> on {{ newTask.completedOn }}</span>
+                  </div>
+                  <div *ngIf="newTask.isVerified">
+                    <b class="badge badge-success badge-alternate">Verified</b>
+                    <span class="text-sm"> on {{ newTask.verifiedOn }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-12' : ''">
+                <label class="form-title required">Task Due Date and Time</label>
+                <label class="form-explanation">Choose the due date and time for the task.</label>
+
+                <div class="col-12 row no-x-m p-0">
+                  <input #taskDueDateVar="ngModel" [(ngModel)]="newTask.dueDate" name="dueDate" type="text"
+                    placeholder="Select a date" class="form-control date-picker" [ngClass]="!isUpdating ? 'mt-0' : ''"
+                    bsDatepicker [bsConfig]="datePickerOptions"
+                    [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted">
+
+                  <timepicker #dueTime="ngModel" [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted"
+                    [(ngModel)]="newTask.dueTime" name="dueTime" [showMeridian]="true" class="timepicker"
+                    [ngClass]="!isUpdating ? 'col-6' : 'mt-auto'">
+                  </timepicker>
+
+                </div>
+                <app-custom-validation [model]="taskDueDateVar" [required]="'Choose the task due date.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title required">Priority</label>
+                <label class="form-explanation">Choose the priority of the task.</label>
+                <ng-select #priorityVar="ngModel" name="priorityVar" [(ngModel)]="newTask.taskPrioritySelection"
+                  (change)="newTask.taskPriority = $event.value" [items]="taskPriorityOptions"
+                  placeholder="Choose priority" [multiple]="false" [clearable]="false"
+                  [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted">
+                </ng-select>
+                <app-custom-validation [model]="assignedToVar" [required]="'Choose a priority for the task.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title">Assigned To</label>
+                <label class="form-explanation">Choose the role to be assigned to the task.</label>
+                <ng-select #assignedToVar="ngModel" name="assignedToVar" [(ngModel)]="newTask.assignedToSelection"
+                  (change)="newTask.assignedTo = $event.employeeId" [items]="reportingToOptions"
+                  placeholder="Choose employee" [multiple]="false" [clearable]="false" class="reporting-top-select"
+                  [searchFn]="reportingSearchFunction" required
+                  [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.employeeName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                    <div class="reporting-to-dropdown-item">
+                      <div class="employee-name">{{ item.employeeName }}</div>
+                      <div class="employee-code">{{ item.employeeCode }}</div>
+                    </div>
+
+                  </ng-template>
+                </ng-select>
+                <app-custom-validation [model]="assignedToVar" [required]="'Choose a assigned to for the task.'">
+                </app-custom-validation>
+              </div>
+
+            </div>
+
+            <div *ngIf="isUpdating" class="col-8">
+              <div class="form-group">
+                <label class="form-title">Comments.</label>
+                <label class="form-explanation ">Add your comments below </label>
+              </div>
+
+              <form #commentForm="ngForm" class="row">
+                <div class="form-group col-lg-10">
+                  <textarea #newCommentVar="ngModel" class="form-control" name="newCommentVar"
+                    [(ngModel)]="newTask.newComment" type="text" rows="4" required
+                    [disabled]="isUpdating && !newTask.isSelf && !isTaskCreator"></textarea>
+                  <app-custom-validation [model]="newCommentVar" [required]="'Enter the comment.'">
+                  </app-custom-validation>
+                </div>
+                <div class="form-group col-lg-2">
+                  <button class="btn btn-primary btn-sm btn-block" [disabled]="!commentForm.valid || isCommentProcessing 
+                    || (isUpdating && !newTask.isSelf && !isTaskCreator)" (click)="addNewComment(commentForm)"
+                    [ngClass]="isCommentProcessing ? 'spinning' : ''">
+                    <span>Add</span>
+                    <i class="fas fa-spinner spinner"></i>
+                  </button>
+                </div>
+              </form>
+
+              <div class="row mt-sm no-x-m">
+
+                <div *ngIf="commentsList.length > 0" class="task-comment-table col-12">
+                  <table class="table table-hover" datatable [dtOptions]="dtOptions">
+                    <thead>
+                      <tr>
+                        <td style="width: 60%;">Comment</td>
+                        <td>Added By</td>
+                        <td>Action</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let eachComment of commentsList">
+                        <td>
+                          <div class="comment-text text-sm">
+                            <span>{{ eachComment.comment }}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="comment-date text-xs">
+                            <span class="text-primary"><b>{{ eachComment.addedBy }} </b></span>
+                            <span> on </span>
+                            <span class="text-primary"><b>{{ eachComment.addedOnText }}</b></span>
+                          </div>
+                        </td>
+                        <td>
+                          <button *ngIf="eachComment.isCreator" class="btn btn-outline btn-danger btn-sm"
+                            [tooltip]="'Delete the comment.'" [disabled]="isUpdating"
+                            (click)="deleteAddedComment(newTask.taskId, eachComment.commentId, eachComment.isCreator)">
+                            <i class="fa fa-trash"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <!-- <div *ngFor="let eachComment of commentsList" class="comment p-0 mt-sm row col-12 b-b no-x-m">
+                  <div class="comment-info col-10">
+
+                    <div class="comment-text text-sm">
+                      <strong>{{ eachComment.comment }}</strong>
+                    </div>
+
+                    <div class="comment-date text-xs mt-xs pb-xs">
+                      <span>Added by </span>
+                      <span class="text-primary"><b>{{ eachComment.addedBy }} </b></span>
+                      <span> on </span>
+                      <span class="text-primary"><b>{{ eachComment.addedOnText }}</b></span>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-2 comment-delete-button">
+                    <button *ngIf="eachComment.isCreator" class="btn btn-outline btn-danger btn-sm"
+                      [tooltip]="'Delete the comment.'" [disabled]="isUpdating"
+                      (click)="deleteAddedComment(newTask.taskId, eachComment.commentId, eachComment.isCreator)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+                </div> -->
+
+                <div *ngIf="commentsList != null && commentsList.length === 0"
+                  class="empty-state p-md text-center m-auto">
+                  <div class="empty-icon">
+                    <i class="fas fa-comments"></i>
+                  </div>
+                  <h4>No comments added yet.</h4>
+                  <div class="text-sm text-grey"> Add a comment by entering the comment above.</div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+        <ng-container *ngIf="isUpdating">
+          <button type="submit" class="btn btn-success mr-sm" *ngIf="!newTask.isStarted && newTask.isSelf"
+            (click)="startTaskAlert(newTask)">
+            Start Task
+          </button>
+          <button type="submit" *ngIf="newTask.isStarted && !newTask.isCompleted && newTask.isSelf"
+            (click)="undoStartTaskAlert(newTask, commentForm)" class="btn btn-danger mr-sm">
+            <span>Undo Start</span>
+          </button>
+          <button *ngIf="newTask.isStarted && !newTask.isCompleted && newTask.isSelf"
+            (click)="completeTaskAlert(newTask)" class="btn btn-success mr-sm">
+            <span>Complete Task</span>
+          </button>
+          <button *ngIf="newTask.isCompleted && !newTask.isVerified && newTask.isSelf" class="btn btn-danger mr-sm"
+            (click)="undoCompleteTaskAlert(newTask, commentForm)">
+            <span>Undo Complete</span>
+          </button>
+          <button *ngIf="newTask.isCompleted && !newTask.isVerified && newTask.isCreator" class="btn btn-success mr-sm"
+            (click)="verifyTaskAlert(newTask)">
+            <span>Verify Task</span>
+          </button>
+          <button *ngIf="newTask.isVerified && newTask.isCreator" class="btn btn-danger mr-sm"
+            (click)="undoVerifyTaskAlert(newTask, commentForm)">
+            <span>Undo Verify</span>
+          </button>
+          <button *ngIf="!newTask.isStarted && newTask.isCreator" class="btn btn-danger mr-sm"
+            (click)="deleteTaskAlert(newTask)">
+            <span>Delete Task</span>
+          </button>
+        </ng-container>
+        <button type="submit" class="btn btn-primary" [disabled]="isProcessing"
+          [ngClass]="[isProcessing ? 'spinning' : '', !taskForm.valid ? 'disabled' : '']"
+          [disabled]="(isUpdating && !isTaskCreator) || isProcessing || taskForm.invalid"
+          (click)="addNewTask(taskForm)">
+          <span *ngIf="!isUpdating">Add New task</span>
+          <span *ngIf="isUpdating">Update task</span>
+
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+    <app-custom-modal #filterModal [title]="'Filter Tasks'"
+      [subTitle]="'Choose various filters to refine the tasks search.'" [modalSize]="'xl'">
+      <div class="filter-announcement">
+
+        <form #filtersForm="ngForm" class="row no-x-m">
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Content</label>
+            <label class="form-explanation">Enter the task title to search.</label>
+            <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="taskFilter.title"
+              type="text" />
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Due Date Range</label>
+            <label class="form-explanation">Choose the date range to search the task due date.</label>
+            <input #dateRangeVar="ngModel" [(ngModel)]="taskFilter.dateRangeSelection" name="dateRangeVar" type="text"
+              placeholder="Select a date range" (bsValueChange)="onFilterDateChosen($event)" class="form-control"
+              bsDaterangepicker [bsConfig]="datePickerOptions">
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Created By</label>
+            <label class="form-explanation">Choose the employee to search for task created by.</label>
+            <ng-select #createdByVar="ngModel" name="createdByVar" [(ngModel)]="taskFilter.assignedBySelection"
+              (change)="taskFilter.assignedBy = selectMultipleEmployee($event)" [items]="createdByFilterOptions"
+              placeholder="Choose employee" [multiple]="true" [clearable]="true" class="reporting-top-select"
+              [searchFn]="reportingSearchFunction">
+
+              <ng-template ng-label-tmp let-item="item">
+                {{ item.employeeName }}
+              </ng-template>
+
+              <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                <div class="reporting-to-dropdown-item">
+                  <div class="employee-name">{{ item.employeeName }}</div>
+                  <div class="employee-code">{{ item.employeeCode }}</div>
+                </div>
+
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Assigned To</label>
+            <label class="form-explanation">Choose the employee to search for task is assigned to.</label>
+            <ng-select #assignedToVar="ngModel" name="assignedToVar" [(ngModel)]="taskFilter.assignedToSelection"
+              (change)="taskFilter.assignedTo = selectMultipleEmployee($event)" [items]="assignedToFilterOptions"
+              placeholder="Choose employee" [multiple]="true" [clearable]="true" class="reporting-top-select"
+              [searchFn]="reportingSearchFunction">
+
+              <ng-template ng-label-tmp let-item="item">
+                {{ item.employeeName }}
+              </ng-template>
+
+              <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                <div class="reporting-to-dropdown-item">
+                  <div class="employee-name">{{ item.employeeName }}</div>
+                  <div class="employee-code">{{ item.employeeCode }}</div>
+                </div>
+
+              </ng-template>
+            </ng-select>
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Started?</label>
+            <label class="form-explanation">Do you want to filter tasks that are started?.</label>
+            <ng-select #startedVar="ngModel" name="startedVar" [(ngModel)]="taskFilter.startedSelection"
+              (change)="taskFilter.started = selectMultiple($event)" [items]="startedOptions" [multiple]="true"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Completed?</label>
+            <label class="form-explanation">Do you want to filter tasks that are completed?.</label>
+            <ng-select #completedVar="ngModel" name="completedVar" [(ngModel)]="taskFilter.completedSelection"
+              (change)="taskFilter.completed = selectMultiple($event)" [items]="completedOptions" [multiple]="true"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+          <div class="form-group col-4">
+            <label class="form-title">Task Verified?</label>
+            <label class="form-explanation">Do you want to filter tasks that are verified?.</label>
+            <ng-select #verifiedVar="ngModel" name="verifiedVar" [(ngModel)]="taskFilter.verifiedSelection"
+              (change)="taskFilter.verified = selectMultiple($event)" [items]="verifiedOptions" [multiple]="true"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+          (click)="applyFilter()">
+          <span>Apply Filter</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+  </div>
+</div>

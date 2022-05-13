@@ -1,0 +1,163 @@
+<div class="appraisal-container">
+  <div class="table-print-wrapper">
+    <div class="printed-date">
+      Printed on : {{printedDate}}
+    </div>
+    <table class="table-fix-width table-print" id="employeeFeedPrint">
+      <tr>
+        <td>Ec No.</td>
+        <td>{{hodFeedbackFormDetail.employeeCode}}</td>
+        <td>Employee Name</td>
+        <td>{{hodFeedbackFormDetail.employeeName}}</td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Desired / Undesired Attention
+          <div class="long-data">
+            {{hodFeedbackFormDetail.desiredUnDesiredDetails}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Employee Intention to Leave KAI
+          <div class="long-data">
+            {{hodFeedbackFormDetail.intentionToLeaveKai}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Attempts to Retain Employee
+          <div class="long-data">
+            {{hodFeedbackFormDetail.attemptsToRetainEmployee}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Employee eligible to rehire
+          <div class="long-data">
+            {{hodFeedbackFormDetail.eligibleToRehire}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Name of the assessor
+          <div class="long-data">
+
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="row no-x-m table-print-view">
+    <div class="print-button-wrap col-lg-12">
+      <button class="dt-button buttons-print btn btn-primary btn-md" (click)="printPage()" tabindex="0" type="button">
+        <span><i class="fa fa-print"></i> Print</span>
+      </button>
+    </div>
+    <form #hodFeedbackForms="ngForm" class="form row no-x-m" style="width: 100%;">
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Employee Name</label>
+          <label class="form-explanation">Enter the employee name.</label>
+          <input #empNameVar="ngModel" [(ngModel)]="hodFeedbackFormDetail.employeeName" name="employeeName" type="text"
+            class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">EC No</label>
+          <label class="form-explanation">Enter EC no for the employee.</label>
+          <input #empECNoVar="ngModel" [(ngModel)]="hodFeedbackFormDetail.employeeCode" name="employeeCode" type="text"
+            class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4"></div>
+      <div class="col-lg-8">
+        <div class="form-group">
+          <label class="form-title required">Desired/ Undesired Attrition</label>
+          <label class="form-explanation">Is this Desired / Undesired Attrition</label>
+
+          <div class="row no-x-m">
+            <div class="col-6">
+              <input name="radio-attrition" class="custom-radio primary" id="undesired-attrition" type="radio"
+                [disabled]="!canEdit" [value]="false" [(ngModel)]="hodFeedbackFormDetail.isDesiredAttrition">
+              <label for="undesired-attrition">
+                <span class="text">Undesired</span>
+              </label>
+              <label class="form-title">Other Reasons</label>
+            </div>
+            <div class="col-6">
+              <input name="radio-attrition" class="custom-radio primary" id="desired-attrition" type="radio"
+                [disabled]="!canEdit" [value]="true" [(ngModel)]="hodFeedbackFormDetail.isDesiredAttrition">
+              <label for="desired-attrition">
+                <span class="text">Desired</span>
+              </label>
+              <label class="form-title">Interdisciplinary/ Management Decision/ Integrity Issues/ Non-performance - IPP
+                Completed</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="hodFeedbackFormDetail.isDesiredAttrition === false" class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Employee Intention to Leave KAI</label>
+          <label class="form-explanation">When did the employee indicate his intention to leave KAI?</label>
+          <textarea #whenIntendedToLeaveKAIVar="ngModel" class="form-control" name="whenIntendedToLeaveKAIVar" rows="5"
+            [disabled]="!canEdit" type="text" required [(ngModel)]="hodFeedbackFormDetail.intentionToLeaveKai"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="whenIntendedToLeaveKAIVar"
+            [required]="'Enter when did the employee indicate his intention to leave KAI.'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div *ngIf="hodFeedbackFormDetail.isDesiredAttrition === false" class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Attempts to retain Employee</label>
+          <label class="form-explanation">What attempts were made to retain employee?</label>
+          <textarea #attemptsToRetainEmpVar="ngModel" class="form-control" name="attemptsToRetainEmpVar" rows="5"
+            [disabled]="!canEdit" type="text" required [(ngModel)]="hodFeedbackFormDetail.attemptsToRetainEmployee"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="attemptsToRetainEmpVar"
+            [required]="'Enter what attempts were made to retain employee.'" [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div *ngIf="hodFeedbackFormDetail.isDesiredAttrition === false" class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Employee Eligibile to Rehire</label>
+          <label class="form-explanation">Is the employee eligible for rehire?</label>
+          <textarea #empEligibileToRehireVar="ngModel" class="form-control" name="empEligibileToRehireVar" rows="5"
+            [disabled]="!canEdit" type="text" required [(ngModel)]="hodFeedbackFormDetail.eligibleToRehire"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="empEligibileToRehireVar"
+            [required]="'Enter is the employee eligible for rehire'" [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12" *ngIf="hodFeedbackFormDetail.isDesiredAttrition === true">
+        <div class="form-group">
+          <label class="form-title required">Desired Comments</label>
+          <label class="form-explanation">Manager comments about Employee</label>
+          <textarea #commentsVar="ngModel" class="form-control" name="commentsVar" rows="5" [disabled]="!canEdit"
+            type="text" required [(ngModel)]="hodFeedbackFormDetail.comments"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="commentsVar" [required]="'Enter comments'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="text-center col-lg-12 mt-lg">
+        <button class="btn btn-primary" [disabled]="isProcessing || !hodFeedbackForms.valid || !canEdit"
+          (click)="saveHODFeedbackFormAlert(hodFeedbackForms)" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Submit</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

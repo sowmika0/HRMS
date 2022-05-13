@@ -1,0 +1,381 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Compensation details.</h4>
+  <div class="text-sm text-grey">You cannot view the compensation details for this employee.</div>
+</div>
+<div class="employee-container employee-compensation-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="isAllowed">
+    <div *ngIf="activeCompensations.length !== 0 && canEdit" class="text-right">
+      <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(compensationForm)">New Compensation
+        Member</button>
+    </div>
+
+    <div *ngIf="activeCompensations.length === 0" class="empty-state p-md text-center">
+      <div class="empty-icon">
+        <i [ngClass]="icon"></i>
+      </div>
+      <h4>No compensations added yet.</h4>
+      <div class="text-sm text-grey">Click the button below to add new compensation.</div>
+      <div *ngIf="canEdit" class="text-center mt-md">
+        <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(compensationForm)">New
+          Compensation</button>
+      </div>
+    </div>
+
+    <div *ngIf="activeCompensations.length > 0" class="added-compensation-container mt-md">
+      <table class="table table-responsive table-striped">
+        <thead>
+          <tr>
+            <th style="width: 10%;">Year</th>
+            <th style="width: 10%;">Basic</th>
+            <th style="width: 10%;">HRA</th>
+            <th style="width: 10%;">LTA</th>
+            <th style="width: 10%;">Gratuity</th>
+            <th style="width: 10%;">ESI</th>
+            <th style="width: 10%;">PF</th>
+            <th style="width: 10%;">CTC</th>
+            <th style="width: 10%;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of activeCompensations">
+            <td>
+              <span>{{ item.year }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualBasic }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualHra }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualLta }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualGratuity }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualEsi }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualPf }}</span>
+            </td>
+            <td>
+              <span>{{ item.annualCtc }}</span>
+            </td>
+            <td>
+              <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit Compensation information'"
+                (click)="edit(item)">
+                <i class="fas fa-pen"></i>
+              </button>
+
+              <button class="btn btn-danger btn-xs" [disabled]="!canEdit" [tooltip]="'Delete this Compensation.'"
+                (click)="deleteAlert(item)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-lg pt-lg b-t">
+      <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+        [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+        <span>Verify Changes</span>
+        <i class="fas fa-spinner spinner"></i>
+      </button>
+
+      <!-- <button class="btn btn-primary" (click)="updateEmployeeCompensations()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Compensation Information</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+    </div>
+
+    <app-custom-modal #compensationModal [title]="isUpdating ? 'Update Compensation Details' : 'Add New Compensation'"
+      [subTitle]="'Enter the details for the Compensation to add or update the information.'" [modalSize]="'md'">
+      <div *ngIf="compensation" class="new-compensation">
+        <form #compensationForm="ngForm" class="form show-character-count">
+
+          <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm col-12">
+            The compensation for the year is already added.
+          </div>
+
+          <div class="compensation-table-container">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th style="width: 30%;"></th>
+                  <th style="width: 30%;">Yearly</th>
+                  <th style="width: 30%;">Monthly</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Year</td>
+                  <td>
+                    <input #annYearVar="ngModel" class="form-control" name="annYearVar" [(ngModel)]="compensation.year"
+                      type="number" min="1900" required placeholder="10000" [disabled]="!canEdit" />
+                  </td>
+                  <td>
+
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual Basic</td>
+                  <td><input #annBasicVar="ngModel" class="form-control" name="annBasicVar"
+                      [(ngModel)]="compensation.annualBasic" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" /></td>
+                  <td>
+                    <span>{{ compensation.annualBasic / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual HRA</td>
+                  <td>
+                    <input #annHraVar="ngModel" class="form-control" name="annHraVar"
+                      [(ngModel)]="compensation.annualHra" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualHra / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual Conveyance Allowance</td>
+                  <td>
+                    <input #annConvVar="ngModel" class="form-control" name="annConvVar"
+                      [(ngModel)]="compensation.annualConvAllow" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualConvAllow / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual Special Allowance</td>
+                  <td>
+                    <input #annSpecialVar="ngModel" class="form-control" name="annSpecialVar"
+                      [(ngModel)]="compensation.annualSplAllow" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualSplAllow / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual LTA</td>
+                  <td>
+                    <input #annLtaVar="ngModel" class="form-control" name="annLtaVar"
+                      [(ngModel)]="compensation.annualLta" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualLta / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual Washing</td>
+                  <td>
+                    <input #annWashingVar="ngModel" class="form-control" name="annWashingVar"
+                      [(ngModel)]="compensation.annualWashing" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualWashing / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Annual Child Education</td>
+                  <td>
+                    <input #annChildEducationVar="ngModel" class="form-control" name="annChildEducationVar"
+                      [(ngModel)]="compensation.annualChildEdu" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualChildEdu / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Statutory Bonus</td>
+                  <td>
+                    <input #annStatBonusVar="ngModel" class="form-control" name="annStatBonusVar"
+                      [(ngModel)]="compensation.statutoryBonus" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.statutoryBonus / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gross Salary</td>
+                  <td>
+                    <input #annGrossSalaryVar="ngModel" class="form-control" name="annGrossSalaryVar"
+                      [(ngModel)]="compensation.annualGross" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualGross / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Variable Bonus</td>
+                  <td>
+                    <input #annVariableBonusVar="ngModel" class="form-control" name="annVariableBonusVar"
+                      [(ngModel)]="compensation.annualVarBonus" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualVarBonus / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Variable Bonus Paid 1</td>
+                  <td>
+                    <input #annVariableBonusPaid1Var="ngModel" class="form-control" name="annVariableBonusPaid1Var"
+                      [(ngModel)]="compensation.annualVarBonusPaid1" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualVarBonusPaid1 / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Variable Bonus Paid 2</td>
+                  <td>
+                    <input #annVariableBonusPaid2Var="ngModel" class="form-control" name="annVariableBonusPaid2Var"
+                      [(ngModel)]="compensation.annualVarBonusPaid2" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualVarBonusPaid2 / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Accident Insurance</td>
+                  <td>
+                    <input #annAccidentInsuranceVar="ngModel" class="form-control" name="annAccidentInsuranceVar"
+                      [(ngModel)]="compensation.annualAccidIns" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualAccidIns / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Health Insurance</td>
+                  <td>
+                    <input #annHealthInsuranceVar="ngModel" class="form-control" name="annHealthInsuranceVar"
+                      [(ngModel)]="compensation.annualHealthIns" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualHealthIns / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gratuity</td>
+                  <td>
+                    <input #annGratuityVar="ngModel" class="form-control" name="annGratuityVar"
+                      [(ngModel)]="compensation.annualGratuity" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualGratuity / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>PF</td>
+                  <td>
+                    <input #annPFVar="ngModel" class="form-control" name="annPFVar" [(ngModel)]="compensation.annualPf"
+                      type="number" min="0" required placeholder="10000" [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualPf / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>ESI</td>
+                  <td>
+                    <input #annEsiVar="ngModel" class="form-control" name="annEsiVar"
+                      [(ngModel)]="compensation.annualEsi" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualEsi / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Other Benefits</td>
+                  <td>
+                    <input #annOtherBenefitsVar="ngModel" class="form-control" name="annOtherBenefitsVar"
+                      [(ngModel)]="compensation.otherBenefits" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.otherBenefits / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Cost to Company</td>
+                  <td>
+                    <input #annCtcVar="ngModel" class="form-control" name="annCtcVar"
+                      [(ngModel)]="compensation.annualCtc" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.annualCtc / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Vendor Charges</td>
+                  <td>
+                    <input #annVenCharVar="ngModel" class="form-control" name="annVenCharVar"
+                      [(ngModel)]="compensation.vendorCharges" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.vendorCharges / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+                <tr *ngIf="!isOnRoll">
+                  <td>Offroll CTC</td>
+                  <td>
+                    <input #annOffrollCtcVar="ngModel" class="form-control" name="annOffrollCtcVar"
+                      [(ngModel)]="compensation.offrollCtc" type="number" min="0" required placeholder="10000"
+                      [disabled]="!canEdit" />
+                  </td>
+                  <td>
+                    <span>{{ compensation.offrollCtc / 12 | number : '1.0-0' }}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </form>
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+        <button class="btn btn-primary"
+          [disabled]="!compensationForm || (compensationForm && compensationForm.invalid) || !canEdit"
+          (click)="addOrUpdate()">
+          <span>{{ isUpdating ? 'Update Compensation' : 'Add Compensation' }}</span>
+        </button>
+      </div>
+
+    </app-custom-modal>
+  </div>
+  <div *ngIf="!isAllowed" class="">
+    <div class="empty-state p-md text-center">
+      <div class="empty-icon">
+        <i [ngClass]="icon"></i>
+      </div>
+      <h4>Cannot view the compensation.</h4>
+      <div class="text-sm text-grey">You cannot view the compensation for this employee.</div>
+    </div>
+  </div>
+</div>

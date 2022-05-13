@@ -1,0 +1,26 @@
+.footer {
+  padding: 0 20px;
+  height: 60px;
+  border-top: 1px solid $very-light-grey;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $white;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  font-weight: 400;
+
+  .footer-desc {
+    flex: 1;
+  }
+
+  .footer-links {
+    span {
+      margin: 0 15px;
+    }
+  }
+
+  &.scrollspy-active {
+    margin-right: 250px;
+  }
+}

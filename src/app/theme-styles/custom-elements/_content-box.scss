@@ -1,0 +1,48 @@
+.content-box {
+  animation-name: fadeUp;
+  animation-duration: 0.5s;
+
+  .box-header {
+    margin-bottom: $spacing-md;
+    display: flex;
+
+    .header-content {
+      flex: 0 0 60%;
+      position: relative;
+
+      .title {
+        font-size: $font-size-xl;
+        font-weight: 400;
+        width: 80%;
+      }
+
+      .sub-title {
+        font-size: $font-size-sm;
+        display: none;
+        width: 80%;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex: 1;
+    }
+  }
+
+  .box-content {
+    background: $white;
+    border-radius: 5px;
+    box-shadow: 0px 5px 9px 0px rgba(230, 230, 230, 1);
+    padding: $spacing-sm;
+  }
+
+  &.full-height {
+    height: 100%;
+
+    .box-content {
+      height: 100%;
+    }
+  }
+}

@@ -1,0 +1,130 @@
+<div class="settings-container settings-holidays-container p-sm">
+  <div *ngIf="activeHolidays.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(holidayForm)">New Holiday</button>
+  </div>
+
+  <div *ngIf="activeHolidays.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No holidays added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new holiday.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(holidayForm)">New Holiday</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeHolidays.length > 0" class="added-holiday-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger"  class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Date</th>
+          <th style="width: 20%;">Reason</th>
+          <th style="width: 20%;">Type</th>
+          <th style="width: 25%;">Location</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeHolidays">
+          <td>
+            <span>{{ item.dateText }}</span>
+          </td>
+          <td>
+            <span>{{ item.reason }}</span>
+          </td>
+          <td>
+            <span>{{ item.typeSelection?.label }}</span>
+          </td>
+          <td>
+            <span *ngFor="let loc of item.selectedLocations">
+              <span class="mr-xs badge badge-primary badge-outline">{{ loc.label }}</span>
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit holiday information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <div class="d-inline-block"
+              [tooltip]="item.canDelete ? 'Delete this holiday.' : 'Completed holidays cannot be deleted.'">
+              <button class="btn btn-danger btn-xs" [disabled]="!item.canDelete" (click)="deleteAlert(item)">
+                <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Holidays</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #holidayModal [title]="isUpdating ? 'Update Holiday Details' : 'Add New Holiday'"
+    [subTitle]="'Enter the details for the holiday to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isHolidayAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The date you are trying to add as holiday is already present. Try another date.
+      </div>
+      <div *ngIf="isHolidayLocationAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The date and one or more of the locations you are trying to add is already present.
+      </div>
+      <form #holidayForm="ngForm" class="form show-character-count">
+
+        <div class="form-group">
+          <label class="form-title required">Holiday Date</label>
+          <label class="form-explanation">Choose the date for the holiday.</label>
+          <input #holidayDateVar="ngModel" [(ngModel)]="holiday.date" name="holiday" type="text"
+            placeholder="Select a date" (keypress)="false" class="form-control" bsDatepicker
+            [bsConfig]="datePickerOptions" required (bsValueChange)="datePicked($event)">
+          <app-custom-validation [model]="holidayDateVar" [required]="'Choose the date for the holiday.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Location</label>
+          <label class="form-explanation">Select the locations to which this holiday is allowed to. You can select
+            multiple locations.</label>
+          <ng-select #locationVar="ngModel" name="selectedLocations" [(ngModel)]="holiday.selectedLocations"
+            (change)="onLocationChange($event)" [items]="locationOptions" [multiple]="true" [clearable]="true">
+          </ng-select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Type</label>
+          <label class="form-explanation">Select the holiday type from the list.</label>
+          <ng-select #typeVar="ngModel" name="typeVar" [(ngModel)]="holiday.typeSelection"
+            (change)="holiday.type = $event.value" [items]="holidayTypes" [multiple]="false" [clearable]="false"
+            required>
+          </ng-select>
+          <app-custom-validation [model]="typeVar" [required]="'Choose the type of the holiday.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Reason</label>
+          <label class="form-explanation">Enter the reason for the holiday that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description" [(ngModel)]="holiday.reason"
+            rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ isUpdating ? 'Update Holiday' : 'Add Holiday' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

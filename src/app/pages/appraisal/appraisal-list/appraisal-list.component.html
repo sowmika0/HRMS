@@ -1,0 +1,411 @@
+<div class="appraisal-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Appraisals</h3>
+        <div class="sub-title">All the appraisals windows created will be shown here. To create a new appraisal window
+          click the new appraisal button.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button class="btn btn-secondary btn-md mr-sm" [routerLink]="'/appraisals/questions'">
+          <span>Manage Questions</span>
+        </button>
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline"
+          (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addAppraisalModal(appraisalForm)">
+          <span>Add Appraisal</span>
+        </button>
+      </div>
+
+      <div *ngIf="appraisals.length > 0" class="appraisals-list mt-md">
+        <table class="table table-striped" datatable [dtOptions]="dtOptions">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Year</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Grades</th>
+              <th>Is Live</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of appraisals">
+              <td>
+                <div>{{ item.title }}</div>
+              </td>
+              <td>
+                <div>{{ item.year }}</div>
+              </td>
+              <td>
+                <div>{{ item.startDateText |  date: 'dd MMMM yyyy' }}</div>
+              </td>
+              <td>
+                <div>{{ item.endDateText | date: 'dd MMMM yyyy' }}</div>
+              </td>
+              <td>
+                <div *ngIf="item.gradesSelected.length === 0" class="badge badge-dark badge-sm badge-alternate">
+                  All Grades
+                </div>
+                <div *ngFor="let grade of item.gradesSelected" class="badge badge-dark badge-sm badge-alternate">
+                  {{ grade.label }}
+                </div>
+              </td>
+              <td>
+                <div *ngIf="item.isLive" class="badge badge-sm badge-success badge-alternate">Live</div>
+                <div *ngIf="!item.isLive" class="badge badge-sm badge-dark badge-alternate">Draft</div>
+              </td>
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Appraisal Actions</h6>
+                      <li>
+                        <a class="dropdown-item default" (click)="edit(item)">Edit
+                          Appraisal
+                          Details</a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item default" (click)="viewAppraisalDetails(item)">View
+                          Appraisal
+                          Report</a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item dropdown-item-danger" (click)="deleteAppraisalAlert(item)">
+                          Delete Appraisal
+                        </a>
+                      </li>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="appraisals.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+
+        <div *ngIf="isFilterSet">
+          <h4>No appraisal windows match the filters set.</h4>
+          <div class="text-sm text-grey">Change the filters to match appraisals but clicking below button.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="showFilters()">
+              <span>Filters</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!isFilterSet">
+          <h4>No appraisal windows added.</h4>
+          <div class="text-sm text-grey">Click the button below to add new appraisal window.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="addAppraisalModal(appraisalForm)">New
+              Appraisal</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <app-custom-modal #appraisalModal [title]="isUpdating ? 'Edit Appraisal Info' :'Add New Appraisal' "
+      [subTitle]="'Enter the details of the appraisal to be added or updated'" [modalSize]="'xl'">
+      <div class="new-appraisal">
+        <form #appraisalForm="ngForm" class="form show-character-count row no-x-m">
+
+          <div *ngIf="isAppraisalForGradeAdded" class="alert alert-danger alert-sm">
+            <span>An appraisal window with the same title already exists. Please choose a different title for the
+              appraisal.</span>
+          </div>
+
+          <div class="col-lg-4">
+            <h5>Appraisal Details</h5>
+
+            <div class="form-group">
+              <label class="form-title required">Appraisal Title</label>
+              <label class="form-explanation">Enter the title for the appraisal window.</label>
+              <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="newAppraisal.title"
+                type="text" required [disabled]="isUpdating&& isLive" />
+              <app-custom-validation [model]="titleVar" [required]="'Enter the title for the appraisal.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Appraisal Description</label>
+              <label class="form-explanation">Enter the description for the appraisal window.</label>
+              <textarea #descriptionVar="ngModel" class="form-control" name="descriptionVar"
+                [(ngModel)]="newAppraisal.description" rows="5" type="text"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Year</label>
+              <label class="form-explanation">Enter the year for the appraisal window.</label>
+              <input #yearVar="ngModel" class="form-control" name="yearVar" [(ngModel)]="newAppraisal.year"
+                type="number" min="2020" max="2050" required />
+              <app-custom-validation [model]="yearVar" [required]="'Enter the year for the appraisal.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Eligibility Period</label>
+              <label class="form-explanation">Choose the eligibility period for the appraisal window.</label>
+              <input #eligbilityDateVar="ngModel" [(ngModel)]="newAppraisal.eligbilityPeriod" name="eligbilityDateVar"
+                type="text" placeholder="Select a date" class="form-control" bsDaterangepicker autocomplete="off"
+                [bsConfig]="datePickerOptions" (bsValueChange)="onEligibilityDateChosen($event)" required>
+              <app-custom-validation [model]="eligbilityDateVar" [required]="'Choose the eligibility period.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title required">Appraisal Submission Period</label>
+              <label class="form-explanation">Choose the date range for the appraisal window.</label>
+              <input #startDateVar="ngModel" [(ngModel)]="newAppraisal.dateRangeSelection" name="startDateVar"
+                type="text" placeholder="Select a date" class="form-control" bsDaterangepicker autocomplete="off"
+                [bsConfig]="datePickerOptions" (bsValueChange)="onDateChosen($event)" required>
+              <app-custom-validation [model]="startDateVar" [required]="'Choose the appraisal date range.'">
+              </app-custom-validation>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Grades</label>
+              <label class="form-explanation">Choose the grades for which this appraisal window will apply.</label>
+              <ng-select #gradeVar="ngModel" name="gradeVar" [(ngModel)]="newAppraisal.gradesSelected"
+                (change)="onGradeSelect($event)" [disabled]="isUpdating&& isLive" [items]="gradeOptions"
+                [multiple]="true" [clearable]="true" placeholder="Choose employee grade">
+              </ng-select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Category</label>
+              <label class="form-explanation">Choose the category for which this appraisal window will apply.</label>
+              <div class="row no-x-m">
+                <div class="col-6">
+                  <input name="radio-category" class="custom-radio primary" id="category-office" type="radio"
+                    [value]="'office'" [(ngModel)]="newAppraisal.category">
+                  <label for="category-office">
+                    <span class="text">Office</span>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <input name="radio-category" class="custom-radio primary" id="category-field" type="radio"
+                    [value]="'field'" [(ngModel)]="newAppraisal.category">
+                  <label for="category-field">
+                    <span class="text">Field</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Mode</label>
+              <label class="form-explanation">Choose the mode for which this appraisal window will apply.</label>
+              <div class="row no-x-m">
+                <div class="col-6">
+                  <input name="radio-mode" class="custom-radio primary" id="mode-objective" type="radio"
+                    [value]="'objective'" [(ngModel)]="newAppraisal.mode">
+                  <label for="mode-objective">
+                    <span class="text">Objective</span>
+                  </label>
+                </div>
+                <div class="col-6" *ngIf="newAppraisal.category === 'field'">
+                  <input name="radio-mode" class="custom-radio primary" id="mode-variable" type="radio"
+                    [value]="'variablebonus'" [(ngModel)]="newAppraisal.mode">
+                  <label for="mode-variable">
+                    <span class="text">Variable Bonus</span>
+                  </label>
+                </div>
+                <div class="col-6">
+                  <input name="radio-mode" class="custom-radio primary" id="mode-appraisal" type="radio"
+                    [value]="'appraisal'" [(ngModel)]="newAppraisal.mode">
+                  <label for="mode-appraisal">
+                    <span class="text">Appraisal</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Is Live</label>
+              <label class="form-explanation">Check the option below to indicate the appraisal should be made live after
+                creating.</label>
+
+              <div class="col-12 no-p">
+                <input #publishVar="ngModel" name="publish-checkbox" class="custom-checkbox primary"
+                  id="publish-checkbox" type="checkbox" [value]="true" [disabled]="isUpdating&& isLive"
+                  [(ngModel)]="newAppraisal.isLive">
+                <label for="publish-checkbox">
+                  <span class="text">Appraisal Live</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-title">Show Calculation</label>
+              <label class="form-explanation">Check to show the rating calculation for the appraisal process.</label>
+
+              <div class="col-12 no-p">
+                <input #showCalculationVar="ngModel" name="show-calculation-checkbox" class="custom-checkbox primary"
+                  id="show-calculation-checkbox" type="checkbox" [value]="true"
+                  [(ngModel)]="newAppraisal.showCalculation">
+                <label for="show-calculation-checkbox">
+                  <span class="text">Show Calculation</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="col-lg-8">
+            <h5>Management / Capability / Attitude Questions</h5>
+            <div>Choose the questions you want to add to this appraisal.</div>
+
+            <div *ngIf="newAppraisal.questions.length !== 0" class="text-right">
+              <button class="btn btn-primary" [disabled]="isUpdating&& isLive" (click)="addQuestion()">Add
+                Question</button>
+            </div>
+
+            <div *ngIf="isPercentageError" class="alert alert-danger alert-sm mt-sm mb-sm">
+              <span>The total percentage for the questions must amount to 100. Please check the percentage given for the
+                questions again.</span>
+            </div>
+
+            <div *ngIf="newAppraisal.questions.length === 0" class="empty-state p-md text-center">
+              <div class="empty-icon">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <h4>No questions added.</h4>
+              <div class="text-sm text-grey">Click the button below to add new question for the appraisal window.</div>
+              <div class="text-center mt-md">
+                <button class="btn btn-primary btn-sm btn-outline" [disabled]="isUpdating&& isLive"
+                  (click)="addQuestion()">Add
+                  Question</button>
+              </div>
+            </div>
+
+            <div *ngIf="newAppraisal.questions.length > 0" class="appraisals-list mt-md">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th style="width: 60%;">Question</th>
+                    <th>Percentage</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of newAppraisal.questions; let i = index;">
+                    <td>
+                      <div>
+                        <ng-select #questionSelect="ngModel" [name]="'maritalStatusVar-' + i"
+                          [(ngModel)]="item.questionSelection" (change)="onQuestionSelected(item, $event)"
+                          [items]="questionsOptions" [multiple]="false" [placeholder]="'Select appraisal question'"
+                          [clearable]="false" required [disabled]="isUpdating&& isLive">
+                        </ng-select>
+                      </div>
+                      <div class="mt-sm">{{ item.description }}</div>
+                    </td>
+                    <td>
+                      <div>
+                        <input #percentageVar="ngModel" class="form-control" [name]="'percentageVar' + i"
+                          [(ngModel)]="item.percentage" type="number" required [disabled]="isUpdating&& isLive" />
+                      </div>
+                    </td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-danger" (click)="deleteQuestion(item)"
+                        [disabled]="isUpdating&& isLive">
+                        <span><i class="fas fa-trash"></i></span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </form>
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+        <button type="submit" class="btn btn-primary"
+          [disabled]="isProcessing || !appraisalForm.valid || newAppraisal.questions.length === 0"
+          [ngClass]="[isProcessing ? 'spinning' : '', !appraisalForm.valid ? 'disabled' : '']"
+          (click)="addNewAppraisalAlert(appraisalForm)">
+          <span *ngIf="!isUpdating">Add New Appraisal</span>
+          <span *ngIf="isUpdating">Update Appraisal</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+
+    <app-custom-modal #filterModal [title]="'Filter Appraisals'"
+      [subTitle]="'Choose various filters to refine the appraisal search.'" [modalSize]="'sm'">
+      <div class="filter-appraisal">
+
+        <form #filtersForm="ngForm" class="">
+
+          <div class="form-group">
+            <label class="form-title">Appraisal Title</label>
+            <label class="form-explanation">Enter the title of the appraisal to search.</label>
+            <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="appraisalFilter.title"
+              type="text" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Appraisal Date Range</label>
+            <label class="form-explanation">Choose the date range to search for the appraisal window.</label>
+            <input #dateRangeVar="ngModel" [(ngModel)]="appraisalFilter.dateRangeSelection" name="dateRangeVar"
+              type="text" placeholder="Select a date range" class="form-control" bsDaterangepicker
+              [bsConfig]="datePickerOptions" (bsValueChange)="onFilterDateChosen($event)" required>
+            <app-custom-validation [model]="dateRangeVar" [required]="'Choose the appraisal filter date range.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Grades</label>
+            <label class="form-explanation">Choose the grades to be searched for.</label>
+            <ng-select #gradesVar="ngModel" name="gradesVar" [(ngModel)]="appraisalFilter.gradesSelection"
+              (change)="appraisalFilter.grades = selectMultiple($event)" [items]="gradeOptions" [multiple]="true"
+              [clearable]="true">
+            </ng-select>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+          (click)="applyFilter()">
+          <span>Apply Filter</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+  </div>
+</div>

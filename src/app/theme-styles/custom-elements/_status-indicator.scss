@@ -1,0 +1,32 @@
+.status-indicator {
+  width: 20px;
+  height: 20px;
+  border-radius: 100px;
+
+  &.status-indicator-rounded {
+    border-radius: 3px;
+  }
+
+  &.status-indicator-sm {
+    width: 15px;
+    height: 15px;
+  }
+
+  &.status-indicator-xs {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@mixin status-indicator-colors {
+
+  @each $c,
+  $value in $button-colors {
+
+    .status-indicator-#{$c} {
+      background-color: map-deep-get($button-colors, $c, 'back');
+    }
+  }
+}
+
+@include status-indicator-colors();

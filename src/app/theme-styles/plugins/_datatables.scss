@@ -1,0 +1,232 @@
+.datatable,
+.dataTables_wrapper {
+  font-size: $font-size-sm;
+  font-weight: 400;
+
+  th {
+    padding: 0.5rem;
+    position: relative;
+
+    &.sorting {
+      &::before {
+        content: '\f0d8';
+        @include font-awesome();
+        position: absolute;
+        right: 5px;
+        top: 3px;
+        font-size: 10px;
+        color: $mid-grey;
+      }
+
+      &::after {
+        content: '\f0d7';
+        @include font-awesome();
+        position: absolute;
+        right: 5px;
+        top: 15px;
+        font-size: 10px;
+        color: $mid-grey;
+      }
+    }
+
+    &.sorting_asc::before {
+      color: $primary;
+      content: '\f0d8';
+      @include font-awesome();
+      position: absolute;
+      right: 5px;
+      top: 7px;
+      font-size: 15px;
+    }
+
+    &.sorting_desc::after {
+      color: $primary;
+      content: '\f0d7';
+      @include font-awesome();
+      position: absolute;
+      right: 5px;
+      top: 7px;
+      font-size: 15px;
+    }
+
+    &.light-primary {
+      background-color: lighten($primary, 30%);
+    }
+
+    &.light-warning {
+      background-color: lighten($warning, 10%);
+    }
+
+    &.light-danger {
+      background-color: lighten($danger, 20%);
+    }
+
+    &.light-secondary {
+      background-color: lighten($secondary, 30%);
+    }
+
+    &.light-success {
+      background-color: lighten($success, 30%);
+    }
+  }
+
+  tfoot {
+    tr {
+      th {
+        &.big {
+          font-size: $font-size-base;
+        }
+
+        &.bigger {
+          font-size: $font-size-base * 1.3;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      font-size: $font-size-base * 0.9;
+      color: $dark-grey;
+      font-weight: 400;
+      cursor: default;
+
+      &.selected {
+        border: 2px solid $primary;
+      }
+
+      .normal-date {
+        display: inline-block;
+        margin-right: 0.5em;
+        font-size: $font-size-base * 0.85;
+      }
+
+      .normal-time {
+        display: inline-block;
+        font-size: $font-size-base * 0.85;
+      }
+
+      .date {
+        padding: 0.3rem;
+        font-size: $font-size-base * 0.8;
+        color: $primary;
+        font-weight: 500;
+        border: 1px solid $primary;
+        border-radius: 3px;
+
+        &.danger {
+          color: $danger;
+          border: 1px solid $danger;
+        }
+      }
+
+      .date-human-form {
+        font-size: $font-size-base * 0.9;
+        color: $primary;
+        display: block;
+        margin-top: 0.5rem;
+
+        &.inline {
+          display: inline-block;
+        }
+      }
+
+      .avatars {
+        .avatar {
+          background: $white;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          text-align: center;
+          font-size: 0.8rem;
+          line-height: 28px;
+          display: inline-block;
+          margin-left: -10px;
+          border: 0.5px solid $primary;
+          font-weight: 400;
+          color: $primary;
+
+          &:first-of-type {
+            margin-left: 0;
+          }
+
+          .second-letter {
+            font-size: $font-size-base * 0.9;
+          }
+
+          &.current-employee {
+            background: $primary;
+            color: $white;
+          }
+        }
+      }
+
+      td {
+        border-bottom: 1px solid $light-grey;
+        border-top: none;
+
+        &.timeline {
+          padding: 0 !important;
+        }
+
+        &.big {
+          font-size: $font-size-base;
+        }
+
+        &.bigger {
+          font-size: $font-size-base * 1.35;
+        }
+      }
+    }
+  }
+
+  .dataTables_paginate {
+    .pagination {
+      justify-content: flex-end;
+    }
+  }
+
+  .select-info {
+    display: none;
+  }
+
+  &.no-info {
+    .row:first-child {
+      display: none;
+    }
+
+    .row:last-child {
+      display: none;
+    }
+  }
+
+  &.table-lightfont {
+    font-weight: 400;
+
+    th {
+      font-weight: 500;
+    }
+  }
+
+  &.table-condensed {
+    td {
+      padding: 0.5rem;
+    }
+  }
+
+  &.no-empty {
+    .dataTables_empty {
+      display: none;
+    }
+  }
+
+  &.show-empty {
+    .dataTables_empty {
+      display: none;
+    }
+  }
+}
+
+.dt-buttons {
+  text-align: right;
+}

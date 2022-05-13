@@ -1,0 +1,174 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Document details.</h4>
+  <div class="text-sm text-grey">You cannot view the document details for this employee.</div>
+</div>
+<div class="employee-container employee-document-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="isAllowed">
+    <div *ngIf="documents.length !== 0" class="text-right">
+      <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(documentForm)">New Document</button>
+    </div>
+
+    <div *ngIf="documents.length === 0" class="empty-state p-md text-center">
+      <div class="empty-icon">
+        <i [ngClass]="icon"></i>
+      </div>
+      <h4>No documents added yet.</h4>
+      <div class="text-sm text-grey">Click the button below to add new document.</div>
+      <div class="text-center mt-md">
+        <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(documentForm)">New
+          Document</button>
+      </div>
+    </div>
+
+    <div *ngIf="documents.length > 0" class="added-document-container mt-md">
+      <table class="table table-responsive table-striped">
+        <thead>
+          <tr>
+            <th style="width: 40%;">Document Name</th>
+            <th style="width: 15%;">Document Type</th>
+            <th style="width: 15%;">Size</th>
+            <th style="width: 20%;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of documents">
+            <td>
+              <span>{{ item.name }}</span>
+            </td>
+            <td>
+              <span>{{ item.documentTypeSelection ? item.documentTypeSelection.label : '' }}</span>
+            </td>
+            <td>
+              <span>{{ item.size }}</span>
+            </td>
+            <td>
+              <button class="btn btn-dark btn-outline btn-xs mr-sm" [tooltip]="'Open document'" (click)="view(item)">
+                <i class="fas fa-eye mr-xs"></i>
+                <span>View</span>
+              </button>
+
+              <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit document information'"
+                (click)="edit(item)">
+                <i class="fas fa-pen"></i>
+                <!-- <span>Edit</span> -->
+              </button>
+
+              <button class="btn btn-danger btn-xs" [tooltip]="'Delete this document.'"
+                [disabled]="!canEdit || this.role !== 'hr'" (click)="deleteAlert(item)">
+                <i class="fas fa-trash"></i>
+                <!-- <span>Delete</span> -->
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-lg pt-lg b-t">
+      <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+        [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+        <span>Verify Changes</span>
+        <i class="fas fa-spinner spinner"></i>
+      </button>
+
+      <!-- <button class="btn btn-primary" (click)="updateEmployeeDocuments()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Documents</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+    </div>
+
+    <app-custom-modal #documentModal [title]="isUpdating ? 'Update Document Details' : 'Add New Document'"
+      [subTitle]="'Enter the details for the document to add or update the information.'">
+      <div *ngIf="document" class="new-document">
+        <form #documentForm="ngForm" class="form show-character-count">
+
+          <div class="form-group">
+            <label class="form-title required">Document Name</label>
+            <label class="form-explanation">Enter the name of the document.</label>
+            <input #documentVar="ngModel" class="form-control" name="document" [(ngModel)]="document.name" type="text"
+              required [disabled]="!canEdit" />
+            <app-custom-validation [model]="documentVar" [required]="'Enter the name for the document.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Document Type</label>
+            <label class="form-explanation">Choose the document type.</label>
+            <ng-select #documentTypeVar="ngModel" name="documentTypeVar" [(ngModel)]="document.documentTypeSelection"
+              (change)="document.documentTypeId = $event.value" [items]="documentTypeOptions" [multiple]="false"
+              [clearable]="false" [disabled]="!canEdit" required>
+            </ng-select>
+            <app-custom-validation [model]="documentTypeVar" [required]="'Choose a document type.'">
+            </app-custom-validation>
+          </div>
+
+          <div *ngIf="!isUpdating" class="form-group">
+            <label class="form-title required">Choose Document</label>
+            <label class="form-explanation">Choose the document to be uploaded.</label>
+
+            <div>
+              <div *ngIf="fileRejected" class="alert alert-danger alert-sm">
+                The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+                upload is not allowed. Please choose a file below 5MB.
+              </div>
+
+              <div *ngIf="uploadingFile && uploadingFile.type.indexOf('image') >= 0"
+                class="uploaded-file-info mt-md mb-md">
+                <ngx-dropzone-image-preview [removable]="false" [file]="uploadingFile"
+                  ngProjectAs="ngx-dropzone-preview">
+                </ngx-dropzone-image-preview>
+                <div class="mt-sm">
+                  <button class="btn btn-danger btn-sm" [disabled]="!canEdit" (click)="removeUploadedFile()">
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+
+              <div *ngIf="uploadingFile && uploadingFile.type.indexOf('image') === -1"
+                class="uploaded-file-info mt-md mb-md">
+                <div class="mb-xs text-primary"><b>Uploaded File Info</b></div>
+                <div><b>File Name </b>: {{ uploadingFile.name }}</div>
+                <div><b>File Type </b>: {{ uploadingFile.type }}</div>
+                <div class="mt-sm">
+                  <button class="btn btn-danger btn-sm" [disabled]="!canEdit" (click)="removeUploadedFile()">
+                    <span>Remove</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'file'" [accept]="fileFormats"
+                [multiple]="false" [maxFileSize]="5000000" (change)="onFileSelected($event)" [disabled]="!canEdit">
+                <button class="btn btn-primary">
+                  <span>Choose Document</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+        <button class="btn btn-primary" (click)="updateEmployeeDocuments()" [ngClass]="isProcessing ? 'spinning' : ''"
+          [disabled]="isProcessing || (documentForm && !documentForm.valid) || !canEdit || (!isUpdating && !uploadingFile)">
+          <span>{{ isUpdating ? 'Update Document Info' : 'Upload Document' }}</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+  </div>
+  <div *ngIf="!isAllowed" class="">
+    <div class="empty-state p-md text-center">
+      <div class="empty-icon">
+        <i [ngClass]="icon"></i>
+      </div>
+      <h4>Cannot view the document.</h4>
+      <div class="text-sm text-grey">You cannot view the document for this employee.</div>
+    </div>
+  </div>
+</div>

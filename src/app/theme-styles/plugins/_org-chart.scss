@@ -1,0 +1,53 @@
+.ngx-org-box {
+  border: 2px solid $primary;
+  box-shadow: none;
+  border-radius: 5px;
+  flex-direction: column;
+  padding: 4px;
+  width: 250px;
+
+  >div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ngx-org-name {
+    font-size: $font-size-md;
+    font-family: inherit;
+    color: $primary;
+    font-weight: 500;
+  }
+
+  .ngx-org-title {
+    font-size: $font-size-xxs;
+    padding: 4px 8px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 400;
+    border-radius: 3px;
+    position: relative;
+    text-transform: uppercase;
+    background-color: lighten($secondary, 25);
+    color: $secondary;
+    border: $secondary;
+    font-family: inherit;
+  }
+
+  .ngx-org-image {
+    border: none !important;
+    background-size: cover;
+    width: 4em;
+    height: 4em;
+    margin: 0;
+    margin-bottom: 4px;
+  }
+}
+
+.org-current-emp {
+  background-color: $very-light-grey;
+}
+
+.ngx-org-connector-container {}

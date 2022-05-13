@@ -1,0 +1,136 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Account details.</h4>
+  <div class="text-sm text-grey">You cannot view the account details for this employee.</div>
+</div>
+<div class="employee-section-container employee-account-container p-sm" *ngIf="haveAccess">
+  <!-- <div
+    *ngIf="(role === 'hr' && !hrAccess) || (role === 'self' && !empAccess) || (role === 'manager' && !mgAccess); else showAccount">
+    <div class="empty-state p-md text-center">
+      <div class="empty-icon">
+        <i [ngClass]="icon"></i>
+      </div>
+      <h4>Cannot view the Account.</h4>
+      <div class="text-sm text-grey">You cannot view the account for this employee.</div>
+    </div>
+  </div> -->
+  <!-- <ng-template #showAccount> -->
+    <div *ngIf="employeeAccount" class="row no-x-m">
+      <form #accountForm="ngForm" class="form row no-x-m">
+
+        <div *ngIf="isEmployeeCodeInvalid" class="alert alert-sm alert-danger col-12">The employee code entered is
+          already
+          given to another employee. Please change the code and save again.</div>
+
+        <div class="col-lg-4">
+          <div class="form-group">
+            <label class="form-title required">Addressing Name</label>
+            <label class="form-explanation">Enter the addressing name for the employee.</label>
+            <input #addressingNameVar="ngModel" class="form-control" name="addressingNameVar"
+              placeholder="Enter the addressing name" [disabled]="!canEdit" [(ngModel)]="employeeAccount.addressingName"
+              type="text" required />
+            <app-custom-validation [model]="addressingNameVar"
+              [required]="'Enter the addressing name for the employee.'">
+            </app-custom-validation>
+          </div>
+
+          <div *ngIf="role === 'hr'" class="form-group">
+            <label class="form-title required">Employee Unique Code</label>
+            <label class="form-explanation">Unique code generated for the employee.</label>
+            <input #uniqueCodeVar="ngModel" class="form-control" [disabled]="true" name="uniqueCodeVar"
+              placeholder="Unique code generated for the employee" [ngModel]="employeeAccount.uniqueCode" type="text" />
+          </div>
+
+          <div *ngIf="employeeAccount.status === 'on-roll' || employeeAccount.status === 'expatriate'"
+            class="form-group">
+            <label class="form-title required">Employee Code</label>
+            <label class="form-explanation">Enter the custom employee code created for the employee. This code should be
+              unique.</label>
+            <input #empCodeVar="ngModel" class="form-control" name="empCodeVar"
+              [(ngModel)]="employeeAccount.employeeCode" type="text" required placeholder="Enter the employee code"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="empCodeVar" [required]="'Enter the employee code for the employee.'">
+            </app-custom-validation>
+          </div>
+
+          <div *ngIf="employeeAccount.status === 'off-roll'" class="form-group">
+            <label class="form-title required">Off Roll Code</label>
+            <label class="form-explanation">Enter the custom off-roll code created for the employee. This code should be
+              unique.</label>
+            <input #offRollCodeVar="ngModel" class="form-control" name="offRollCodeVar"
+              [(ngModel)]="employeeAccount.offRoleCode" placeholder="Enter the off-roll employee code"
+              [disabled]="!canEdit" type="text" required />
+            <app-custom-validation [model]="offRollCodeVar" [required]="'Enter the off-roll code for the employee.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Status</label>
+            <label class="form-explanation">Choose the status of the employee.</label>
+            <ng-select #statusVar="ngModel" name="statusOptions" [(ngModel)]="employeeAccount.statusSelection"
+              (change)="employeeAccount.status = $event.value" [items]="statusOptions" [multiple]="false"
+              placeholder="Choose employee status" [disabled]="!canEdit" [clearable]="false" required>
+            </ng-select>
+            <app-custom-validation [model]="statusVar" [required]="'Choose the status for the employee.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="form-group">
+            <label class="form-title required">Employee Email</label>
+            <label class="form-explanation">The official login email for the employee.</label>
+            <input class="form-control" name="employeeEmail" disabled="true" [ngModel]="employeeAccount.loginEmail"
+              type="email" ngvemail required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Can Login</label>
+            <label class="form-explanation">Check the box is the user will be allowed to login into the
+              application.</label>
+
+            <div class="col-12">
+              <input #canLoginVar="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+                id="canLogin-checkbox" type="checkbox" [disabled]="!canEdit" [value]="true"
+                [(ngModel)]="employeeAccount.canLogin">
+              <label for="canLogin-checkbox">
+                <span class="text">Can Login</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Role</label>
+            <label class="form-explanation">Choose the role to be assigned to the employee. <span
+                *ngIf="isLoggedInUser">Logged in users cannot
+                update role for
+                themselves.</span></label>
+            <ng-select #roleVar="ngModel" name="roleOptions" [(ngModel)]="employeeAccount.roleSelection"
+              (change)="employeeAccount.roleId = $event.value" [disabled]="!canEdit || isLoggedInUser"
+              [items]="employeeRoles" [multiple]="false" [clearable]="false">
+            </ng-select>
+          </div>
+        </div>
+
+        <div *ngIf="canEdit" class="col-lg-12 text-center mt-lg">
+          <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm"
+            [disabled]="!accountForm.valid || isProcessing" [ngClass]="isProcessing ? 'spinning' : ''"
+            (click)="verifyChanges()">
+            <span>Verify Changes</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+
+          <button class="btn btn-primary" [disabled]="!accountForm.valid || isProcessing"
+            [ngClass]="isProcessing ? 'spinning' : ''" (click)="saveEmployeeAccountInfo()">
+            <span>Update Employee Account Info</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  <!-- </ng-template> -->
+
+</div>

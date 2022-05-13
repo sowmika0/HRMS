@@ -1,0 +1,216 @@
+<div class="mood-meter-tab-container tab-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Mood Meter Master</h3>
+      </div>
+    </div>
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button class="btn btn-primary btn-md mr-2" (click)="applyFilter(reportFiltersForm)">
+          <span>Apply Filter</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addTags()">
+          <span>Add Tags</span>
+        </button>
+      </div>
+
+      <div class="report-filter">
+        <form #reportFiltersForm="ngForm" class="row">
+          <div class="form-group col-lg-4">
+            <label class="form-title">Date Range</label>
+            <label class="form-explanation">Choose the date range for the employee mood reports.</label>
+            <input #dateRangeVar="ngModel" [(ngModel)]="reportFilter.dateRangeSelection" name="dateRangeVar" type="text"
+              placeholder="Select a date range" class="form-control" bsDaterangepicker [bsConfig]="datePickerOptions"
+              (bsValueChange)="onReportFilterDateChosen($event)">
+          </div>
+
+          <div class="form-group col-lg-4">
+            <label class="form-title">Department</label>
+            <label class="form-explanation">Choose the department the employee belongs.</label>
+            <ng-select #departmentVar="ngModel" name="departmentVar" [(ngModel)]="reportFilter.departmentSelection"
+              placeholder="Choose department" [items]="departmentOptions" (change)="onDepartmentChange($event)"
+              [multiple]="false" [clearable]="true">
+            </ng-select>
+          </div>
+
+          <div class="form-group col-lg-4">
+            <label class="form-title">Location</label>
+            <label class="form-explanation">Choose the location in which the employee belongs.</label>
+            <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="reportFilter.locationSelection"
+              (change)="onLocationChange($event)" [items]="locationOptions" [multiple]="false" [clearable]="true"
+              placeholder="Choose location">
+            </ng-select>
+          </div>
+        </form>
+      </div>
+
+      <div class="settings-mood-data-chart-container card mt-2">
+        <div *ngIf="settingsMoodChartData && settingsMoodChartData.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i [ngClass]="icon"></i>
+          </div>
+          <h4>No settings mood charts added or attended for you yet.</h4>
+        </div>
+        <div *ngIf="settingsMoodChartData && settingsMoodChartData.length > 0"
+          class="added-settings-mood-container mt-md">
+          <div class="settings-mood-chart row">
+            <div class="col-lg-8 offset-lg-2">
+              <canvas ngChartjs [datasets]="settingsMoodChartData" [labels]="settingsMoodChartLabels"
+                [colors]="settingsMoodChartColors" [options]="settingsMoodChartOptions" [legend]="true"
+                [chartType]="settingsMoodChartType" height="100">
+              </canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-mood-report-container mt-2">
+        <table class="table table-responsive no-empty" datatable
+        [dtOptions]="dtOptionsForReports" [ngClass]="className" 
+        *ngIf="employeeMoodReports && employeeMoodReports.length === 0">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th style="width: 80px;">Date</th>
+              <th>Employee No</th>
+              <th style="width: 150px;">Name</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Location</th>
+              <th>Reporting Manager</th>
+              <th>Mood</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+        </table>
+        <table class="table table-responsive no-empty" datatable
+        [dtOptions]="dtOptionsForReports" [ngClass]="className" 
+        *ngIf="employeeMoodReports && employeeMoodReports.length > 0">
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th style="width: 80px;">Date</th>
+              <th>Employee No</th>
+              <th style="width: 150px;">Name</th>
+              <th>Department</th>
+              <th>Designation</th>
+              <th>Location</th>
+              <th>Reporting Manager</th>
+              <th>Mood</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let report of employeeMoodReports; let i = index">
+              <td>{{i + 1}}</td>
+              <td style="width: 80px;">{{report.addedOn | date: 'dd-MMM-yy'}}</td>
+              <td>{{report.employee.employeeCompany.employeeCode}}</td>
+              <td style="width: 150px;">{{report.employee.name}}</td>
+              <td>{{report.employee.employeeCompany.department.name}}</td>
+              <td>{{report.employee.employeeCompany.designation.name}}</td>
+              <td>{{report.employee.employeeCompany.location.name}}</td>
+              <td>{{report.employee.employeeCompany.reportingManager.name}}</td>
+              <td>{{report.settingsMood.mood}}</td>
+              <td class="text-center">
+                <button class="btn btn-dark btn-outline btn-xs mr-sm" [tooltip]="'Open Tags'" (click)="viewTags(report)">
+                  <i class="fas fa-eye mr-xs"></i>
+                  <span>View</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <app-custom-modal #tagsModal [title]="'Add Tags'" [subTitle]="'Add tags for different moods'" [modalSize]="'lg'">
+      <div class="add-tags">
+
+        <form #tagsForm="ngForm" class="row no-x-m">
+          <div class="col-lg-6">
+            <div class="form-group">
+              <label class="form-title required">Mood Name</label>
+              <label class="form-explanation">Select the name of the mood to add tags.</label>
+              <ng-select #moodNameVar="ngModel" name="moodName" [(ngModel)]="newTag.moodName" [items]="moodNameList"
+                [multiple]="false" [clearable]="false" placeholder="Choose mood name" required
+                (change)="onMoodNameChange($event)">
+                <ng-template ng-label-tmp let-item="item">
+                  <span><i class='{{item.icon}}'></i></span> {{ item.label }}
+                </ng-template>
+
+                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                  <div class="mood-name-dropdown-item">
+                    <div class="mood-name"><span><i class='{{item.icon}}'></i></span> {{ item.label }}</div>
+                  </div>
+                </ng-template>
+                <app-custom-validation [model]="moodNameVar" [required]="'Choose a mood name.'">
+                </app-custom-validation>
+              </ng-select>
+            </div>
+            <div class="form-group" *ngIf="showTag">
+              <label class="form-title required">Tag Name</label>
+              <label class="form-explanation">Enter the tag for the mood name.</label>
+              <input #tagNameVar="ngModel" class="form-control" name="tagNameVar" placeholder="Enter the tag name"
+                [(ngModel)]="newTag.tagName" type="text" required />
+              <app-custom-validation [model]="tagNameVar" [required]="'Enter the tag name.'">
+              </app-custom-validation>
+            </div>
+            <div class="form-group float-right" *ngIf="showTag">
+              <button class="btn btn-primary mr-sm" [disabled]="!tagsForm.valid"
+                (click)="addNewTagForMoodName(tagsForm)">
+                <span>Add New Tag</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="form-group" *ngIf="showTag">
+              <label class="form-title required">Tags For {{newTag?.moodName?.label}} Mood</label>
+              <label class="form-explanation">Tags for the {{newTag?.moodName?.label}} mood name.</label>
+              <ng-select #tagsListVar="ngModel" name="tagsListVar" [(ngModel)]="newTag.selectedTag"
+                [items]="tagsOptions" [multiple]="true" [clearable]="true" placeholder="Choose Tags"
+                (change)="newTag.tags = selectMultiple($event)">
+              </ng-select>
+            </div>
+          </div>
+
+
+        </form>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button class="btn btn-primary" [disabled]="!newTag?.selectedTag?.length" (click)="saveTags(tagsForm)">
+          <span>Save Tags</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+    <app-custom-modal #tagsForMoodModal [title]="'Tag Details'" [subTitle]="'View tags for employee moods'" [modalSize]="'lg'">
+      <table class="table table-responsive" *ngIf="employeeMoodTagsForMoodViewed && employeeMoodTagsForMoodViewed.length">
+        <thead>
+          <tr>
+            <th style="width: 150px;">Employee Code</th>
+            <th style="width: 150px;">Employee Name</th>
+            <th>Mood</th>
+            <th>Tag</th>
+            <th style="width: 250px;">Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tag of employeeMoodTagsForMoodViewed">
+            <td style="width: 150px;">{{selectedEmployeeMood.employee.employeeCompany.employeeCode}}</td>
+            <td style="width: 150px;">{{selectedEmployeeMood.employee.name}}</td>
+            <td>{{selectedEmployeeMood.settingsMood.mood}}</td>
+            <td>{{tag.Tag}}</td>
+            <td style="width: 250px;">{{tag.description}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </app-custom-modal>
+  </div>
+</div>

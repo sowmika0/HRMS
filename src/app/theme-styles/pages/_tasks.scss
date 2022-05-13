@@ -1,0 +1,68 @@
+.task-list-container {
+  .task-content {
+    max-width: 500px;
+    width: fit-content;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .date-separator {
+    position: relative;
+    padding: 10px 0;
+    text-align: center;
+
+    div {
+      margin: auto;
+      width: 150px;
+      font-weight: 500;
+      color: $primary;
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      width: calc(50% - 75px);
+      height: 1px;
+      top: 20px;
+      right: 0;
+      background: $light-grey;
+      z-index: 0;
+    }
+
+    &:before {
+      content: "";
+      position: absolute;
+      width: calc(50% - 75px);
+      height: 1px;
+      top: 20px;
+      left: 0;
+      background: $light-grey;
+      z-index: 0;
+    }
+  }
+
+  .timepicker {
+    margin-top: -38px;
+  }
+
+  .date-picker {
+    display: flex;
+    flex: 1;
+    margin-top: 38px;
+  }
+
+}
+
+.task-info {
+  .comment-delete-button {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .task-comment-table {
+    max-height: 500px;
+    overflow: auto;
+  }
+}

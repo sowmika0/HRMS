@@ -1,0 +1,378 @@
+<div class="appraisal-container">
+
+  <div class="table-print-wrapper">
+    <div class="printed-date">
+      Printed on : {{printedDate}}
+    </div>
+    <table class="table-fix-width table-print" id="employeeFeedPrint">
+      <tr>
+        <td>Ec No.</td>
+        <td>{{empExitForm.employeeCode}}</td>
+        <td>Name</td>
+        <td>{{empExitForm.employeeName}}</td>
+      </tr>
+      <tr>
+        <td>DOR</td>
+        <td>{{employeeExit.resignationDate | date: 'dd-MMM-yy'}}</td>
+        <td>LWD</td>
+        <td>{{employeeExit.relievingDate | date: 'dd-MMM-yy'}}</td>
+      </tr>
+      <tr>
+        <td>Tenure</td>
+        <td colspan="3">{{empExitForm.tenureInKai}}</td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Like about KAI
+          <div class="long-data">
+            {{empExitForm.likeAboutKai}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Dislike About KAI
+          <div class="long-data">
+            {{empExitForm.dislikeAboutKai}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Things that KAI must change
+          <div class="long-data">
+            {{empExitForm.thingsKaiMustChange}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Things that KAI must continue
+          <div class="long-data">
+            {{empExitForm.thingsKaiMustContinue}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          What promoted to change
+          <div class="long-data">
+            {{empExitForm.whatPromptedToChange}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Reason for Leaving KAI
+          <div class="long-data">
+            {{empExitForm.reasonForLeavingKai}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          Who would you associate
+          <div class="long-data">
+            {{empExitForm.associateWhom}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Which Organization</td>
+        <td>{{empExitForm.whichOrganization}}</td>
+        <td>Designation</td>
+        <td>{{empExitForm.designation}}</td>
+      </tr>
+      <tr>
+        <td>Email Id</td>
+        <td>{{empExitForm.emailId}}</td>
+        <td>Mobile number</td>
+        <td>{{empExitForm.mobileNumber}}</td>
+      </tr>
+      <tr>
+        <td>Address</td>
+        <td colspan="3">
+          <div>
+            {{empExitForm.address}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td>Bank Name</td>
+        <td>{{empExitForm.bankName}}</td>
+        <td>Bank Account Number</td>
+        <td>{{empExitForm.accountNo}}</td>
+      </tr>
+      <tr>
+        <td>Bank IFSC Code</td>
+        <td colspan="3">{{empExitForm.ifscCode}}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="row no-x-m table-print-view">
+    <div class="print-button-wrap col-lg-12">
+      <button class="dt-button buttons-print btn btn-primary btn-md" (click)="printPage()" tabindex="0" type="button">
+        <span><i class="fa fa-print"></i> Print</span>
+      </button>
+    </div>
+    <form #employeeExitForm="ngForm" class="form row no-x-m" style="width: 100%">
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Employee Name</label>
+          <label class="form-explanation">Enter the employee name.</label>
+          <input #empNameVar="ngModel" [(ngModel)]="empExitForm.employeeName" name="empName" type="text"
+            class="form-control" disabled="disabled" />
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">EC No</label>
+          <label class="form-explanation">Enter EC no for the employee.</label>
+          <input #empECNoVar="ngModel" [(ngModel)]="empExitForm.employeeCode" name="empECNo" type="text"
+            class="form-control" disabled="disabled" />
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Department</label>
+          <label class="form-explanation">Enter department for the employee.</label>
+          <input #empDepartmentVar="ngModel" [(ngModel)]="empExitForm.department" name="empDepartment" type="text"
+            class="form-control" disabled="disabled" />
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Tenure (Months)</label>
+          <label class="form-explanation">Stay in KAI.</label>
+          <input #tenureInKAIVar="ngModel" [(ngModel)]="empExitForm.tenureInKai" name="tenureInKai" type="text"
+            class="form-control" required [disabled]="!canEdit" />
+          <app-custom-validation [model]="tenureInKAIVar" [required]="'Enter the total months completed in KAI.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Would You Rejoin KAI</label>
+          <label class="form-explanation">Would you like to rejoin KAI at a future date?</label>
+
+          <div class="row no-x-m">
+            <div class="col-6">
+              <input name="radio-rejoin" class="custom-radio primary" id="rejoin-kai-yes" type="radio" [value]="true"
+                [(ngModel)]="empExitForm.rejoinKaiLater" [disabled]="!canEdit" />
+              <label for="rejoin-kai-yes">
+                <span class="text">Yes</span>
+              </label>
+            </div>
+
+            <div class="col-6">
+              <input name="radio-rejoin" class="custom-radio primary" id="rejoin-kai-no" type="radio" [value]="false"
+                [(ngModel)]="empExitForm.rejoinKaiLater" [disabled]="!canEdit" />
+              <label for="rejoin-kai-no">
+                <span class="text">No</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4"></div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Like About KAI</label>
+          <label class="form-explanation">What did you like most about KAI and being in KAI.</label>
+          <textarea #likeAboutKAIVar="ngModel" class="form-control" name="likeAboutKAIVar" type="text" required
+            [(ngModel)]="empExitForm.likeAboutKai" rows="5" [disabled]="!canEdit"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="likeAboutKAIVar"
+            [required]="'Enter what you like most about KAI and being in KAI.'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Dislke About KAI</label>
+          <label class="form-explanation">What did you dislike most about KAI.</label>
+          <textarea #dislikeAboutKAIVar="ngModel" class="form-control" name="dislikeAboutKAIVar" type="text" required
+            [(ngModel)]="empExitForm.dislikeAboutKai" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="dislikeAboutKAIVar" [required]="'Enter what you dislike most about KAI.'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Things That KAI Must Change</label>
+          <label class="form-explanation">What would be the 3 things according to you that KAI must
+            change?</label>
+          <textarea #thingsKAIMustChangeVar="ngModel" class="form-control" name="thingsKAIMustChangeVar" type="text"
+            required [(ngModel)]="empExitForm.thingsKaiMustChange" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="thingsKAIMustChangeVar"
+            [required]="'Enter 3 things according to you that KAI must change'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Things That KAI Must Continue</label>
+          <label class="form-explanation">What are the 3 things according to you that KAI must
+            continue?</label>
+          <textarea #thingsKAIMustContinueVar="ngModel" class="form-control" name="thingsKAIMustContinueVar" type="text"
+            required [(ngModel)]="empExitForm.thingsKaiMustContinue" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="thingsKAIMustContinueVar" [required]="
+              'Enter 3 things according to you that KAI must continue'
+            " [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">What Prompted To Change</label>
+          <label class="form-explanation">What prompted you to start looking for a change?</label>
+          <textarea #whatPromptedForChangeVar="ngModel" class="form-control" name="whatPromptedForChangeVar" type="text"
+            required [(ngModel)]="empExitForm.whatPromptedToChange" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="whatPromptedForChangeVar"
+            [required]="'Enter prompted you to start looking for a change?'" [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Reason For Leaving KAI</label>
+          <label class="form-explanation">What are the main reasons for your leaving KAI?</label>
+          <textarea #reasonForLeavingVar="ngModel" class="form-control" name="reasonForLeavingVar" type="text" required
+            [(ngModel)]="empExitForm.reasonForLeavingKai" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="reasonForLeavingVar" [required]="'Enter reason for leaving KAI'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Who Would You Associate</label>
+          <label class="form-explanation">Who would you immediately like to associate at the thought of KAI
+            or in future? any individual from KAI</label>
+          <textarea #whomWouldAssociateVar="ngModel" class="form-control" name="whomWouldAssociateVar" type="text"
+            required [(ngModel)]="empExitForm.associateWhom" [disabled]="!canEdit" rows="5"
+            [pattern]="regex.textareaMaxLength"></textarea>
+
+          <app-custom-validation [model]="whomWouldAssociateVar" [required]="
+              'Enter who would you immediately like to associate at the thought of KAI'
+            " [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Which Organization</label>
+          <label class="form-explanation">Which Organization are you joining?</label>
+          <input #whichCompanyJoiningVar="ngModel" [(ngModel)]="empExitForm.whichOrganization"
+            name="whichCompanyJoiningVar" type="text" class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="whichCompanyJoiningVar" [required]="'Enter which Organization your joining'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Designation</label>
+          <label class="form-explanation">What will be your designation in new Organization</label>
+          <input #designationVar="ngModel" [(ngModel)]="empExitForm.designation" name="designationVar" type="text"
+            class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="designationVar" [required]="'Enter your designation in new Organization'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">CTC</label>
+          <label class="form-explanation">What will be your CTC in new Organization</label>
+          <input #newCTCVar="ngModel" [(ngModel)]="empExitForm.ctc" name="newCTCVar" type="text" class="form-control"
+            [disabled]="!canEdit" required type="number" min="0" oninput="validity.valid||(value='');" />
+          <app-custom-validation [model]="newCTCVar" [required]="'Enter your CTC in new Organization'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Email ID</label>
+          <label class="form-explanation">What is your email id?</label>
+          <input #emailIDVar="ngModel" [(ngModel)]="empExitForm.emailId" name="emailIDVar" type="text"
+            class="form-control" [disabled]="!canEdit" required ngvemail />
+          <app-custom-validation [model]="emailIDVar" [required]="'Enter your email id'"
+            [email]="'Enter a valid email.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Mobile Number</label>
+          <label class="form-explanation">Your mobile and residence number?</label>
+          <input #mobileNumberVar="ngModel" [(ngModel)]="empExitForm.mobileNumber" name="mobileNumberVar" type="text"
+            class="form-control" [disabled]="!canEdit" required [pattern]="regex.phoneNumber" />
+          <app-custom-validation [model]="mobileNumberVar" [required]="'Enter your mobile number'"
+            [pattern]="'Please enter phone number in proper format'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Address</label>
+          <label class="form-explanation">Enter your address</label>
+          <input #addressVar="ngModel" [(ngModel)]="empExitForm.address" name="addressVar" type="text"
+            class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="addressVar" [required]="'Enter your address'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Bank Name</label>
+          <label class="form-explanation">Bank Name of Employee</label>
+          <input #bankNameVar="ngModel" [(ngModel)]="empExitForm.bankName" name="bankName" type="text"
+            class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="bankNameVar" [required]="'Enter your bank name'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Bank Account Number</label>
+          <label class="form-explanation">Bank Account Number of Employee</label>
+          <input #accountNoVar="ngModel" [(ngModel)]="empExitForm.accountNo" name="accountNo" type="text"
+            class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="accountNoVar" [required]="'Enter your bank account number'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Bank IFSC Code</label>
+          <label class="form-explanation">Bank IFSC Code of Employee</label>
+          <input #ifscCodeVar="ngModel" [(ngModel)]="empExitForm.ifscCode" name="ifscCode" type="text"
+            class="form-control" [disabled]="!canEdit" required />
+          <app-custom-validation [model]="ifscCodeVar" [required]="'Enter your bank IFSC code'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="text-center col-lg-12 mt-lg" *ngIf="!isHr">
+        <button class="btn btn-primary" [disabled]="isProcessing || !employeeExitForm.valid || !canEdit"
+          (click)="saveEmployeeExitFormAlert(employeeExitForm)" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Submit</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

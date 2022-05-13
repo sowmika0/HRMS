@@ -1,0 +1,259 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Family details.</h4>
+  <div class="text-sm text-grey">You cannot view the family details for this employee.</div>
+</div>
+<div class="employee-container employee-family-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activeFamilies.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(familyForm)">New Family Member</button>
+  </div>
+
+  <div *ngIf="activeFamilies.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No families added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new family.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(familyForm)">New Family
+        Member</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeFamilies.length > 0" class="added-family-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Name</th>
+          <th style="width: 15%;">Relation</th>
+          <th style="width: 15%;">Phone</th>
+          <th style="width: 15%;">Is Emergency Contact</th>
+          <th style="width: 15%;">Is Dependant</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeFamilies">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.relationSelection ? item.relationSelection.label : '' }}</span>
+          </td>
+          <td>
+            <span>{{ item.phone }}</span>
+          </td>
+          <td>
+            <span *ngIf="item.isEmergencyContact" class="badge badge-success badge-alternate">
+              Yes
+            </span>
+          </td>
+          <td>
+            <span *ngIf="item.isDependant" class="badge badge-success badge-alternate">
+              Yes
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit family information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [disabled]="!canEdit || this.role !== 'hr'"
+              [tooltip]="'Delete this family.'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeeFamilies()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Family Information</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #familyModal [title]="isUpdating ? 'Update Family Details' : 'Add New Family'"
+    [subTitle]="'Enter the details for the family to add or update the information.'" [modalSize]="'lg'">
+    <div *ngIf="family" class="new-family">
+      <form #familyForm="ngForm" class="form show-character-count row no-x-m">
+
+        <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm col-12">
+          The family member relation you are trying to add is already added.
+        </div>
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Name</label>
+            <label class="form-explanation">Enter the name of the family member.</label>
+            <input #nameVar="ngModel" class="form-control" name="nameVar" [(ngModel)]="family.name" type="text" required
+              placeholder="Enter name of member" [disabled]="!canEdit" />
+            <app-custom-validation [model]="nameVar" [required]="'Enter the name for the family member.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Relationship</label>
+            <label class="form-explanation">Choose the relationship with the family member.</label>
+            <ng-select #relationshipVar="ngModel" name="roleOptions" [(ngModel)]="family.relationSelection"
+              (change)="onRelationChange($event)" [items]="availableRelationOptions" [multiple]="false"
+              placeholder="Choose relationship" [clearable]="false" required [disabled]="!canEdit">
+            </ng-select>
+            <app-custom-validation [model]="relationshipVar"
+              [required]="'Choose the relationship with the family member.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Phone Number</label>
+            <label class="form-explanation">Enter the phone number of the family member. Leave empty or enter 9000000000
+              for default number.</label>
+            <input #phoneVar="ngModel" required class="form-control" name="phoneVar" [(ngModel)]="family.phone"
+              placeholder="Enter phone number of family member" type="text" [pattern]="regEx.phoneNumber"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="phoneVar" [required]="'Enter the phone number of the family member.'"
+              [pattern]="'Please enter a valid phone number.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Is Emergency Contact</label>
+            <label class="form-explanation">Check the box if you want to add the person as your emergency
+              contact.</label>
+
+            <div class="row no-x-m">
+              <div class="col-6">
+                <input #emergencyYesVar="ngModel" name="emergency-radio" class="custom-radio primary"
+                  id="emergency-yes-radio" type="radio" [disabled]="!canEdit" [value]="true"
+                  [(ngModel)]="family.isEmergencyContact">
+                <label for="emergency-yes-radio">
+                  <span class="text">Yes</span>
+                </label>
+              </div>
+
+              <div class="col-6">
+                <input #emergencyNoVar="ngModel" name="emergency-radio" class="custom-radio primary"
+                  id="emergency-no-radio" type="radio" [disabled]="!canEdit" [value]="false"
+                  [(ngModel)]="family.isEmergencyContact">
+                <label for="emergency-no-radio">
+                  <span class="text">No</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Is Dependant</label>
+            <label class="form-explanation">Check the box if you want to add the person as your dependant.</label>
+
+            <div class="row no-x-m">
+              <div class="col-6">
+                <input #dependencyYesVar="ngModel" name="dependency-radio" class="custom-radio primary"
+                  id="dependency-yes-radio" type="radio" [disabled]="!canEdit" [value]="true"
+                  [(ngModel)]="family.isDependant">
+                <label for="dependency-yes-radio">
+                  <span class="text">Yes</span>
+                </label>
+              </div>
+
+              <div class="col-6">
+                <input #dependencyNoVar="ngModel" name="dependency-radio" class="custom-radio primary"
+                  id="dependency-no-radio" type="radio" [disabled]="!canEdit" [value]="false"
+                  [(ngModel)]="family.isDependant">
+                <label for="dependency-no-radio">
+                  <span class="text">No</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title">Address</label>
+            <label class="form-explanation">Enter the address of the family member.</label>
+            <input #addressVar="ngModel" class="form-control" name="addressVar" [(ngModel)]="family.address"
+              placeholder="Enter address of family member" type="text" [disabled]="!canEdit" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Email</label>
+            <label class="form-explanation">Enter the email address of the family member.</label>
+            <input #emailVar="ngModel" class="form-control" name="emailVar" [(ngModel)]="family.email" type="email"
+              placeholder="Enter email of family member" ngvemail [disabled]="!canEdit" />
+            <app-custom-validation [model]="emailVar" [email]="'Enter the email properly.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Date Of Birth</label>
+            <label class="form-explanation">Enter the date of birth of the family member.</label>
+            <input #dobVar="ngModel" [(ngModel)]="family.dob" name="dobVar" type="text" placeholder="Select a date"
+              class="form-control" bsDatepicker [bsConfig]="datePickerOptions" [maxDate]="today"
+              placeholder="Choose date of birth for member" [disabled]="!canEdit" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Occupation</label>
+            <label class="form-explanation">Enter the occupation of the family member.</label>
+            <input #occupationVar="ngModel" class="form-control" name="occupationVar" [(ngModel)]="family.occupation"
+              placeholder="Enter occupation of family member" type="text" [disabled]="!canEdit" />
+          </div>
+
+          <div *ngIf="showMediclaim" class="form-group">
+            <label class="form-title required">Hospitalisation Mediclaim Policy cover</label>
+            <label class="form-explanation">Do you want the added family member to be covered under the Hospitalisation
+              Mediclaim Policy.</label>
+
+            <div class="row no-x-m">
+              <div class="col-6">
+                <input #mediclaimYesVar="ngModel" name="mediclaim-radio" class="custom-radio primary"
+                  id="mediclaim-yes-radio" type="radio" [disabled]="!canEdit" [value]="true"
+                  [(ngModel)]="family.isOptedForMediclaim">
+                <label for="mediclaim-yes-radio">
+                  <span class="text">Yes</span>
+                </label>
+              </div>
+
+              <div class="col-6">
+                <input #mediclaimNoVar="ngModel" name="mediclaim-radio" class="custom-radio primary"
+                  id="mediclaim-no-radio" type="radio" [disabled]="!canEdit" [value]="false"
+                  [(ngModel)]="family.isOptedForMediclaim">
+                <label for="mediclaim-no-radio">
+                  <span class="text">No</span>
+                </label>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" [disabled]="familyForm && !familyForm.valid || !canEdit" (click)="addOrUpdate()">
+        <span>{{ isUpdating ? 'Update Family' : 'Add Family' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

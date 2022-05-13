@@ -1,0 +1,72 @@
+.bread-crumbs {
+  display: flex;
+  font-size: $font-size-xxs;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 500;
+
+  .bread-crumb {
+    margin-right: 5px;
+
+    &:after {
+      content: '/';
+      margin-left: 5px;
+    }
+
+    &:last-of-type {
+      color: $primary;
+
+      &:after {
+        content: none !important;
+      }
+    }
+  }
+}
+
+$breadcrumb-separators: ('chevron-right': '\f054',
+  'caret-right': '\f0da',
+  'angle-right': '\f105',
+  'arrow-right': '\f061'
+);
+
+@mixin breadcrumb-separators {
+
+  @each $s,
+  $value in $breadcrumb-separators {
+    .bread-crumbs {
+      &.separator-#{$s} {
+        .bread-crumb {
+          &:after {
+            content: '#{$value}';
+            @include font-awesome();
+          }
+
+          &.separator-#{$s} {
+            &:after {
+              content: '#{$value}';
+              @include font-awesome();
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin breadcrumb-colors {
+
+  @each $c,
+  $value in $colors {
+    .bread-crumbs-#{$c} {
+
+      .bread-crumb {
+        &:last-of-type {
+          color: #{$value};
+        }
+      }
+    }
+  }
+}
+
+@include breadcrumb-colors();
+@include breadcrumb-separators();

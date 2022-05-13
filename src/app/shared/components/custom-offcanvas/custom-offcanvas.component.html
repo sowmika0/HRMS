@@ -1,0 +1,18 @@
+<div *ngIf="isShow" class="custom-offcanvas" [ngClass]="[showClass, showBackdrop ? 'no-backdrop' : '']">
+  <div class="offcanvas-content"
+    [ngClass]="[showContentClass, 'offcanvas-' + offcanvasSize, showShadow ? 'show-shadow' : '']">
+    <div class="offcanvas-header">
+      <h4 class="offcanvas-title heading">{{ title }}</h4>
+      <span class="close pull-right" aria-label="Close" (click)="hideCanvas()">
+        <span aria-hidden="true">
+          <i class="fas fa-times"></i>
+        </span>
+      </span>
+    </div>
+    <div class="offcanvas-body">
+      <ng-content></ng-content>
+    </div>
+    <div class="offcanvas-footer"></div>
+  </div>
+  <div *ngIf="showBackdrop" class="offcanvas-backdrop" (click)="!staticBackdrop && hideCanvas()"></div>
+</div>

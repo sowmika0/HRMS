@@ -1,0 +1,97 @@
+<div class="settings-container settings-productLine-container p-sm">
+  <div *ngIf="activeProductLines.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(productLineForm)">New Product Line</button>
+  </div>
+
+  <div *ngIf="activeProductLines.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No product lines added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new productLine.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(productLineForm)">New Product Line</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeProductLines.length > 0" class="added-productLine-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger"  class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Product Line Name</th>
+          <th style="width: 45%;">Description</th>
+          <th style="width: 15%;">Employee Count</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeProductLines">
+          <td>
+            <span>{{ item.productLine }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.employeesCount }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit productLine information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs"
+              [tooltip]="item.employeesCount > 0 ? 'Cannot delete this productLine as employees are assigned to it.' : 'Delete this productLine.'"
+              [disabled]="item.employeesCount > 0" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save ProductLines</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #productLineModal
+    [title]=" productLine.productLineId ? 'Update Product Line Details' : 'Add New Product Line'"
+    [subTitle]="'Enter the details for the productLine to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The product line you are trying to add is already present. Try another product line.
+      </div>
+      <form #productLineForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Product Line Name</label>
+          <label class="form-explanation">Enter the name of the productLine.</label>
+          <input #productLineVar="ngModel" class="form-control" name="productLine" [(ngModel)]="productLine.productLine"
+            type="text" required  [disabled]="isUpdating"/>
+          <app-custom-validation [model]="productLineVar" [required]="'Enter the name for the productLine.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title">Product Line Description</label>
+          <label class="form-explanation">Enter the description for the page that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description"
+            [(ngModel)]="productLine.description" rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()">
+        <span>{{ productLine.productLineId ? 'Update Product Line' : 'Add Product Line' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

@@ -1,0 +1,930 @@
+<div class="training-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Trainings</h3>
+        <div class="sub-title">All the trainings that are conducted in the company will be shown here .</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline"
+          (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addTrainingModal(trainingForm)">
+          <span>Add Training</span>
+        </button>
+      </div>
+
+      <div class="trainings-list mt-md">
+        <h5>Ongoing / Upcoming trainings</h5>
+        <div *ngIf="upcomingTrainings.length > 0">
+          <table #upcomingTable id="upcomingTable" class="table table-responsive table-striped" datatable
+            [dtTrigger]="upcomingTrigger" [dtOptions]="upcomingDtOptions">
+            <thead>
+              <tr>
+                <th style="width: 10%">Name</th>
+                <th style="width: 15%">Date</th>
+                <th>Trainer Name</th>
+                <th>Max Nominees</th>
+                <th>Attendance</th>
+                <th>Feedback</th>
+                <th>Rating</th>
+                <th>Organizer</th>
+                <th style="width: 10%">Location</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of upcomingTrainings">
+                <td>
+                  <div>{{ item.trainingName }}</div>
+                </td>
+                <td class="text-sm">
+                  <div>{{ item.startDate | date: 'dd-MMM-yy' }} to</div>
+                  <div>{{ item.endDate | date: 'dd-MMM-yy' }}</div>
+                </td>
+                <td>
+                  <div>{{ item.trainerName }}</div>
+                </td>
+                <td>
+                  <div>{{ item.maxNominees }}</div>
+                </td>
+                <td>
+                  <div>{{ item.attendancePercentage }}</div>
+                </td>
+                <td>
+                  <div>{{ item.feedbackPercentage }}</div>
+                </td>
+                <td>
+                  <div>{{ item.effectiveness }}</div>
+                </td>
+                <td>
+                  <div>{{ item.organizers }}</div>
+                </td>
+                <td>
+                  <div>{{ item.location }}</div>
+                </td>
+                <td>
+                  <div *ngIf="!item.isConfirmed && !item.isStarted && !item.isCompleted && !item.isFeedbackClosed" class="badge badge-warning badge-sm">Draft</div>
+                  <div *ngIf="item.isConfirmed && !item.isStarted" class="badge badge-dark badge-sm">Confirmed</div>
+                  <div *ngIf="item.isStarted && !item.isCompleted" class="badge badge-warning badge-sm">Ongoing</div>
+                  <!-- <div *ngIf="item.isCompleted" class="badge badge-success badge-sm">Completed</div> -->
+                  <div>
+                    <div *ngIf="item.isCompleted && item.isFeedbackClosed" class="badge badge-primary badge-sm">Feedback
+                      Closed
+                    </div>
+                    <div *ngIf="item.isCompleted && !item.isFeedbackClosed" class="badge badge-danger badge-sm">Feedback
+                      Open
+                    </div>
+                  </div>
+                </td>
+
+
+                <td class="text-center">
+                  <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                    <button type="button" dropdownToggle
+                      class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">
+                      <i class="fa fa-ellipsis-v"></i>
+                    </button>
+                    <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                      <div>
+                        <h6 class="dropdown-header">Training Actions</h6>
+                        <li>
+                          <a class="dropdown-item default" (click)="edit(item)">
+                            <span class="mr-sm"><i class="fas fa-pen"></i></span>
+                            <span>{{ item.isCompleted ? 'View' : 'Edit' }} Training</span>
+                          </a>
+                        </li>
+                        <li *ngIf="!item.isConfirmed">
+                          <a class="dropdown-item default" (click)="confirmAlert(item.trainingId)">
+                            <span class="mr-sm"><i class="fas fa-check"></i></span>
+                            <span>Confirm Training</span>
+                          </a>
+                        </li>
+                        <li *ngIf="item.isCompleted && !item.isFeedbackClosed">
+                          <a class="dropdown-item dropdown-item-danger" (click)="feedbackCloseAlert(item)">
+                            <span class="mr-sm"><i class="fas fa-times"></i></span>
+                            <span>Close Feedback</span>
+                          </a>
+                        </li>
+                        <li *ngIf="!item.isCompleted && !item.isStarted">
+                          <a class="dropdown-item dropdown-item-danger" (click)="deleteTrainingAlert(item)">
+                            <span class="mr-sm"><i class="fas fa-trash"></i></span>
+                            <span>Delete Training</span>
+                          </a>
+                        </li>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div *ngIf="upcomingTrainings.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i class="fas fa-hiking"></i>
+          </div>
+          <h4>No Ongoing / Upcoming trainings present.</h4>
+        </div>
+      </div>
+
+      <div class="trainings-list mt-md">
+        <h5>Completed trainings</h5>
+        <table #completedTable id="completedTable" *ngIf="ongoingTrainings.length > 0" class="table table-striped"
+          datatable [dtOptions]="completedDtOptions" [dtTrigger]="completedTrigger">
+          <thead>
+            <tr>
+              <th style="width: 15%">Name</th>
+              <th style="width: 15%">Date</th>
+              <th>Trainer Name</th>
+              <th>Max Nominees</th>
+              <th>Attendance</th>
+              <th>Feedback</th>
+              <th>Rating</th>
+              <th style="width: 15%">Organizer</th>
+              <th style="width: 10%">Location</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ongoingTrainings">
+              <td>
+                <div>{{ item.trainingName }}</div>
+              </td>
+              <td class="text-sm">
+                <div>{{ item.startDate | date: 'dd-MMM-yy' }} to</div>
+                <div>{{ item.endDate | date: 'dd-MMM-yy' }}</div>
+              </td>
+              <td>
+                <div>{{ item.trainerName }}</div>
+              </td>
+              <td>
+                <div>{{ item.maxNominees }}</div>
+              </td>
+              <td>
+                <div>{{ item.attendancePercentage }}</div>
+              </td>
+              <td>
+                <div>{{ item.feedbackPercentage }}</div>
+              </td>
+              <td>
+                <div>{{ item.effectiveness }}</div>
+              </td>
+              <td>
+                <div>{{ item.organizers }}</div>
+              </td>
+              <td>
+                <div>{{ item.location }}</div>
+              </td>
+              <td>
+                <div *ngIf="item.isConfirmed && !item.isStarted" class="badge badge-dark badge-sm">Confirmed</div>
+                <div *ngIf="item.isStarted && !item.isCompleted" class="badge badge-warning badge-sm">Ongoing</div>
+                <div>
+                  <div *ngIf="item.isCompleted && item.isFeedbackClosed" class="badge badge-primary badge-sm">Feedback
+                    Closed
+                  </div>
+                  <div *ngIf="item.isCompleted && !item.isFeedbackClosed" class="badge badge-danger badge-sm">Feedback
+                    Open
+                  </div>
+                </div>
+              </td>
+
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Training Actions</h6>
+                      <li>
+                        <a class="dropdown-item default" (click)="edit(item)">
+                          <span class="mr-sm"><i class="fas fa-pen"></i></span>
+                          <span>{{ item.isCompleted ? 'View' : 'Edit' }} Training</span>
+                        </a>
+                      </li>
+                      <li *ngIf="!item.isConfirmed">
+                        <a class="dropdown-item default" (click)="confirmAlert(item.trainingId)">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Confirm Training</span>
+                        </a>
+                      </li>
+                      <li *ngIf="item.isCompleted && !item.isFeedbackClosed">
+                        <a class="dropdown-item dropdown-item-danger" (click)="feedbackCloseAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-times"></i></span>
+                          <span>Close Feedback</span>
+                        </a>
+                      </li>
+                      <li *ngIf="!item.isCompleted && !item.isStarted">
+                        <a class="dropdown-item dropdown-item-danger" (click)="deleteTrainingAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-trash"></i></span>
+                          <span>Delete Training</span>
+                        </a>
+                      </li>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="ongoingTrainings.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i class="fas fa-hiking"></i>
+          </div>
+          <h4>No trainings completed.</h4>
+        </div>
+      </div>
+    </div>
+
+    <app-custom-modal #trainingModal [title]="isUpdating ? 'Edit Training Info' :'Add New Training' "
+      [subTitle]="'Enter the details of the training to be added or updated'" [modalSize]="'xl'">
+      <div class="training-tab-container tab-container">
+
+        <tabset #trainingTabs [vertical]="false" class="tab-container tab-horizontal">
+          <tab>
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-icon">
+                  <i class="fas fa-pen"></i>
+                </div>
+                <div class="tab-header-content">
+                  <div class="header no-m">Training details</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <form #trainingForm="ngForm" class="form show-character-count row no-x-m">
+
+                <div class="col-lg-4">
+
+                  <div class="form-group">
+                    <label class="form-title required">Training Title</label>
+                    <label class="form-explanation">The title for the training.</label>
+                    <input #trainingTitleVar="ngModel" class="form-control" name="trainingTitleVar"
+                      placeholder="Enter the training title" [disabled]="isUpdating && newTraining.isConfirmed"
+                      [(ngModel)]="newTraining.trainingTitle" type="text" required />
+                    <app-custom-validation [model]="trainingTitleVar" [required]="'Enter the training title.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title required">Training Code</label>
+                    <label class="form-explanation">The code for the training.</label>
+                    <ng-select #typeVar="ngModel" name="trainingCodeVar" [(ngModel)]="newTraining.trainingCodeSelection"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="trainingCode" [multiple]="false"
+                      [clearable]="false" placeholder="Choose training code" required
+                      (change)="newTraining.trainingCode = $event.label">
+                      <app-custom-validation [model]="typeVar" [required]="'Choose a training code.'">
+                      </app-custom-validation>
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title required">Training Category</label>
+                    <label class="form-explanation">The category for the training.</label>
+                    <ng-select #trainingCategoryVar="ngModel" name="trainingCategoryVar"
+                      [(ngModel)]="newTraining.trainingCategorySelection"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="trainingCategoryTypes"
+                      [multiple]="false" [clearable]="false" placeholder="Choose the training category" required
+                      (change)="newTraining.trainingCategory = $event.value">
+                      <app-custom-validation [model]="trainingCategoryVar" [required]="'Choose a training category.'">
+                      </app-custom-validation>
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Training Sub Category</label>
+                    <label class="form-explanation">Choose the training subcategory to create a training.</label>
+                    <ng-select #typeVar="ngModel" name="typeVar" [(ngModel)]="newTraining.trainingTypeSelection"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="trainingTypes" [multiple]="false"
+                      [clearable]="false" placeholder="Choose training type" required
+                      (change)="newTraining.trainingType = $event.value">
+                      <app-custom-validation [model]="typeVar" [required]="'Choose a training type.'">
+                      </app-custom-validation>
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title required">Training Dates</label>
+                    <label class="form-explanation">Choose the dates for the training.</label>
+                    <input #dateVar="ngModel" [(ngModel)]="newTraining.selectedDate" name="dateVar" type="text"
+                      placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+                      (bsValueChange)="onDateChosen($event)" [disabled]="isUpdating && newTraining.isConfirmed"
+                      [minDate]="today">
+
+                    <label class="form-explanation mt-sm">Added dates.</label>
+                    <ng-select #dateSelectedVar="ngModel" name="dateSelectedVar" [(ngModel)]="newTraining.selectedDates"
+                      [multiple]="true" [clearable]="true" placeholder="Dates selected"
+                      [disabled]="isUpdating && newTraining.isConfirmed" (change)="onDateDeselected($event)">
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title required">Training Incharge</label>
+                    <label class="form-explanation">Choose the persons incharge for the training.</label>
+                    <ng-select #organizerVar="ngModel" name="organizerVar" [(ngModel)]="newTraining.selectedOrganizers"
+                      (change)="newTraining.organizers = selectMultiple($event)" [items]="employeesList"
+                      [disabled]="newTraining.isConfirmed" placeholder="Choose organizers" [multiple]="true"
+                      [clearable]="true" class="" [searchFn]="reportingSearchFunction">
+
+                      <ng-template ng-label-tmp let-item="item">
+                        <div class="px-sm">
+                          {{ item.employeeName }}
+                        </div>
+                      </ng-template>
+
+                      <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                        <div class="reporting-to-dropdown-item">
+                          <div class="employee-name">{{ item.employeeName }}</div>
+                          <div class="employee-code">{{ item.employeeCode }}</div>
+                        </div>
+
+                      </ng-template>
+                    </ng-select>
+                    <app-custom-validation [model]="organizerVar" [required]="'Choose the training incharge.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Training Description</label>
+                    <label class="form-explanation">Enter the description for the training.</label>
+                    <textarea #descriptionVar="ngModel" class="form-control" name="descriptionVar"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [(ngModel)]="newTraining.description" rows="5"
+                      type="text"></textarea>
+                  </div>
+
+                  <!--  <div class="form-group">
+              <label class="form-title">Is Live</label>
+              <label class="form-explanation">Check the option below to confirm that training can be created. Once this
+                is checked and saved the training details cannot be updated.</label>
+
+              <div class="col-12 no-p">
+                <input #publishVar="ngModel" name="publish-checkbox" class="custom-checkbox primary"
+                  id="publish-checkbox" type="checkbox" [value]="true"
+                  [disabled]="isUpdating && newTraining.isConfirmed" [(ngModel)]="newTraining.isConfirmed">
+                <label for="publish-checkbox">
+                  <span class="text">Training confirmed</span>
+                </label>
+              </div>
+            </div> -->
+
+                </div>
+
+                <div class="col-lg-4">
+
+                  <div class="form-group">
+                    <label class="form-title">Trainer Name</label>
+                    <label class="form-explanation">The trainer name for the training.</label>
+                    <input #trainerNameVar="ngModel" class="form-control" name="trainerNameVar"
+                      placeholder="Enter the trainer name" [disabled]="isUpdating && newTraining.isStarted"
+                      [(ngModel)]="newTraining.trainerName" type="text" />
+                    <app-custom-validation [model]="trainerNameVar" [required]="'Enter the trainer name.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Training Time</label>
+                    <label class="form-explanation">The time of day for the training.</label>
+                    <input #timeOfDayVar="ngModel" class="form-control" name="timeOfDayVar"
+                      placeholder="Enter the time of day" [disabled]="isUpdating && newTraining.isConfirmed"
+                      type="text" [pattern]="regex.numbersWithDecimal"
+                      [(ngModel)]="newTraining.timeOfDay" />
+                    <app-custom-validation [model]="timeOfDayVar" [pattern]="'Enter the proper time time format HH.mm.'" [required]="'Enter the time of day.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title required">Office Location</label>
+                    <label class="form-explanation">Choose if the training is happening in an office location.</label>
+
+                    <div class="row no-x-m">
+                      <div class="col-12">
+                        <input #otherLocationVar="ngModel" name="otherLocationVar" class="custom-checkbox primary"
+                          id="birthday-hide-radio" type="checkbox" [disabled]="isUpdating && newTraining.isConfirmed"
+                          [value]="true" [(ngModel)]="newTraining.isOfficeLocation">
+                        <label for="birthday-hide-radio">
+                          <span class="text">Yes, Office location</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div *ngIf="!newTraining.isOfficeLocation" class="form-group">
+                    <label class="form-title">Other Location</label>
+                    <label class="form-explanation">The location for the training to happen.</label>
+                    <input #trainingOtherLocationVar="ngModel" class="form-control" name="trainingOtherLocationVar"
+                      placeholder="Enter the other location" [disabled]="isUpdating && newTraining.isConfirmed"
+                      [(ngModel)]="newTraining.otherLocation" type="text" />
+                    <app-custom-validation [model]="trainingOtherLocationVar" [required]="'Enter the other location.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div *ngIf="newTraining.isOfficeLocation" class="form-group">
+                    <label class="form-title">Training Location</label>
+                    <label class="form-explanation">Choose the location in which training will be conducted.</label>
+                    <ng-select #locationTVar="ngModel" name="locationTVar" [(ngModel)]="newTraining.selectedLocation"
+                      (change)="newTraining.officeLocationId = $event.value"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="locationOptions" [multiple]="false"
+                      [clearable]="false" placeholder="Choose training location">
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Max Nominees</label>
+                    <label class="form-explanation">The maximum number of nominees or the training.</label>
+                    <input #nomineesVar="ngModel" class="form-control" name="nomineesVar" placeholder="Max Nominees"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [(ngModel)]="newTraining.maxNominees"
+                      type="number" />
+                    <app-custom-validation [model]="nomineesVar" [required]="'Choose the max number of nominees.'">
+                    </app-custom-validation>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Grades</label>
+                    <label class="form-explanation">Choose the grades for which this training will apply.</label>
+                    <ng-select #gradeVar="ngModel" name="gradeVar" [(ngModel)]="newTraining.selectedGrades"
+                      (change)="newTraining.grades = selectMultipleFilters($event)"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="gradeOptions" [multiple]="true"
+                      [clearable]="true" placeholder="Choose employee grade">
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Designations</label>
+                    <label class="form-explanation">Choose the designations for which this training will apply.</label>
+                    <ng-select #designationVar="ngModel" name="designationVar"
+                      [(ngModel)]="newTraining.selectedDesignations"
+                      (change)="newTraining.designations = selectMultipleFilters($event)"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="designationOptions" [multiple]="true"
+                      [clearable]="true" placeholder="Choose employee designation">
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Departments</label>
+                    <label class="form-explanation">Choose the departments for which this training will apply.</label>
+                    <ng-select #departmentVar="ngModel" name="departmentVar"
+                      [(ngModel)]="newTraining.selectedDepartments"
+                      (change)="newTraining.departments = selectMultipleFilters($event)"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="departmentOptions" [multiple]="true"
+                      [clearable]="true" placeholder="Choose employee departments">
+                    </ng-select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-title">Locations</label>
+                    <label class="form-explanation">Choose the locations for which this training will apply.</label>
+                    <ng-select #locationVar="ngModel" name="locationVar" [(ngModel)]="newTraining.selectedLocations"
+                      (change)="newTraining.locations = selectMultipleFilters($event)"
+                      [disabled]="isUpdating && newTraining.isConfirmed" [items]="locationOptions" [multiple]="true"
+                      [clearable]="true" placeholder="Choose employee locations">
+                    </ng-select>
+                  </div>
+
+                </div>
+
+                <div class="col-lg-4">
+                  <div class="text-center mt-sm">
+                    <button class="btn btn-primary" (click)="updateTrainingNomineeList()" [disabled]="updatingNominees"
+                      [ngClass]="[updatingNominees ? 'spinning' : '']">
+                      <span>Check nominee list</span>
+                      <i class="fas fa-spinner spinner"></i>
+                    </button>
+                  </div>
+
+                  <div *ngIf="updatingNominees" class="alert alert-primary alert-outline alert-sm mt-lg">
+                    Getting the applicable nominees for the selection.
+                  </div>
+
+                  <div *ngIf="!updatingNominees" class="training-nominee-list mt-md">
+                    <div class="text-bold">{{ trainingNominees.length }} applicable nominees found.</div>
+                    <!-- <div class="training-nominees mt-sm">
+                      <div *ngFor="let item of trainingNominees" class="training-nominee p-xs b-b">
+                        <div class="name"><span>{{ item.name }}</span> <span class="ml-sm">({{ item.code }})</span>
+                        </div>
+                      </div>
+                    </div> -->
+
+                    <div class="form-group mt-md">
+                      <label class="form-title">Choose nominees
+                        ({{ newTraining.selectedNominees ? newTraining.selectedNominees?.length : 0 }} selected)</label>
+                      <label class="form-explanation">Choose the nominees to add to the training.</label>
+                      <ng-select #trainingNomineesSelectVar="ngModel" name="trainingNomineesSelectVar"
+                        [(ngModel)]="newTraining.selectedNominees"
+                        (change)="newTraining.nominees = selectMultiple($event)"
+                        [disabled]="isUpdating && newTraining.isConfirmed" [items]="trainingNominees" [multiple]="true"
+                        [clearable]="true" placeholder="Choose training nominees">
+
+                        <!-- <ng-template ng-label-tmp let-item="item">
+                          <div class="px-sm">
+                            {{ item.name }}
+                          </div>
+                        </ng-template> -->
+
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                          <div class="">
+                            <div class="employee-name">{{ item.name }}</div>
+                            <div class="employee-code">{{ item.code }}</div>
+                          </div>
+
+                        </ng-template>
+                      </ng-select>
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+            </div>
+          </tab>
+
+          <tab *ngIf="isUpdating && newTraining.isConfirmed">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-icon">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="tab-header-content">
+                  <div class="header no-m">Training Nominees</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div *ngIf="!newTraining.isCompleted" class="add-more-nominees-select mb-md">
+
+                <div class="form-group">
+                  <label class="form-title required">New nominees to add</label>
+                  <label class="form-explanation">Choose the nominees you want to add. If you choose an already added
+                    nominee, the nominee will not be added twice.</label>
+                  <ng-select #newNomineeVar="ngModel" name="newNomineeVar" [(ngModel)]="newNomineesSelected"
+                    (change)="newNominees = selectMultiple($event)" [items]="nomineesEmployeeList"
+                    placeholder="Choose new nominees" [multiple]="true" [clearable]="true" class=""
+                    [searchFn]="reportingSearchFunction">
+
+                    <ng-template ng-label-tmp let-item="item">
+                      <div class="pl-xs pr-xs">
+                        {{ item.employeeName }}
+                      </div>
+                    </ng-template>
+
+                    <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                      <div class="reporting-to-dropdown-item">
+                        <div class="employee-name">{{ item.employeeName }}</div>
+                        <div class="employee-code">{{ item.employeeCode }}</div>
+                      </div>
+
+                    </ng-template>
+                  </ng-select>
+                  <app-custom-validation [model]="organizerVar" [required]="'Choose the nominee.'">
+                  </app-custom-validation>
+                </div>
+
+                <button class="btn btn-primary btn-md" (click)="addSelectedNominees()"
+                  [ngClass]="isGettingNominees ? 'spinning': ''" [disabled]="isGettingNominees">
+                  <span>Add selected nominees</span>
+                  <i class="fas fa-spinner spinner"></i>
+                </button>
+              </div>
+
+              <table *ngIf="trainingDetailsResponse.nominees.length > 0" class="table table-striped" datatable
+                [dtOptions]="nomineeDtOptions">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Self</th>
+                    <th>Manager</th>
+                    <th>HR</th>
+                    <th style="width: 40%;" *ngIf="newTraining.isCompleted">Feedback</th>
+                    <th *ngIf="!newTraining.isCompleted"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of trainingDetailsResponse.nominees">
+                    <td>
+                      <div>{{ item.name }}</div>
+                    </td>
+                    <td>
+                      <div>
+                        <div *ngIf="item.selfUpdatedOn && item.isSelfAccepted === false" class="">
+                          <div class="badge badge-alternate badge-danger"
+                            [tooltip]="item.selfUpdatedOn | date: 'dd-MMM-yy HH:mm'">Rejected</div>
+                        </div>
+                        <div *ngIf="item.isSelfAccepted === null" class="">
+                          <div class="badge badge-alternate badge-warning">Pending</div>
+                        </div>
+                        <div *ngIf="item.isSelfAccepted" class="">
+                          <div class="badge badge-alternate badge-success"
+                            [tooltip]="item.selfUpdatedOn | date: 'dd-MMM-yy HH:mm'">Accepted</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <div *ngIf="item.managerUpdatedOn && item.isMangerAccepted  === false" class="">
+                          <div class="badge badge-alternate badge-danger"
+                            [tooltip]="item.managerUpdatedOn | date: 'dd-MMM-yy HH:mm'">Rejected</div>
+                        </div>
+                        <div *ngIf="item.isMangerAccepted === null" class="">
+                          <div class="badge badge-alternate badge-warning">Pending</div>
+                        </div>
+                        <div *ngIf="item.isMangerAccepted" class="">
+                          <div class="badge badge-alternate badge-success"
+                            [tooltip]="item.managerUpdatedOn | date: 'dd-MMM-yy HH:mm'">Accepted</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <div *ngIf="item.hrUpdatedOn && item.isHrAccepted === false" class="">
+                          <div class="badge badge-alternate badge-danger"
+                            [tooltip]="item.hrUpdatedOn | date: 'dd-MMM-yy HH:mm'">Rejected</div>
+                        </div>
+                        <div *ngIf="item.isHrAccepted === null" class="">
+                          <div class="badge badge-alternate badge-warning">Pending</div>
+                        </div>
+                        <div *ngIf="item.isHrAccepted" class="">
+                          <div class="badge badge-alternate badge-success"
+                            [tooltip]="item.hrUpdatedOn | date: 'dd-MMM-yy HH:mm'">Accepted</div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td style="width: 40%;" *ngIf="newTraining.isCompleted">
+                      <div *ngIf="newTraining.isCompleted && !item.isFeedbackDone"
+                        class="badge badge-alternate badge-danger">Not Done</div>
+                      <div *ngIf="newTraining.isCompleted && item.isFeedbackDone">
+                        <div class="">Rating: {{ item.feedbackRating }}</div>
+                        <div class="mt-xs">Comment: {{ item.feedbackContent }}</div>
+                      </div>
+                    </td>
+                    <!-- 
+                    <td>
+                      <div>{{ item.rejectionReason }}</div>
+                    </td> -->
+
+                    <td *ngIf="!newTraining.isCompleted" class="text-center">
+                      <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                        <button type="button" dropdownToggle
+                          class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                          aria-haspopup="true" aria-expanded="false">
+                          <i class="fa fa-ellipsis-v"></i>
+                        </button>
+                        <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                          <div>
+                            <h6 class="dropdown-header">Nominee Actions</h6>
+                            <li *ngIf="!item.isHrAccepted">
+                              <a class="dropdown-item default"
+                                (click)="acceptTrainingAlert(newTraining.trainingId, item.nomineeId, 'hr')">
+                                <span class="mr-sm"><i class="fas fa-check"></i></span>
+                                <span>Accept Nominee</span>
+                              </a>
+                            </li>
+                            <li *ngIf="item.isHrAccepted === null || item.isHrAccepted === true">
+                              <a class="dropdown-item default"
+                                (click)="rejectTrainingAlert(newTraining.trainingId, item.nomineeId, 'hr')">
+                                <span class="mr-sm"><i class="fas fa-times"></i></span>
+                                <span>Reject Nominee</span>
+                              </a>
+                            </li>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </tab>
+
+          <tab *ngIf="newTraining.isConfirmed && newTraining.isStarted">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-icon">
+                  <i class="fas fa-receipt"></i>
+                </div>
+                <div class="tab-header-content">
+                  <div class="header no-m">Training Attendance</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <tabset #attendanceTabs [vertical]="false" class="tab-container tab-horizontal">
+
+                <tab *ngFor="let date of trainingDetailsResponse.attendanceDate; let j = index;">
+                  <ng-template tabHeading>
+                    <div class="tab-header">
+                      <div class="tab-header-icon">
+                        <i class="fas fa-receipt"></i>
+                      </div>
+                      <div class="tab-header-content">
+                        <div class="header no-m">{{ date.date }}</div>
+                      </div>
+                    </div>
+                  </ng-template>
+                  <div class="tab-body">
+
+                    <table *ngIf="date.attendance.length > 0" class="table table-striped" datatable
+                      [dtOptions]="dtOptions">
+                      <thead>
+                        <tr>
+                          <th>Employee</th>
+                          <th>Attendance</th>
+                          <th>Remark</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let item of date.attendance; let i = index">
+                          <td>{{ item.employeeName }}</td>
+                          <td>
+                            <div class="form-group">
+                              <div class="row no-x-m">
+                                <div class="col-6">
+                                  <input [name]="'attendance-' + j + '-' + i" [id]="'attendance-' + j + '-' + i"
+                                    class="custom-radio primary" type="radio" [disabled]="true" [value]="true"
+                                    [(ngModel)]="item.isAttended">
+                                  <label [for]="'attendance-' + j + '-' + i">
+                                    <span class="text">Yes</span>
+                                  </label>
+                                </div>
+
+                                <div class="col-6">
+                                  <input [name]="'attendance-' + j + '-' + i" [id]="'attendance-' + j + '-' + i"
+                                    class="custom-radio primary" id="gender-radio-female" type="radio" [disabled]="true"
+                                    [value]="false" [(ngModel)]="item.isAttended">
+                                  <label [for]="'attendance-' + j + '-' + i">
+                                    <span class="text">No</span>
+                                  </label>
+                                </div>
+                              </div>
+
+                            </div>
+                          </td>
+                          <td>
+                            <div class="form-group">
+                              <input class="form-control" [disabled]="true" [name]="'remarks-' + i"
+                                [(ngModel)]="item.remark" type="text" />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                  </div>
+                </tab>
+
+                <!-- <div *ngIf="!newTraining.isCompleted" class="text-center mt-md">
+                  <button class="btn btn-primary btn-md" (click)="saveAttendance()">
+                    <span>Save Attendance</span>
+                  </button>
+                </div> -->
+
+              </tabset>
+            </div>
+          </tab>
+
+          <tab *ngIf="newTraining.isConfirmed && newTraining.isStarted && newTraining.isCompleted">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-icon">
+                  <i class="fas fa-comment"></i>
+                </div>
+                <div class="tab-header-content">
+                  <div class="header no-m">Training Feedback</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+
+              <table *ngIf="trainingDetailsResponse.effectiveness.length > 0" class="table table-striped" datatable
+                [dtOptions]="dtOptions">
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Average Answer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of trainingDetailsResponse.effectiveness">
+                    <td>{{ item.question }}</td>
+                    <td>{{ item.answer }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </tab>
+
+        </tabset>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button *ngIf="(isUpdating && !newTraining.isConfirmed)" type="button" class="btn btn-secondary mr-sm"
+          [disabled]="isConfirmProcessing || isProcessing" [ngClass]="[isConfirmProcessing ? 'spinning' : '']"
+          (click)="confirmAlert(newTraining.trainingId)">
+          <span>Confirm Training</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+
+        <button *ngIf="!isUpdating || (isUpdating && !newTraining.isStarted)" type="submit" class="btn btn-primary"
+          [disabled]="isConfirmProcessing || isProcessing || !trainingForm.valid || !newTraining.selectedDates 
+          || newTraining.selectedDates.length === 0 
+          " (click)="addNewTraining(trainingForm)"
+          [ngClass]="[isProcessing ? 'spinning' : '', !trainingForm.valid ? 'disabled' : '']">
+          <span *ngIf="!isUpdating">Add New Training</span>
+          <span *ngIf="isUpdating">Update Training</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+    <app-custom-modal #filterModal [title]="'Filter Trainings'"
+      [subTitle]="'Choose various filters to refine the training search.'" [modalSize]="'lg'">
+      <div class="filter-training">
+
+        <form #filtersForm="ngForm" class="row no-x-m">
+
+          <div class="form-group col-6">
+            <label class="form-title">Training Name</label>
+            <label class="form-explanation">Enter the name of the training to search.</label>
+            <input #titleVar="ngModel" class="form-control" name="trainingName"
+              [(ngModel)]="trainingFilter.trainingName" type="text" />
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Start Date</label>
+            <label class="form-explanation">Choose the start date on the training.</label>
+            <input #dateVar="ngModel" [(ngModel)]="trainingFilter.startDate" name="startDateVar" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">End Date</label>
+            <label class="form-explanation">Choose the end date on the training.</label>
+            <input #dateVar="ngModel" [(ngModel)]="trainingFilter.endDate" name="endDateVar" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Employees</label>
+            <label class="form-explanation">Choose the employees to filter to.</label>
+            <ng-select #reportingToVar="ngModel" name="reportingToVar" [(ngModel)]="trainingFilter.employeeIdsSelection"
+              (change)="trainingFilter.employeeIds = selectMultiple($event)" [items]="nomineesEmployeeList"
+              placeholder="Choose employees" [multiple]="true" [clearable]="true" class="reporting-top-select"
+              [searchFn]="reportingSearchFunction">
+
+              <ng-template ng-label-tmp let-item="item">
+                {{ item.employeeName }}
+              </ng-template>
+
+              <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                <div class="reporting-to-dropdown-item">
+                  <div class="employee-name">{{ item.employeeName }}</div>
+                  <div class="employee-code">{{ item.employeeCode }}</div>
+                </div>
+
+              </ng-template>
+            </ng-select>
+          </div>
+
+
+        </form>
+
+      </div>
+
+      <div footer-buttons class="footer-buttons">
+
+        <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+          (click)="applyFilter()">
+          <span>Apply Filter</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </app-custom-modal>
+
+  </div>
+</div>

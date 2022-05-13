@@ -1,0 +1,142 @@
+.tab-container {
+  .nav-tabs {
+    .nav-item {
+      .nav-link {}
+    }
+  }
+
+  .tab-pane {
+    padding: 15px;
+  }
+
+  &.tab-vertical {
+    display: flex;
+
+    >.tab-content {
+      flex: 1;
+      position: relative;
+
+      >.tab-pane {
+        padding-top: 0;
+      }
+    }
+  }
+
+  &.tab-horizontal {
+    .nav-tabs {
+      .nav-item {
+        flex: 1;
+      }
+    }
+  }
+}
+
+@mixin tabs-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .tab-container {
+      &.tab-#{$c} {
+        >.nav-tabs {
+          .nav-item {
+            &.active {
+
+              .nav-link {
+                color: map-deep-get($button-colors, $c, 'back');
+                font-weight: 400;
+                border-color: map-deep-get($button-colors, $c, 'back');
+              }
+            }
+          }
+        }
+
+        &.tab-filled {
+          >.nav-tabs {
+            .nav-item {
+              &.active {
+
+                .nav-link {
+                  color: map-deep-get($button-colors, $c, 'back');
+                  background-color: lighten(map-deep-get($button-colors, $c, 'back'), 40);
+                  font-weight: 400;
+                  border: none;
+                }
+              }
+            }
+          }
+        }
+
+        &.tab-solid {
+          >.nav-tabs {
+            .nav-item {
+              &.active {
+
+                .nav-link {
+                  color: map-deep-get($button-colors, $c, 'fore');
+                  background-color: map-deep-get($button-colors, $c, 'back');
+                  font-weight: 400;
+                  border: none;
+                }
+              }
+            }
+          }
+        }
+
+      }
+    }
+  }
+
+}
+
+@mixin tabs-lines-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .tab-container {
+      &.tab-lines {
+        &.tab-#{$c} {
+          >.nav-tabs {
+            .nav-item {
+              &.active {
+                .nav-link {
+                  background: none;
+                  border-bottom: 2px solid;
+                }
+              }
+            }
+          }
+        }
+
+        &.tab-filled {
+          >.nav-tabs {
+            .nav-item {
+              &.active {
+                .nav-link {
+                  background: $very-light-grey;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin tabs-header-width ($from: 0, $to: 100, $inc: 5) {
+  .tab-vertical {
+    @for $i from $from to $to {
+      &.header-w-#{$i} {
+        >.nav-tabs {
+          width: #{$i * 1%};
+        }
+      }
+
+      $i:$i+$inc;
+    }
+  }
+}
+
+@include tabs-colors();
+@include tabs-lines-colors();
+@include tabs-header-width();

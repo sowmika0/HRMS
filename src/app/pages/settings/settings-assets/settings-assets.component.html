@@ -1,0 +1,123 @@
+<div class="settings-container settings-assetType-container p-sm">
+  <div *ngIf="activeAssetTypes.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(assetTypeForm)">New AssetType</button>
+  </div>
+
+  <div *ngIf="activeAssetTypes.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No asset types added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new asset type.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(assetTypeForm)">New Asset Type</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeAssetTypes.length > 0" class="added-assettype-container mt-md">
+    <table datatable [dtOptions]="dtOptions" [dtTrigger]="dtTrigger" class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Asset Type Name</th>
+          <th style="width: 45%;">Description</th>
+          <th style="width: 15%;">Employee Count</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeAssetTypes">
+          <td>
+            <span>{{ item.assetType }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.employeesActive }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit assetType information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs"
+              [tooltip]="item.employeesActive > 0 ? 'Cannot delete this asset type as employees are assigned to it.' : 'Delete this asset type.'"
+              [disabled]="item.employeesActive > 0" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+      <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+        [ngClass]="isProcessing ? 'spinning' : ''">
+        <span>Save AssetTypes</span>
+        <i class="fas fa-spinner spinner ml-xs"></i>
+      </button>
+    </div> -->
+
+  <app-custom-modal #assetTypeModal
+    [title]=" assetType.assetTypeId ? 'Update Asset Type Details' : 'Add New Asset Type'"
+    [subTitle]="'Enter the details for the assetType to add or update the information.'">
+    <div class="new-documentation">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The asset type type you are trying to add is already present. Try another asset type.
+      </div>
+      <form #assetTypeForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Asset Type Name</label>
+          <label class="form-explanation">Enter the name of the asset type.</label>
+          <input #assetTypeVar="ngModel" class="form-control" name="assetType" [(ngModel)]="assetType.assetType"
+            type="text" required [disabled]="isUpdating" />
+          <app-custom-validation [model]="assetTypeVar" [required]="'Enter the name for the assetType.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Asset Type Description</label>
+          <label class="form-explanation">Enter the description for the asset type that is created.</label>
+          <textarea #descriptionVar="ngModel" class="form-control" name="description"
+            [(ngModel)]="assetType.description" rows="5" characterCount characterLimit="500"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Signing Authorities</label>
+          <label class="form-explanation">Choose one or more signing authorities for the asset type.</label>
+          <ng-select #ownersVar="ngModel" name="ownersVar" [(ngModel)]="assetType.signingAuthoritiesSelection"
+            (change)="assetType.signingAuthorities = selectMultiple($event)" [items]="employees"
+            placeholder="Choose signing authories" [multiple]="true" [clearable]="true" class="reporting-top-select"
+            [searchFn]="reportingSearchFunction" required>
+
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.employeeName }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+              <div class="reporting-to-dropdown-item">
+                <div class="employee-name">{{ item.employeeName }}</div>
+                <div class="employee-code">{{ item.employeeCode }}</div>
+              </div>
+
+            </ng-template>
+          </ng-select>
+          <app-custom-validation [model]="ownersVar" [required]="'Choose one or more signing authorites.'">
+          </app-custom-validation>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!assetTypeForm.valid">
+        <span>{{ assetType.assetTypeId ? 'Update AssetType' : 'Add AssetType' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

@@ -1,0 +1,106 @@
+<app-menu-bar></app-menu-bar>
+<div class="app-content">
+
+  <div class="content-box">
+    <div class="page-header box-header">
+      <div class="header-content">
+        <h3 class="">Company Settings</h3>
+        <div class="sub-title">This section is used by the Administrator of the application to set the company level
+          settings like Holidays, Departments, Designations, Grades, Ticket Settings etc.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+
+      <div class="toggle-button-div">
+        <button class="btn btn-lg btn-transparent" (click)="toggleHeaderContent()"
+          [tooltip]="'Toggle section headers.'">
+          <span><i class="fas fa-bars"></i></span>
+        </button>
+      </div>
+
+      <div class="settings-tab-container tab-container" [ngClass]="showHeaderContent ? 'show-content': ''">
+
+        <tabset #settingsTabs [vertical]="true" class="tab-container tab-vertical">
+
+          <tab *ngFor="let item of settingSections" (selectTab)="onTabChanged(item)">
+            <ng-template tabHeading>
+              <div class="tab-header" [tooltipPlacement]="'right'" [tooltip]="!showHeaderContent ? item.leftHeader : ''">
+                <div class="tab-header-icon">
+                  <i class="" [ngClass]="item.icon"></i>
+                </div>
+                <div class="tab-header-content">
+                  <div class="header no-m">{{ item.leftHeader }}</div>
+                  <!-- <div class="sub-header  text-grey">{{ item.leftSubHeader }}</div> -->
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div class="header-content">
+                <h4 class="heading">{{ item.rightHeader }}</h4>
+                <div class="sub-title text-sm text-grey">{{ item.rightSubHeader }}</div>
+              </div>
+              <div *ngIf="settings">
+                <router-outlet *ngIf="item.route === activeSection.route"></router-outlet>
+                <!-- <app-settings-company *ngIf="item.type === 'company'" [icon]="item.icon"></app-settings-company>
+
+                <app-settings-department *ngIf="item.type === 'departments'" [icon]="item.icon">
+                </app-settings-department>
+
+                <app-settings-location *ngIf="item.type === 'locations'" [locations]="settings.locations"
+                  [icon]="item.icon">
+                </app-settings-location>
+
+                <app-settings-ticket *ngIf="item.type === 'tickets'" [icon]="item.icon"></app-settings-ticket>
+
+                <app-settings-appraisal *ngIf="item.type === 'appraisal'" [icon]="item.icon"></app-settings-appraisal>
+
+                <app-settings-grades *ngIf="item.type === 'grades'" [grades]="settings.grades" [icon]="item.icon">
+                </app-settings-grades>
+
+                <app-settings-product-line *ngIf="item.type === 'productLines'" [icon]="item.icon">
+                </app-settings-product-line>
+
+                <app-settings-ticket-faq *ngIf="item.type === 'ticketFaq'" [icon]="item.icon"></app-settings-ticket-faq>
+
+                <app-settings-category *ngIf="item.type === 'categories'" [categories]="settings.categories"
+                  [icon]="item.icon">
+                </app-settings-category>
+
+                <app-settings-team *ngIf="item.type === 'teams'" [teams]="settings.teams" [icon]="item.icon">
+                </app-settings-team>
+
+                <app-settings-document-type *ngIf="item.type === 'documentTypes'" [icon]="item.icon">
+                </app-settings-document-type>
+
+                <app-settings-announcement-type *ngIf="item.type === 'announcementTypes'"
+                  [announcementTypes]="settings.announcementTypes" [icon]="item.icon">
+                </app-settings-announcement-type>
+
+                <app-settings-region *ngIf="item.type === 'regions'" [icon]="item.icon"></app-settings-region>
+
+                <app-settings-holiday *ngIf="item.type === 'holidays'" [icon]="item.icon"></app-settings-holiday> -->
+              </div>
+
+            </div>
+          </tab>
+
+        </tabset>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<ng-template #tabHeaderTemplate let-item="item">
+  <div class="tab-header">
+    <div class="tab-header-icon">
+      <i class="" [ngClass]="item.icon"></i>
+    </div>
+    <div class="tab-header-content">
+      <div class="header no-m">{{ item.header }}</div>
+      <div class="sub-header">{{ item.subHeader }}</div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,24 @@
+$tooltip-sm: 150px;
+$tooltip-md: 250px;
+$tooltip-lg: 350px;
+$tooltip-xl: 450px;
+
+.tooltip {
+  position: absolute;
+  z-index: 1111;
+
+  .tooltip-arrow {}
+
+  .tooltip-inner {
+    padding: 5px;
+    font-size: $font-size-sm;
+  }
+
+  &.tooltip-sm {}
+
+  &.tooltip-left {
+    .tooltip-arrow {
+      &:before {}
+    }
+  }
+}

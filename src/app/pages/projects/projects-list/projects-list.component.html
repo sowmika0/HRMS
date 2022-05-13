@@ -1,0 +1,848 @@
+<div class="employee-tab-container tab-container project-list-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Project/Activity</h3>
+        <div class="sub-title">Projects list is displayed here. Projects can be
+          searched or filtered using various filters available. Creating and updating projects will also be done
+          from this section.</div>
+      </div>
+    </div>
+
+    <div class="projects-container">
+      <div class="projects-wrap employee-container employee-trainings-container p-sm">
+        <tabset #projectsTabs [vertical]="false" class="tab-container tab-horizontal">
+
+          <tab (selectTab)="onTabSelected('projectDashboard')">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <!-- <div class="tab-header-icon">
+                  <i class="fas fa-pen"></i>
+                </div> -->
+                <div class="tab-header-content">
+                  <div class="header no-m">Dashboard</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div class="row">
+
+                <div class="col-6">
+                  <h5>Tasks Status</h5>
+                  <div>
+                    <div class="form-group">
+                      <ng-select #dashboardFilterOptions="ngModel" name="dashboardProectFilter"
+                        [(ngModel)]="dashboardFilterDetails.filterType"
+                        (change)="dashboardFilterDetails.filterTypeVar = $event.label;onChangeDashboardTaskStatus($event)"
+                        [items]="dashboardTaskFilterOptions" placeholder="Choose filter type" [multiple]="false"
+                        [clearable]="false" required [disabled]="isUpdating">
+                      </ng-select>
+                    </div>
+                    <div class="form-group">
+                      <ng-select *ngIf="dashboardFilterDetails.filterType?.value==='projectWise'"
+                        #dashboardFilterProject="ngModel" name="dashboardProectFilterProjects"
+                        [(ngModel)]="dashboardFilterDetails.projectName"
+                        (change)="dashboardFilterDetails.taskProjectNameVar = $event.projectName;onChangeDashboardProjectWiseTaskStatus($event)"
+                        [items]="projects" placeholder="Choose project name" [multiple]="false" [clearable]="false"
+                        required [disabled]="isUpdating">
+
+                        <ng-template ng-label-tmp let-item="item">
+                          {{ item.projectName }}
+                        </ng-template>
+
+                        <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                          <div class="reporting-to-dropdown-item">
+                            <div class="employee-name">{{ item.projectName }}</div>
+                          </div>
+
+                        </ng-template>
+
+                      </ng-select>
+                    </div>
+
+                  </div>
+                  <div class="task-status-chart"
+                    *ngIf="taskStatusData && taskStatusData.datasets && this.dashboardTaskList.length > 0">
+                    <canvas ngChartjs [datasets]="taskStatusData.datasets" [labels]="taskStatusData.labels"
+                      [chartType]="'doughnut'" height="170">
+                    </canvas>
+                  </div>
+                  <div class="task-status-chart"
+                    *ngIf="taskStatusData && taskStatusData.datasets && dashboardTaskList.length === 0">
+                    <p>No tasks are available.</p>
+                  </div>
+                </div>
+
+                <div class="col-6" *ngIf="reportingToOptions.length > 0">
+                  <h5>Reportees status</h5>
+                  <div class="form-group">
+                    <ng-select #assignedToVar="ngModel" name="assignedToVar"
+                      [(ngModel)]="dashboardFilterDetails.assignedToSelection"
+                      (change)="newTask.assignedTo = $event.employeeId;onChangeDashboardForReportees($event)"
+                      [items]="reportingToOptions" placeholder="Choose employee" [multiple]="true" [clearable]="false"
+                      class="reporting-top-select" [searchFn]="reportingSearchFunction" required>
+
+                      <ng-template ng-label-tmp let-item="item">
+                        {{ item.employeeName }}
+                      </ng-template>
+
+                      <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                        <div class="reporting-to-dropdown-item">
+                          <div class="employee-name">{{ item.employeeName }}</div>
+                          <div class="employee-code">{{ item.employeeCode }}</div>
+                        </div>
+
+                      </ng-template>
+                    </ng-select>
+                  </div>
+                  <div class="project-status-chart"
+                    *ngIf="taskStatusReporteesData && taskStatusReporteesData.datasets && dashboardReporteesTaskList.length > 0">
+                    <canvas ngChartjs [datasets]="taskStatusReporteesData.datasets"
+                      [labels]="taskStatusReporteesData.labels" [chartType]="'doughnut'" height="170">
+                    </canvas>
+                  </div>
+                  <div class="task-status-chart" *ngIf="dashboardReporteesTaskList.length === 0">
+                    <p>No tasks are available.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+
+          <tab (selectTab)="onTabSelected('myActivities')">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <!-- <div class="tab-header-icon">
+                  <i class="fas fa-pen"></i>
+                </div> -->
+                <div class="tab-header-content">
+                  <div class="header no-m">My Activities</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+              <div class="text-right project-action-container">
+                <button class="btn btn-primary btn-md" (click)="createProjectModal(projectForm)">
+                  <span>Add Project</span>
+                </button>
+
+                <button class="btn btn-primary btn-md" (click)="createTaskModal(taskForm)">
+                  <span>Add Task</span>
+                </button>
+
+                <button class="btn btn-primary btn-md" (click)="createCommentModal(commentsForm)">
+                  <span>Add Comment</span>
+                </button>
+              </div>
+
+
+              <div class="open-tasks">
+                <h4>Tasks</h4>
+
+                <div class="row form-group">
+                  <div class="col-6">
+                    <!-- <label class="form-title required">Status</label> -->
+                    <ng-select #assignedToVar="ngModel" name="assignedToVar"
+                      [(ngModel)]="dashboardFilterDetails.myActivityTaskStatusSelection"
+                      (change)="onChangeMyActivitiesTaskstatus($event)" [items]="statusFilterOptions"
+                      placeholder="Status" [multiple]="true" [clearable]="false" class="reporting-top-select"
+                      [searchFn]="reportingSearchFunction" required>
+
+                      <ng-template ng-label-tmp let-item="item">
+                        {{ item.label }}
+                      </ng-template>
+
+
+                    </ng-select>
+                  </div>
+                </div>
+
+                <!--  -->
+                <div *ngIf="taskCompletedDone" class="task-completed-container taskCompletedDone elementToFadeInAndOut">
+                  <span class="fa fa-thumbs-up"></span>
+                </div>
+                <div class="open-tasks-list">
+                  <!-- <h3 *ngIf="isLoading">Loading...</h3> -->
+                  <table *ngIf="openTasksList.length > 0" datatable [dtOptions]="openTasksTableOptions"
+                    class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Sl. No</th>
+                        <th>Task Name</th>
+                        <th>Task Status</th>
+                        <th>Project Name</th>
+                        <th>Task Type</th>
+                        <th>Time spend</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let task of openTasksList; index as indexOfelement;">
+                        <td>
+                          {{indexOfelement + 1}}
+                        </td>
+                        <td>{{ task.taskName }}</td>
+                        <td>{{ task.taskStatus }}</td>
+                        <td>{{ task.projectName }}</td>
+                        <td>{{ task.taskType }}</td>
+                        <td>
+
+                          <!-- <app-timer [taskStatus]="task.taskStatus" [timerService]="task.timerService"
+                            [timeSpend]="task.timeSpend" *ngIf="task.taskStatus === 'ongoing'" [timerConfig]="{}">
+                          </app-timer> -->
+
+                          <div *ngIf="task.taskStatus !== 'ongoing'">{{task.timeSpend}}</div>
+                          <countup-timer [countUpTimerConfig]="testConfig" *ngIf="task.taskStatus === 'ongoing'">
+                          </countup-timer>
+                        </td>
+                        <td>
+
+                          <button class="btn btn-primary btn-md" (click)="onTaskUpdate('start', task)"
+                            *ngIf="task.taskStatus === 'pending'">
+                            Start
+                          </button>
+
+                          <button class="btn btn-warning btn-md" (click)="onTaskUpdate('hold', task)"
+                            *ngIf="task.taskStatus === 'ongoing'">
+                            Hold
+                          </button>
+
+                          <button class="btn btn-info btn-md" (click)="onTaskUpdate('start', task)"
+                            *ngIf="task.taskStatus === 'hold'">
+                            Restart
+                          </button>
+                        </td>
+                        <td>
+                          <div>
+                            <button class="btn btn-success btn-md" (click)="onTaskUpdate('complete', task)">
+                              Complete
+                            </button>
+
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-danger btn-md" (click)="onTaskUpdate('cancel', task)">
+                            Cancel
+                          </button>
+                        </td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div *ngIf="openTasksList.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <div>
+                    <h4>No tasks are available.</h4>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="projects-list mt-md">
+                <h4>Projects/Activities</h4>
+                <table *ngIf="projects.length > 0" datatable class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Sl. No</th>
+                      <th>Project Title</th>
+                      <th>Status</th>
+                      <th>Project Type</th>
+                      <th>Project Description</th>
+                      <th>Color</th>
+                      <!-- <th style="width: 5%"></th> -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let project of projects; index as indexOfelement;">
+                      <td>
+                        {{indexOfelement + 1}}
+                      </td>
+                      <td>
+                        {{ project.projectName }}
+                      </td>
+                      <td>{{ project.projectStatus }}</td>
+                      <td>{{ project.projectType }}</td>
+                      <td>{{ project.projectDescription }}</td>
+                      <td><span class="color-display" [style.background-color]="project.color"></span></td>
+                      <!-- <td class="text-center">
+                        <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                          <button type="button" dropdownToggle
+                            class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-ellipsis-v"></i>
+                          </button>
+                          <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                            <div>
+                              <h6 class="dropdown-header">Project Actions</h6>
+                              <li>
+                                <a class="dropdown-item">
+                                  <span>Start</span>
+                                </a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item">
+                                  <span>On going</span>
+                                </a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item">
+                                  <span>Completed</span>
+                                </a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item">
+                                  <span>Cancelled</span>
+                                </a>
+                              </li>
+                              <li>
+                                <a class="dropdown-item">
+                                  <span>Hold</span>
+                                </a>
+                              </li>
+
+                            </div>
+                          </div>
+                        </div>
+                      </td> -->
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div *ngIf="projects.length === 0" class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-scroll"></i>
+                </div>
+                <div *ngIf="isFilterSet">
+                  <h4>No projects matches the filter conditions set.</h4>
+                  <div class="text-sm text-grey">Click the button below to change the filter.</div>
+                  <div class="text-center mt-md">
+                    <button class="btn btn-primary btn-sm btn-outline" (click)="showFilters()">Filter</button>
+                  </div>
+                </div>
+                <div *ngIf="!isFilterSet">
+                  <h4>No projects were added by you or by your reporting manager for you yet.</h4>
+                  <div class="text-sm text-grey">Click the button below to add a new task for yourself.</div>
+                  <div class="text-center mt-md">
+                    <button class="btn btn-primary btn-sm btn-outline" (click)="createProjectModal(projectForm)">New
+                      Project</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </tab>
+
+          <tab (selectTab)="onReporteeDetailsTaskList()" *ngIf="reportingToOptions.length > 0">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <!-- <div class="tab-header-icon">
+                  <i class="fas fa-pen"></i>
+                </div> -->
+                <div class="tab-header-content">
+                  <div class="header no-m">Reportees Details</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+
+              <div class="reportees-tasks">
+                <h4>Reportees Tasks Details</h4>
+                <div class="open-tasks-list">
+                  <table *ngIf="dashboardReporteesTaskList.length > 0" datatable class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Sl. No</th>
+                        <th>Employee id</th>
+                        <th>Task Name</th>
+                        <th>Project Name</th>
+                        <th>Task Type</th>
+                        <th>Time spend</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let task of dashboardReporteesTaskList; index as indexOfelement;">
+                        <td>
+                          {{indexOfelement + 1}}
+                        </td>
+                        <td>{{ task.employeeId }}</td>
+                        <td>{{ task.taskName }}</td>
+                        <td>{{ task.projectName }}</td>
+                        <td>{{ task.taskType }}</td>
+                        <td>-</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div *ngIf="openTasksList.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <div>
+                    <h4>No tasks are available.</h4>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </tab>
+
+
+          <tab (selectTab)="onTimeSheetSelect()">
+            <ng-template tabHeading>
+              <div class="tab-header">
+                <div class="tab-header-content">
+                  <div class="header no-m">Timesheet</div>
+                </div>
+              </div>
+            </ng-template>
+            <div class="tab-body">
+
+              <div class="my-timesheet-tasks">
+                <h4>Timesheet</h4>
+
+                <div class="row">
+
+                  <div class="form-group col-6">
+                    <label class="form-title required">Start Date</label>
+                    <input #taskDueDateVar="ngModel" [(ngModel)]="timeSheetFilterDetails.startDate" name="dueDate"
+                      type="text" placeholder="Select a date" class="form-control date-picker"
+                      [ngClass]="!isUpdating ? 'mt-0' : ''" bsDatepicker [bsConfig]="datePickerOptions"
+                      [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted">
+                  </div>
+                  <div class="form-group col-6">
+                    <label class="form-title required">End Date</label>
+                    <input #taskDueDateVar="ngModel" [(ngModel)]="timeSheetFilterDetails.endDate" name="dueDate"
+                      type="text" placeholder="Select a date" class="form-control date-picker"
+                      [ngClass]="!isUpdating ? 'mt-0' : ''" bsDatepicker [bsConfig]="datePickerOptions"
+                      [disabled]="isUpdating && !isTaskCreator  || newTask.isStarted">
+                  </div>
+                  <div class="form-group col-6">
+                    <label class="form-title required">Project Name</label>
+                    <ng-select #dashboardFilterProject="ngModel" name="dashboardProectFilterProjects"
+                      [(ngModel)]="timeSheetFilterDetails.projectName"
+                      (change)="timeSheetFilterDetails.taskProjectNameVar = $event.projectName"
+                      [items]="taskProjectNameOptions" placeholder="Choose project name" [multiple]="false"
+                      [clearable]="false" required [disabled]="isUpdating">
+
+                      <ng-template ng-label-tmp let-item="item">
+                        {{ item.projectName }}
+                      </ng-template>
+
+                      <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                        <div class="reporting-to-dropdown-item">
+                          <div class="employee-name">{{ item.projectName }}</div>
+                        </div>
+
+                      </ng-template>
+
+                    </ng-select>
+                  </div>
+                  <div class="form-group col-6">
+                    <label class="form-title required">Employee</label>
+                    <ng-select #assignedToVar="ngModel" name="assignedToVar"
+                      [(ngModel)]="timeSheetFilterDetails.assignedToSelection"
+                      (change)="newTask.assignedTo = $event.employeeId" [items]="reportingToOptions"
+                      placeholder="Choose employee" [multiple]="true" [clearable]="false" class="reporting-top-select"
+                      [searchFn]="reportingSearchFunction" required>
+
+                      <ng-template ng-label-tmp let-item="item">
+                        {{ item.employeeName }}
+                      </ng-template>
+
+                      <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                        <div class="reporting-to-dropdown-item">
+                          <div class="employee-name">{{ item.employeeName }}</div>
+                          <div class="employee-code">{{ item.employeeCode }}</div>
+                        </div>
+
+                      </ng-template>
+                    </ng-select>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <button class="btn btn-primary btn-md" (click)="onTimeSheetFilter()">
+                    Apply filter
+                  </button>
+                </div>
+
+                <hr />
+
+                <div class="open-tasks-list">
+                  <table *ngIf="timeSheetTasksList.length > 0" datatable [dtOptions]="myTimeSheetTableOptions"
+                    class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Task Name</th>
+                        <th>Project Name</th>
+                        <th>Employee id</th>
+                        <th>Task Status</th>
+                        <th>Start Date & Time</th>
+                        <th>End Date & Time</th>
+                        <th>Time spend</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let task of timeSheetTasksList; index as indexOfelement;">
+                        <td>{{ task.taskName }}</td>
+                        <td>{{ task.projectName }}</td>
+                        <td>{{ task.employeeName }}</td>
+                        <td>{{ task.taskStatus }}</td>
+                        <td>{{ task.formattedStartDate }}</td>
+                        <td>{{ task.formattedEndDate }}</td>
+                        <td>{{task.timeSpend}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div *ngIf="timeSheetTasksList.length === 0" class="empty-state p-md text-center">
+                  <div class="empty-icon">
+                    <i class="fas fa-scroll"></i>
+                  </div>
+                  <div>
+                    <h4>No tasks are available.</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </tab>
+        </tabset>
+
+
+      </div>
+    </div>
+
+    <app-custom-modal #projectModal [title]="!isUpdating ? 'Add New Project' : 'Update Project'"
+      [modalSize]="isUpdating ? 'xl' : 'lg' "
+      [subTitle]="'Enter the details of the task to be added. Once added you can update more details in the task details page.'">
+      <div class="project-info-modal">
+        <form #projectForm="ngForm" class="form show-character-count">
+          <div class="row">
+            <div [ngClass]="!isUpdating ? 'col-12 row no-x-m' : 'col-4'">
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title required">Project Name</label>
+                <label class="form-explanation">Enter the name of the project .</label>
+                <textarea #projectName="ngModel" class="form-control" name="projectName" rows="5"
+                  [(ngModel)]="newProject.projectName" type="text" required [disabled]="isUpdating"></textarea>
+                <app-custom-validation [model]="projectName" [required]="'Enter the name of project.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title ">Project Status</label>
+                <label class="form-explanation">Progress of the project can be seen here</label>
+                <div>
+                  <div>
+                    <b class="badge badge-danger badge-alternate">{{newProject.status}}</b>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div [ngClass]="'col-12 row no-x-m'">
+              <div class="form-group" [ngClass]="'col-6'">
+                <label class="form-title required">Project Description</label>
+                <label class="form-explanation">Enter the project description .</label>
+                <textarea #projectDescription="ngModel" class="form-control" name="projectDescription" rows="5"
+                  [(ngModel)]="newProject.projectDescription" type="text" required [disabled]="isUpdating"></textarea>
+                <app-custom-validation [model]="projectDescription" [required]="'Enter the project description.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="'col-6'">
+                <label class="form-title ">Color</label>
+                <label class="form-explanation">Choose the color for project
+                  <span class="color-display" [style.background-color]="projectDefaultColor"></span>
+                </label>
+                <div>
+                  <color-github [color]="taskDefaultColor" (onChangeComplete)="handleProjectColor($event)"
+                    (onChange)="handleProjectColor($event)"></color-github>
+                </div>
+              </div>
+
+            </div>
+
+            <div [ngClass]="'col-12 row no-x-m'">
+              <div class="form-group" [ngClass]="'col-6 no-x-m'">
+                <label class="form-title required">Project Type</label>
+                <label class="form-explanation">Choose the project type.</label>
+                <ng-select #projectType="ngModel" name="projectType" [(ngModel)]="newProject.projectType"
+                  (change)="newProject.projectType = $event.value" [items]="projectTypeOptions"
+                  placeholder="Choose project type" [multiple]="false" [clearable]="false" required
+                  [disabled]="isUpdating">
+                </ng-select>
+                <app-custom-validation [model]="projectType" [required]="'Choose an project type.'">
+                </app-custom-validation>
+              </div>
+            </div>
+
+          </div>
+
+
+        </form>
+      </div>
+      <div footer-buttons class="footer-buttons">
+        <button type="submit" class="btn btn-primary"
+          [ngClass]="[isProcessing ? 'spinning' : '', !projectForm.valid ? 'disabled' : '']"
+          [disabled]="(isUpdating) || isProcessing || projectForm.invalid" (click)="submitNewProject(projectForm)">
+          <span *ngIf="!isUpdating">Add New Project</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </app-custom-modal>
+
+
+    <app-custom-modal #tasksModal [title]="!isUpdating ? 'Create Task' : 'Update Task'"
+      [modalSize]="isUpdating ? 'xl' : 'lg' "
+      [subTitle]="'Enter the details of the task to be added. Once added you can update more details in the task details page.'">
+      <div class="task-info-modal">
+        <form #taskForm="ngForm" class="form show-character-count">
+          <div class="row">
+            <div [ngClass]="!isUpdating ? 'col-12 row no-x-m' : 'col-4'">
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title required">Task Name</label>
+                <label class="form-explanation">Enter the name of the task .</label>
+                <input #taskName="ngModel" class="form-control" name="taskName" rows="5" [(ngModel)]="newTask.taskName"
+                  type="text" required [disabled]="isUpdating" />
+                <app-custom-validation [model]="taskName" [required]="'Enter the name of task.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="!isUpdating ? 'col-6' : ''">
+                <label class="form-title ">Task Status</label>
+                <label class="form-explanation">Progress of the task can be seen here</label>
+                <div>
+                  <div>
+                    <b class="badge badge-danger badge-alternate">{{newTask.taskStatus}}</b>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div [ngClass]="'col-12 row no-x-m'">
+              <div class="form-group" [ngClass]="'col-6'">
+                <label class="form-title required">Task Description</label>
+                <label class="form-explanation">Enter the task description .</label>
+                <textarea #taskDescription="ngModel" class="form-control" name="taskDescription" rows="5"
+                  [(ngModel)]="newTask.taskDescription" type="text" required [disabled]="isUpdating"></textarea>
+                <app-custom-validation [model]="taskDescription" [required]="'Enter the task description.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="'col-6'">
+                <label class="form-title ">Color</label>
+                <label class="form-explanation">Choose the color for task
+                  <span class="color-display" [style.background-color]="taskDefaultColor"></span>
+                </label>
+                <div>
+                  <color-github [color]="taskDefaultColor" (onChangeComplete)="handleTaskColor($event)"
+                    (onChange)="handleTaskColor($event)"></color-github>
+                </div>
+              </div>
+
+            </div>
+
+            <div [ngClass]="'col-12 row no-x-m'">
+
+              <div class="form-group" [ngClass]="'col-6 no-x-m'">
+                <label class="form-title required">Project Name</label>
+                <label class="form-explanation">Choose the project name.</label>
+                <ng-select #taskProjectNameVar="ngModel" name="taskProjectNameVar" [(ngModel)]="newTask.taskProjectName"
+                  (change)="newTask.taskProjectNameVar = $event.projectName" [items]="taskProjectNameOptions"
+                  placeholder="Choose project name" [multiple]="false" [clearable]="false" required
+                  [disabled]="isUpdating">
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.projectName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                    <div class="reporting-to-dropdown-item">
+                      <div class="employee-name">{{ item.projectName }}</div>
+                    </div>
+
+                  </ng-template>
+
+                </ng-select>
+                <app-custom-validation [model]="taskProjectNameVar" [required]="'Choose an task type.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="'col-6 no-x-m'">
+                <label class="form-title required">Task Priority</label>
+                <label class="form-explanation">Choose the task priority.</label>
+                <ng-select #taskPriorityVar="ngModel" name="taskPriorityVar" [(ngModel)]="taskPriorityDetails"
+                  (change)="newTask.taskPriorityVar = $event.label" [items]="taskPriorityOptions"
+                  placeholder="Choose Task Priority" [multiple]="false" [clearable]="false" required
+                  [disabled]="isUpdating">
+                </ng-select>
+                <app-custom-validation [model]="taskPriorityVar" [required]="'Choose an task priority.'">
+                </app-custom-validation>
+              </div>
+
+              <div class="form-group" [ngClass]="'col-6 no-x-m'">
+                <label class="form-title" [ngClass]="(reportingToOptions.length > 0) ? 'required': '' ">Task
+                  Type</label>
+                <label *ngIf="reportingToOptions.length > 0" class="form-explanation">Choose the task type.</label>
+                <label class="form-explanation" *ngIf="reportingToOptions.length === 0">Self</label>
+                <ng-select *ngIf="reportingToOptions.length > 0" #taskTypeVar="ngModel" name="taskTypeVar"
+                  [(ngModel)]="newTask.taskType" (change)="newTask.taskType = $event.value" [items]="taskTypeOptions"
+                  placeholder="Choose task type" [multiple]="false" [clearable]="false" required
+                  [disabled]="isUpdating">
+                </ng-select>
+                <app-custom-validation [model]="newTask.taskType" [required]="'Choose an task type.'">
+                </app-custom-validation>
+              </div>
+            </div>
+
+            <div [ngClass]="'col-12 row no-x-m'" *ngIf="newTask.taskType==='public'">
+              <div class="form-group" [ngClass]="'col-6 no-x-m'">
+                <label class="form-title">Task Assigned To</label>
+                <label class="form-explanation">Choose the role to be assigned to the task.</label>
+                <ng-select #assignedToVar="ngModel" name="assignedToVar" [(ngModel)]="newTask.assignedToSelection"
+                  (change)="newTask.assignedTo = $event.employeeId" [items]="reportingToOptions"
+                  placeholder="Choose employee" [multiple]="true" [clearable]="false" class="reporting-top-select"
+                  [searchFn]="reportingSearchFunction" required>
+
+                  <ng-template ng-label-tmp let-item="item">
+                    {{ item.employeeName }}
+                  </ng-template>
+
+                  <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                    <div class="reporting-to-dropdown-item">
+                      <div class="employee-name">{{ item.employeeName }}</div>
+                      <div class="employee-code">{{ item.employeeCode }}</div>
+                    </div>
+
+                  </ng-template>
+                </ng-select>
+                <app-custom-validation [model]="assignedToVar" [required]="'Choose a assigned to for the task.'">
+                </app-custom-validation>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div footer-buttons class="footer-buttons">
+        <button type="submit" class="btn btn-primary"
+          [ngClass]="[isProcessing ? 'spinning' : '', !taskForm.valid ? 'disabled' : '']"
+          [disabled]="(isUpdating) || isProcessing || taskForm.invalid" (click)="submitNewTask(taskForm)">
+          <span *ngIf="!isUpdating">Add New Task</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </app-custom-modal>
+
+
+    <app-custom-modal #commentsModal [title]="'Comments'" [modalSize]="isUpdating ? 'xl' : 'lg' "
+      [subTitle]="'Enter the details of the comments to be added. Once added you can update more details in the task details page.'">
+      <div class="comments-info-modal">
+        <form #commentsForm="ngForm" class="form show-character-count row col-12">
+          <div [ngClass]="'col-6 no-x-m'">
+            <div class="form-group">
+              <label class="form-title required">Project Name</label>
+              <label class="form-explanation">Choose the project name.</label>
+              <ng-select #commentProjectNameVar="ngModel" name="commentProjectNameVar"
+                [(ngModel)]="newComment.taskProjectName"
+                (change)="newComment.commentProjectNameVar = $event.projectName;onChangeProjectComment($event)"
+                [items]="taskPublicProjectNameOptions" placeholder="Choose project name" [multiple]="false"
+                [clearable]="false" required [disabled]="isUpdating">
+
+                <ng-template ng-label-tmp let-item="item">
+                  {{ item.projectName }}
+                </ng-template>
+
+                <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+                  <div class="reporting-to-dropdown-item">
+                    <div class="employee-name">{{ item.projectName }}</div>
+                  </div>
+                </ng-template>
+
+              </ng-select>
+              <app-custom-validation [model]="commentProjectNameVar" [required]="'Choose an task type.'">
+              </app-custom-validation>
+            </div>
+          </div>
+
+          <div [ngClass]="'col-6 no-x-m'">
+            <div class="form-group">
+              <label class="form-title">Comments</label>
+              <label class="form-explanation">Please enter comments.</label>
+              <textarea #comments="ngModel" class="form-control" name="comments" rows="5"
+                [(ngModel)]="newComment.comments" type="text" required [disabled]="isUpdating"></textarea>
+              <app-custom-validation [model]="comments" [required]="'Enter the comments.'">
+              </app-custom-validation>
+            </div>
+          </div>
+        </form>
+
+        <div footer-buttons class="footer-buttons text-right">
+          <button type="submit" class="btn btn-primary"
+            [ngClass]="[isProcessing ? 'spinning' : '', !commentsForm.valid ? 'disabled' : '']"
+            [disabled]="(isUpdating) || isProcessing || commentsForm.invalid" (click)="submitNewComment(commentsForm)">
+            <span *ngIf="!isUpdating">Add Comment</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <div class="row col-12" *ngIf="newComment.taskProjectName">
+
+        <div [ngClass]="'col-12 no-x-m'">
+
+          <div class="comments-list">
+            <h4>Comments history </h4>
+            <table *ngIf="commentsList.length > 0" datatable class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Date & Time</th>
+                  <th>Name</th>
+                  <th>Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let comment of commentsList;">
+                  <td>{{ comment.projectName }}</td>
+                  <td>{{ comment.commentsFormattedDate }}</td>
+                  <td>{{ comment.commentBy }}</td>
+                  <td>{{ comment.comments }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div *ngIf="commentsList.length === 0" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-scroll"></i>
+            </div>
+            <div>
+              <h4>No comments were added by you yet.</h4>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+    </app-custom-modal>
+
+  </div>
+</div>

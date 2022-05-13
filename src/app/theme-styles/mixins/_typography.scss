@@ -1,0 +1,29 @@
+@mixin font-weight() {
+
+  @each $wei,
+  $weight in $font-weights {
+
+    .text-#{$wei} {
+      font-weight: #{$weight};
+    }
+  }
+}
+
+@mixin font-sizes() {
+
+  @each $si,
+  $size in $font-sizes {
+
+    .text-#{$si} {
+      font-size: #{$size};
+    }
+  }
+}
+
+@mixin font-awesome {
+  font-family: $font-awesome;
+  font-weight: 900;
+}
+
+@include font-sizes();
+@include font-weight();

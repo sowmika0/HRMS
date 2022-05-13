@@ -1,0 +1,25 @@
+@mixin checkbox-background() {
+
+  @each $c,
+  $color in $colors {
+
+    .custom-checkbox {
+      &.#{$c} {
+        &:checked+label:before {
+          background-color: #{$color};
+        }
+      }
+    }
+
+    .custom-radio {
+      &.#{$c} {
+        &:checked+label:before {
+          background-color: #{$color};
+        }
+      }
+    }
+
+  }
+}
+
+@include checkbox-background();

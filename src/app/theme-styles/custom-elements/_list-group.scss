@@ -1,0 +1,113 @@
+.list-group {
+  list-style: none;
+  padding: 0;
+
+  .list-group-info {
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: $mid-grey;
+    margin-bottom: 15px;
+    text-align: right;
+  }
+
+  .list-group-item {
+    padding: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    .list-group-item-avatar {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      margin-left: 10px;
+
+      img {
+        width: 40px;
+        height: 40px;
+        border-radius: 100px;
+      }
+    }
+
+    &:last-of-type {
+      border-bottom: 1px solid $light-grey;
+    }
+  }
+
+  &.list-group-with-action {
+    .list-group-item {
+
+      .list-group-item-text {
+        flex: 1;
+        font-weight: 400;
+      }
+
+      .list-group-item-action {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: fit-content;
+      }
+    }
+  }
+
+}
+
+
+@mixin list-group-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .list-group {
+      &.list-group-#{$c} {
+
+        .list-group-item {
+          &.active {
+            background-color: lighten(map-deep-get($button-colors, $c, 'back'), 35);
+            color: map-deep-get($button-colors, $c, 'back');
+            font-weight: 500;
+            border: 1px solid map-deep-get($button-colors, $c, 'border');
+          }
+        }
+
+        &.list-group-solid {
+          .list-group-item {
+            &.active {
+              background-color: map-deep-get($button-colors, $c, 'back');
+              color: map-deep-get($button-colors, $c, 'fore');
+              border: 1px solid map-deep-get($button-colors, $c, 'back');
+            }
+          }
+        }
+      }
+
+      .list-group-item {
+        &.list-group-item-#{$c} {
+          &.active {
+            background-color: lighten(map-deep-get($button-colors, $c, 'back'), 35);
+            color: map-deep-get($button-colors, $c, 'back');
+            font-weight: 500;
+            border: map-deep-get($button-colors, $c, 'border');
+          }
+        }
+      }
+
+      &.list-group-solid {
+        .list-group-item {
+          &.list-group-item-#{$c} {
+            &.active {
+              background-color: map-deep-get($button-colors, $c, 'back');
+              color: map-deep-get($button-colors, $c, 'fore');
+              border: map-deep-get($button-colors, $c, 'back');
+            }
+          }
+        }
+      }
+    }
+  }
+
+}
+
+@include list-group-colors();

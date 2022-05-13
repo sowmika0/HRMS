@@ -1,0 +1,25 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Organization details.</h4>
+  <div class="text-sm text-grey">You cannot view the organization details for this employee.</div>
+</div>
+<div class="employee-container employee-hierarchy-container p-md" *ngIf="haveAccess">
+  <div id="contentToConvert">
+    <!-- <img src="hrms/employees/7957ee56ccdd496cacd58a2f2b8f735e/photo/9052.png" /> -->
+    <ngx-org-chart *ngIf="topNode" [nodes]="[ topNode ]" direction="horizontal" (itemClick)="onEmployeeClick($event)">
+    </ngx-org-chart>
+  </div>
+  <button class="dt-button buttons-print btn btn-primary btn-md" (click)="convetToPDF()">
+    <span><i class="fa fa-print"></i> Print</span>
+  </button>
+
+  <div *ngIf="!topNode" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>Your company hierarchy couldnt be loaded.</h4>
+    <div class="text-sm text-grey">Your employee code is not set. Please contact your HR for resolving this issue.</div>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="employee-resigncontainer">
+    <div>
+        <div class="printed-date">
+            Printed on : {{printedDate}}
+        </div>
+        <div class="print-button-wrap col-lg-12">
+            <button class="dt-button buttons-print btn btn-primary btn-md" (click)="printPage()" tabindex="0"
+                type="button">
+                <span><i class="fa fa-print"></i> Print</span>
+            </button>
+        </div>
+        <table class="table-print" id="employeeFeedPrint">
+            <tr>
+                <td>Ec No.</td>
+                <td colspan="2">{{employeeExit.employeeCode}}</td>
+            </tr>
+            <tr>
+                <td>Employee Name</td>
+                <td colspan="2">{{employeeExit.employeeName}}</td>
+            </tr>
+            <tr>
+                <td>Status</td>
+                <td colspan="2">{{employeeExit.status}}</td>
+            </tr>
+            <tr>
+                <td rowspan="4">Emplyee</td>
+            </tr>
+            <tr>
+                <td>Resigned Date</td>
+                <td>{{employeeExit.resignationDate | date: 'dd-MMM-yy'}}</td>
+            </tr>
+            <tr>
+                <td>Reason for Resignation </td>
+                <td>{{employeeExit.employeeResignationReason}}</td>
+            </tr>
+            <tr>
+                <td>Requested Releaving Date</td>
+                <td>{{employeeExit.preferredRelievingDate | date: 'dd-MMM-yy'}}</td>
+            </tr>
+            <tr>
+                <td rowspan="4">Approval Comments</td>
+            </tr>
+            <tr>
+                <td>RM Approval</td>
+                <td>{{employeeExit.l1ApprovalFeedbackForOthers}}</td>
+            </tr>
+            <tr>
+                <td>HOD Approval </td>
+                <td>{{employeeExit.l2ApprovalFeedbackForOthers}}</td>
+            </tr>
+            <tr>
+                <td>HR Approval</td>
+                <td>{{employeeExit.hrApprovalFeedbackForOthers}}</td>
+            </tr>
+            <tr>
+                <td>Releaving Date as per Policy</td>
+                <td colspan="2">{{employeeExit.relievingDateAsPerPolicy | date: 'dd-MMM-yy'}}</td>
+            </tr>
+            <tr>
+                <td>Confirmed Releaving Date</td>
+                <td colspan="2">{{employeeExit.relievingDate | date: 'dd-MMM-yy'}}</td>
+            </tr>
+            <tr>
+                <td>Notice Period Shortage</td>
+                <td colspan="2">{{employeeExit.shortfallDays}}</td>
+            </tr>
+        </table>
+    </div>
+</div>

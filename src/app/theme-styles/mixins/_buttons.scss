@@ -1,0 +1,132 @@
+$btn-heights: ('xs': 20,
+  'sm': 25,
+  'md': 35,
+  'lg': 45,
+  'xl': 55,
+  'xxl': 65);
+
+@mixin button-sizes() {
+
+  @each $b,
+  $value in $btn-heights {
+    $font-size: $font-size-base;
+
+    @if #{$b}=='xs' {
+      $font-size: $font-size-xxs;
+    }
+
+    @else if #{$b}=='sm' {
+      $font-size: $font-size-xs;
+    }
+
+    @else if #{$b}=='md' {
+      $font-size: $font-size-xs;
+    }
+
+    @else if #{$b}=='lg' {
+      $font-size: $font-size-sm;
+    }
+
+    @else if #{$b}=='xl' {
+      $font-size: $font-size-md;
+    }
+
+    @else if #{$b}=='xxl' {
+      $font-size: $font-size-md;
+    }
+
+    @else {
+      $font-size: $font-size-sm;
+    }
+
+    .btn-#{$b} {
+      font-size: $font-size;
+      min-height: #{$value}px;
+      max-height: #{$value * 2}px;
+      line-height: $font-size;
+
+      &.btn-fab {
+        height: #{$value}px;
+        width: #{$value}px;
+      }
+    }
+  }
+}
+
+@mixin button-active() {
+
+  @each $c,
+  $color in $button-colors {
+
+    .btn-#{$c} {
+      &:active {
+        &:not[disabled] {
+          background-color: darken(map-deep-get($button-colors, $c, 'back'), 5%);
+          transform: scale(0.98);
+        }
+      }
+    }
+
+  }
+}
+
+@mixin button-outline() {
+
+  @each $c,
+  $color in $button-colors {
+
+    .btn-outline.btn-#{$c} {
+      border-color: map-deep-get($button-colors, $c, 'border');
+      background-color: $white;
+      color: map-deep-get($button-colors, $c, 'back');
+
+      &:hover {
+        background-color: map-deep-get($button-colors, $c, 'back');
+        color: map-deep-get($button-colors, $c, 'fore');
+      }
+
+      &.hover-no-fill {
+        border-color: map-deep-get($button-colors, $c, 'back');
+        background-color: darken(map-deep-get($button-colors, $c, 'fore'), 5%);
+        color: map-deep-get($button-colors, $c, 'fore');
+      }
+
+    }
+
+    .btn-#{$c} {
+      background-color: map-deep-get($button-colors, $c, 'back');
+      border-color: map-deep-get($button-colors, $c, 'border');
+      color: map-deep-get($button-colors, $c, 'fore');
+
+      &:hover {
+        background-color: darken(map-deep-get($button-colors, $c, 'back'), 5%);
+      }
+    }
+
+  }
+}
+
+@mixin button-focus-state() {
+  outline: none;
+  box-shadow: none;
+
+  :focus:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+@mixin button-air {
+
+  @each $c,
+  $color in $button-colors {
+
+    .btn-air.btn-#{$c} {
+      box-shadow: 0px 3px 5px 1px map-deep-get($button-colors, $c, 'back');
+
+      &.btn-outline {
+        box-shadow: none;
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+.coming-soon-container {
+  text-align: center;
+  margin-top: $spacing-lg;
+
+  .coming-soon-image {
+    width: 40%;
+    margin: auto;
+  }
+
+  .coming-soon-text {
+    margin-top: $spacing-lg;
+  }
+}

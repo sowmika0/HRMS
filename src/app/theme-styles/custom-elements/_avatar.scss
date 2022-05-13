@@ -1,0 +1,121 @@
+.avatar {
+  background-color: transparent;
+  width: 50px;
+  height: 50px;
+  border-radius: 100px;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 100px;
+  }
+
+  &.show-notifications {
+    &:before {
+      content: '';
+      width: 15px;
+      height: 15px;
+      background-color: $secondary;
+      border-radius: 100px;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      animation-name: wobble;
+      animation-duration: 1s;
+      animation-iteration-count: infinite;
+    }
+  }
+
+  &.show-status {
+    &:after {
+      content: '';
+      width: 15px;
+      height: 15px;
+      background-color: $light-grey;
+      border-radius: 100px;
+      position: absolute;
+      bottom: 0px;
+      border: 3px solid $white;
+    }
+
+    &.status-online {
+      &:after {
+        background-color: $success;
+      }
+    }
+
+    &.status-offline {
+      &:after {
+        background-color: $mid-grey;
+      }
+    }
+  }
+
+  &.avatar-initials {}
+
+  &.rounded-circle {
+    border-radius: 100px;
+
+    img {
+      border-radius: 100px;
+    }
+  }
+
+  &.rounded-rect {
+    border-radius: 5px;
+
+    img {
+      border-radius: 5px;
+    }
+  }
+}
+
+$avatar-sizes: ('xxs': 20,
+  'xs': 30,
+  'sm': 50,
+  'md': 60,
+  'lg': 80,
+  'xl': 100,
+  'xxl': 150);
+
+@mixin avatar {
+
+  @each $s,
+  $value in $avatar-sizes {
+    .avatar {
+      &.avatar-#{$s} {
+        width: #{$value}px;
+        height: #{$value}px;
+        border-radius: #{$value+100}px;
+
+        &.show-notifications {
+          &:before {
+            width: #{$value / 5 }px;
+            height: #{$value / 5 }px;
+            border-radius: #{$value+100}px;
+          }
+        }
+
+        &.show-status {
+          &:after {
+            width: #{$value / 4 }px;
+            height: #{$value / 4 }px;
+            border-radius: #{$value+100}px;
+            border-width: #{$value / 30 }px;
+            right: #{$value / 8 }px;
+          }
+        }
+      }
+    }
+  }
+
+  @each $c,
+  $value in $colors {
+    .avatar-#{$c} {
+      background-color: #{$value};
+    }
+  }
+}
+
+@include avatar();

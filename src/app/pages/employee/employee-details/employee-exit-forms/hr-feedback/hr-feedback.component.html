@@ -1,0 +1,199 @@
+<div class="appraisal-container">
+  <div class="table-print-wrapper">
+    <div class="printed-date">
+      Printed on : {{printedDate}}
+    </div>
+    <table class="table-fix-width table-print" id="employeeFeedPrint">
+      <tr>
+        <td>Ec No.</td>
+        <td>{{hrFeedbackForm.employeeCode}}</td>
+        <td>Name</td>
+        <td>{{hrFeedbackForm.employeeName}}</td>
+        <td>Department</td>
+        <td>{{hrFeedbackForm.department}}</td>
+      </tr>
+      <tr>
+        <td>DOJ</td>
+        <td>{{hrFeedbackForm.dateOfJoining | date: 'dd-MMM-yy'}}</td>
+        <td>DOR</td>
+        <td>{{hrFeedbackForm.dateOfResignation | date: 'dd-MMM-yy'}}</td>
+        <td>LWD</td>
+        <td>{{employeeExit.relievingDate | date: 'dd-MMM-yy'}}</td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Employee Thought on KAI
+          <div class="long-data">
+            {{hrFeedbackForm.employeeThoughtOnKai}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Employee like to change in KAI
+          <div class="long-data">
+            {{hrFeedbackForm.employeeLikeToChange}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Would Employee Rejoin later
+          <div class="long-data">
+            {{hrFeedbackForm.employeeRejoinLater}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Salary & Designation Offered
+          <div class="long-data">
+            {{hrFeedbackForm.salaryAndDesignationOffered}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Comments
+          <div class="long-data">
+            {{hrFeedbackForm.comments}}
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="6">
+          Name of the assessor
+          <div class="long-data">
+
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="row no-x-m table-print-view">
+    <div class="print-button-wrap col-lg-12">
+      <button class="dt-button buttons-print btn btn-primary btn-md" (click)="printPage()" tabindex="0" type="button">
+        <span><i class="fa fa-print"></i> Print</span>
+      </button>
+    </div>
+    <form #hrFeedbackForms="ngForm" class="form row no-x-m" style="width: 100%;">
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Employee Name</label>
+          <label class="form-explanation">Enter the employee name.</label>
+          <input #empNameVar="ngModel" [(ngModel)]="hrFeedbackForm.employeeName" name="empName" type="text"
+            class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">EC No</label>
+          <label class="form-explanation">Enter EC no of the employee.</label>
+          <input #empECNoVar="ngModel" [(ngModel)]="hrFeedbackForm.employeeCode" name="empECNo" type="text"
+            class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Department</label>
+          <label class="form-explanation">Enter department of the employee.</label>
+          <input #empECNoVar="ngModel" [(ngModel)]="hrFeedbackForm.department" name="department" type="text"
+            class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Date of Joining</label>
+          <label class="form-explanation">Enter employee Date of Joining.</label>
+          <input #empECNoVar="ngModel" [ngModel]="hrFeedbackForm.dateOfJoining | date: 'dd-MMM-yy'" name="dateOfJoining"
+            type="text" class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Date of Resignation</label>
+          <label class="form-explanation">Enter employee Date of Resignation.</label>
+          <input #empECNoVar="ngModel" [ngModel]="hrFeedbackForm.dateOfResignation | date: 'dd-MMM-yy'"
+            name="dateOfResignation" type="text" class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Date of Relieving</label>
+          <label class="form-explanation">Enter employee Date of Relieving.</label>
+          <input #empECNoVar="ngModel" [ngModel]="hrFeedbackForm.dateOfRelieving | date: 'dd-MMM-yy'"
+            name="dateOfRelieving" type="text" class="form-control" disabled="disabled">
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Employee Thought on KAI</label>
+          <label class="form-explanation">Two things the employee will always positively associate with KAI</label>
+          <textarea #positiveThingOfKAIVar="ngModel" class="form-control" name="positiveThingOfKAIVar" rows="5"
+            type="text" required [(ngModel)]="hrFeedbackForm.employeeThoughtOnKai" [disabled]="!canEdit"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="positiveThingOfKAIVar"
+            [required]="'Enter two things the employee will always positively associate with KAI.'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Employee like to change in KAI</label>
+          <label class="form-explanation">Two things that given a choice the employee would have liked to change about
+            his/her stint at KAI</label>
+          <textarea #changesRequiredAtKAIVar="ngModel" class="form-control" name="changesRequiredAtKAI" rows="5"
+            type="text" required [(ngModel)]="hrFeedbackForm.employeeLikeToChange" [disabled]="!canEdit"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="changesRequiredAtKAIVar"
+            [required]="'Enter Two things that given a choice the employee would have liked to change about his/her stint at KAI'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Would Employee Rejoin Later</label>
+          <label class="form-explanation">Would the employee like to join back KAI sometime later</label>
+          <textarea #empJoinBackLaterVar="ngModel" class="form-control" name="empJoinBackLaterVar" rows="5" type="text"
+            required [(ngModel)]="hrFeedbackForm.employeeRejoinLater" [disabled]="!canEdit"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="empJoinBackLaterVar"
+            [required]="'Enter would the employee like to join back KAI sometime later'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Salary & Designation Offered</label>
+          <label class="form-explanation">Salary & Designation being offered by the new employer</label>
+          <textarea #salaryOfferedVar="ngModel" class="form-control" name="salaryOfferedVar" rows="5" type="text"
+            [(ngModel)]="hrFeedbackForm.salaryAndDesignationOffered" [disabled]="!canEdit"
+            [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="salaryOfferedVar" [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="form-group">
+          <label class="form-title required">Comments</label>
+          <label class="form-explanation">Manager comments about Employee</label>
+          <textarea #commentsVar="ngModel" class="form-control" name="commentsVar" rows="5" type="text" required
+            [(ngModel)]="hrFeedbackForm.comments" [disabled]="!canEdit" [pattern]="regex.textareaMaxLength"></textarea>
+          <app-custom-validation [model]="commentsVar" [required]="'Enter comments'"
+            [pattern]="'Enter only 400 characteres.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="text-center col-lg-12 mt-lg">
+        <button class="btn btn-primary" [disabled]="isProcessing || !hrFeedbackForms.valid || !canEdit"
+          (click)="saveHRFeedbackFormAlert(hrFeedbackForms)" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Submit</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<div class="ks-notification">
+  <div class="notification-header">
+    <div class="notification-heading">{{ title }}</div>
+    <div class="notification-close">
+      <i class="fas fa-times"></i>
+    </div>
+  </div>
+  <div class="notification-body">
+    {{ message }}
+  </div>
+  <div class="notification-footer text-right">
+    <div class="notification-added-on">
+      <span>{{ humanReadableDate }}</span>
+    </div>
+    <button class="btn btn-transparent btn-xs" (click)="onUndoClick()">Undo</button>
+  </div>
+</div>

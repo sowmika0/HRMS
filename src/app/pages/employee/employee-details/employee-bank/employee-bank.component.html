@@ -1,0 +1,154 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Bank details.</h4>
+  <div class="text-sm text-grey">You cannot view the bank details for this employee.</div>
+</div>
+<div class="employee-container employee-bank-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activeBanks.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(bankForm)">New Bank</button>
+  </div>
+
+  <div *ngIf="activeBanks.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No banks added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new bank.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(bankForm)">New Bank</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeBanks.length > 0" class="added-bank-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 30%;">Bank Name</th>
+          <th style="width: 30%;">Account Number</th>
+          <th style="width: 20%;">IFSC Code</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeBanks">
+          <td>
+            <span>{{ item.bankName }}</span>
+          </td>
+          <td>
+            <span>{{ item.accountNumber }}</span>
+          </td>
+          <td>
+            <span>{{ item.ifscCode }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit bank information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [tooltip]="'Delete this bank.'"
+              [disabled]="!canEdit  || this.role !== 'hr'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeeBanks()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Banks</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #bankModal [title]="isUpdating ? 'Update Bank Details' : 'Add New Bank'"
+    [subTitle]="'Enter the details for the bank to add or update the information.'" [modalSize]="'lg'">
+    <div class="new-bank">
+      <form #bankForm="ngForm" class="form show-character-count row no-x-m">
+
+        <div class="col-6">
+
+          <div class="form-group">
+            <label class="form-title required">Bank Name</label>
+            <label class="form-explanation">Enter the name of the bank.</label>
+            <input #bankVar="ngModel" class="form-control" name="bank" [(ngModel)]="bank.bankName" type="text" required
+              placeholder="Enter the bank name" [disabled]="!canEdit" />
+            <app-custom-validation [model]="bankVar" [required]="'Enter the name for the bank.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Branch</label>
+            <label class="form-explanation">Enter the name of the branch.</label>
+            <input #branchVar="ngModel" class="form-control" name="branchVar" placeholder="Enter the bank branch"
+              [(ngModel)]="bank.branch" type="text" required [disabled]="!canEdit" />
+            <app-custom-validation [model]="branchVar" [required]="'Enter the bank branch.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Account Number</label>
+            <label class="form-explanation">Enter the bank account number.</label>
+            <input #accountNumberVar="ngModel" class="form-control" name="accountNumberVar"
+              [(ngModel)]="bank.accountNumber" type="text" required placeholder="Enter the account number"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="accountNumberVar" [required]="'Enter the bank account number.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Account Type</label>
+            <label class="form-explanation">Enter the bank account type.</label>
+            <ng-select #accountTypeVar="ngModel" name="accountTypeVar" [(ngModel)]="bank.accountTypeSelection"
+              (change)="bank.accountType = $event.value" placeholder="Choose the accountType"
+              [items]="accountTypeOptions" [multiple]="false" [clearable]="false" [disabled]="!canEdit">
+            </ng-select>
+            <app-custom-validation [model]="accountTypeVar" [required]="'Choose the account type.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title required">IFSC Code</label>
+            <label class="form-explanation">Enter the bank IFSC Code.</label>
+            <input #ifscCodeVar="ngModel" class="form-control" name="ifscCodeVar" [(ngModel)]="bank.ifscCode"
+              placeholder="Enter the bank IFSC code" type="text" required [disabled]="!canEdit" />
+            <app-custom-validation [model]="ifscCodeVar" [required]="'Enter the bank IFSC Code.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Effective Date</label>
+            <label class="form-explanation">Choose the effective date for the bank.</label>
+            <input #effectiveDateVar="ngModel" [(ngModel)]="bank.effectiveDate" name="effectiveDate" type="text"
+              placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions" required
+              [disabled]="!canEdit">
+            <app-custom-validation [model]="effectiveDateVar" [required]="'Choose the effective date.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div *ngIf="!isUpdating || (isUpdating && role === 'hr')" footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!bankForm.valid || !canEdit">
+        <span>{{ isUpdating ? 'Update Bank' : 'Add Bank' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

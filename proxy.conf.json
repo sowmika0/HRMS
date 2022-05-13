@@ -1,0 +1,23 @@
+{
+    "/api": {
+        "target": "https://apitest.hrmskai.in",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true
+    },
+    "/hrms": {
+        "target": "https://apitest.hrmskai.in",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true
+    },
+    "/newApi": {
+        "target": "https://apitestn2.hrmskai.in",
+        "secure": false,
+        "logLevel": "debug",
+        "pathRewrite": {
+            "/newApi": ""
+        },
+        "changeOrigin": true
+    }
+}

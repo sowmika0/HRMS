@@ -1,0 +1,215 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Personal details.</h4>
+  <div class="text-sm text-grey">You cannot view the personal details for this employee.</div>
+</div>
+<div class="employee-section-container employee-personal-container p-sm" *ngIf="haveAccess">
+
+  <div *ngIf="employeePersonal" class="row no-x-m">
+    <form #personalForm="ngForm" class="form row no-x-m">
+
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Nationality</label>
+          <label class="form-explanation">Choose nationality of the employee.</label>
+          <ng-select #nationalityVar="ngModel" name="nationalityVar" [(ngModel)]="employeePersonal.nationalitySelection"
+            (change)="employeePersonal.nationality = $event.value" [items]="nationalityOptions" [multiple]="false"
+            [placeholder]="'Select nationality'" [clearable]="false" required [disabled]="!canEdit">
+          </ng-select>
+          <app-custom-validation [model]="nationalityVar" [required]="'Choose the nationality.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Gender</label>
+          <label class="form-explanation">Choose the employee gender.</label>
+
+          <div class="row no-x-m">
+            <div class="col-6">
+              <input name="gender-radio" class="custom-radio primary" id="gender-radio-male" type="radio"
+                [value]="'Male'" [disabled]="!canEdit" [(ngModel)]="employeePersonal.gender">
+              <label for="gender-radio-male">
+                <span class="text">Male</span>
+              </label>
+            </div>
+
+            <div class="col-6">
+              <input name="gender-radio" class="custom-radio primary" id="gender-radio-female" type="radio"
+                [value]="'Female'" [disabled]="!canEdit" [(ngModel)]="employeePersonal.gender">
+              <label for="gender-radio-female">
+                <span class="text">Female</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Blood Group</label>
+          <label class="form-explanation">Choose the blood group of the employee.</label>
+          <ng-select #bloodGroupVar="ngModel" name="bloodGroupVar" [(ngModel)]="employeePersonal.bloodGroupSelection"
+            (change)="employeePersonal.bloodGroup = $event.value" [items]="bloodGroupOptions" [multiple]="false"
+            required [placeholder]="'Select blood group'" [clearable]="false" [disabled]="!canEdit">
+          </ng-select>
+          <app-custom-validation [model]="bloodGroupVar" [required]="'Choose the blood group.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Employee Photo</label>
+          <label class="form-explanation">Select a photo that has equal scpect ratio i.e. a photo is a circle or a
+            square for better display.</label>
+
+          <div class="photo-preview mt-sm mb-md text-center">
+            <img *ngIf="!photoFile && employeePersonal.photoLinkUrl" [src]="employeePersonal.photoLinkUrl" />
+            <img *ngIf="!photoFile && !employeePersonal.photoLinkUrl" [src]="'assets/avatar/avatar.svg'" />
+            <ngx-dropzone-image-preview *ngIf="photoFile" [removable]="false" [file]="photoFile"
+              ngProjectAs="ngx-dropzone-preview">
+            </ngx-dropzone-image-preview>
+          </div>
+
+          <div *ngIf="photoRejected" class="alert alert-danger alert-sm mt-sm mb-sm">
+            The size of the uploaded file is more than 2MB, which is the allowed limit or the file type you tried to
+            upload is not allowed. Please choose a file below
+            2MB.
+          </div>
+
+          <div *ngIf="role === 'hr'" class="ks-uploader simple-uploader d-block text-center" ngx-dropzone [id]="'photo'"
+            [accept]="fileFormats" [multiple]="false" [maxFileSize]="2000000" (change)="onPhotoSelected($event)">
+            <button class="btn btn-primary btn-sm">
+              <span *ngIf="!photoFile && !employeePersonal.photoLinkUrl">Choose Employee Photo</span>
+              <span *ngIf="photoFile || employeePersonal.photoLinkUrl">Change Employee Photo</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Record Date of Birth</label>
+          <label class="form-explanation">Choose the date of birth as per records.</label>
+          <input #dobRecordVar="ngModel" [(ngModel)]="employeePersonal.recordDob" name="recordDob" type="text"
+            placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions"
+            [maxDate]="maxDate" required [disabled]="!canEdit || role !== 'hr'">
+          <app-custom-validation [model]="dobRecordVar" [required]="'Choose the dob as per records.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Actual Date of Birth</label>
+          <label class="form-explanation">Choose the actual date of birth.</label>
+          <input #dobActualVar="ngModel" [(ngModel)]="employeePersonal.actualDob" name="actualDob" type="text"
+            placeholder="Select a date" class="form-control" bsDatepicker [maxDate]="maxDate"
+            [bsConfig]="datePickerOptions" required [disabled]="!canEdit">
+          <app-custom-validation [model]="dobActualVar" [required]="'Choose the actual dob.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Marital Status</label>
+          <label class="form-explanation">Choose the marital status of the employee.</label>
+          <ng-select #maritalStatusVar="ngModel" name="maritalStatusVar"
+            [(ngModel)]="employeePersonal.maritalStatusSelection"
+            (change)="employeePersonal.maritalStatus = $event.value" [items]="maritalStatusOptions" [multiple]="false"
+            [placeholder]="'Select marital status'" [clearable]="false" required [disabled]="!canEdit">
+          </ng-select>
+          <app-custom-validation [model]="maritalStatusVar" [required]="'Choose the marital status.'">
+          </app-custom-validation>
+        </div>
+
+        <div *ngIf="employeePersonal.maritalStatus === 'Married'" class="form-group">
+          <label class="form-title required">Marriage Date</label>
+          <label class="form-explanation">Choose the date of marriage.</label>
+          <input #marriageDateVar="ngModel" [(ngModel)]="employeePersonal.marriageDate" name="marriageDate" type="text"
+            placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions" required
+            [disabled]="!canEdit" [minDate]="employeePersonal.actualDob">
+          <app-custom-validation [model]="marriageDateVar" [required]="'Choose the marriage date.'">
+          </app-custom-validation>
+        </div>
+
+        <div *ngIf="role === 'hr'" class="form-group">
+          <label class="form-title required">Hide birthday in dashboard</label>
+          <label class="form-explanation">Check the box if you want to hide your birthday from showing in the
+            dashboard.</label>
+
+          <div class="row no-x-m">
+            <div class="col-12">
+              <input #birthdayHideVar="ngModel" name="birthday-hide-radio" class="custom-checkbox primary"
+                id="birthday-hide-radio" type="checkbox" [disabled]="!canEdit" [value]="true"
+                [(ngModel)]="employeePersonal.hideBirthday">
+              <label for="birthday-hide-radio">
+                <span class="text">Hide birthday</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title">Height</label>
+          <label class="form-explanation">Enter the height (in cms) of the employee.</label>
+          <div class="input-group">
+            <input #heightVar="ngModel" class="form-control" name="height" [(ngModel)]="employeePersonal.height"
+              type="number" required placeholder="Enter height in cms" [min]="0" [disabled]="!canEdit" />
+            <div class="input-group-prepend">
+              <div class="input-group-text">cms</div>
+            </div>
+          </div>
+          <app-custom-validation [model]="heightVar" [min]="'The height cannot be less than 0.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Weight</label>
+          <label class="form-explanation">Enter the weight (in kgs) of the employee.</label>
+          <div class="input-group">
+            <input #weightVar="ngModel" class="form-control" name="weight" [(ngModel)]="employeePersonal.weight"
+              type="number" required placeholder="Enter weight in kgs" [min]="0" [disabled]="!canEdit" />
+            <div class="input-group-prepend">
+              <div class="input-group-text">kgs</div>
+            </div>
+          </div>
+          <app-custom-validation [model]="weightVar" [min]="'The weight cannot be less than 0.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Sports Accomplishments</label>
+          <label class="form-explanation">Enter any accomplishments in sports by the employee.</label>
+          <textarea #sportsVar="ngModel" class="form-control" name="sportsVar" [(ngModel)]="employeePersonal.sports"
+            rows="10" characterCount characterLimit="1000" placeholder="Enter sports accomplishments here"
+            [disabled]="!canEdit"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Specialized Trainings</label>
+          <label class="form-explanation">Enter any specialized trainings attended by the employee.</label>
+          <textarea #trainingVar="ngModel" class="form-control" name="trainingVar"
+            [(ngModel)]="employeePersonal.specializedTraining" rows="10" characterCount
+            placeholder="Enter specialized trainings done here" characterLimit="1000" [disabled]="!canEdit"></textarea>
+        </div>
+      </div>
+
+      <div class="col-lg-12 text-center mt-lg">
+        <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing || !canEdit"
+          [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+          <span>Verify Changes</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+
+        <button class="btn btn-primary" [disabled]="isProcessing || !canEdit || !personalForm.valid"
+          (click)="savePersonalInfo()" [ngClass]="isProcessing ? 'spinning' : ''">
+          <span>Update Employee Personal Info</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

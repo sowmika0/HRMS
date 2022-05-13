@@ -1,0 +1,61 @@
+/** Spacing items generated using mixins. */
+
+$spacing-desktop: ('xs': 10px,
+  'sm': 15px,
+  'md': 25px,
+  'lg': 40px,
+  'xl': 60px);
+
+$spacing-mobile: ('xs': 10px,
+  'sm': 15px,
+  'md': 25px,
+  'lg': 40px,
+  'xl': 60px);
+
+$spacing-property: ('m': 'margin',
+  'p': 'padding'
+);
+
+$spacing-direction: ('.': '',
+  'l': 'left',
+  'r': 'right',
+  't': 'top',
+  'b': 'bottom'
+);
+
+$spacing-xs: 10px;
+$spacing-sm: 15px;
+$spacing-md: 25px;
+$spacing-lg: 40px;
+$spacing-xl: 60px;
+
+@mixin spacing() {
+
+  @each $prop,
+  $property in $spacing-property {
+
+    @each $dir,
+    $direction in $spacing-direction {
+
+      @each $sp,
+      $spac in $spacing-desktop {
+
+        @if #{$dir}=='.' {
+
+          .#{$prop}-#{$sp} {
+            #{$property}: $spac;
+          }
+        }
+
+        @else {
+          .#{$prop}#{$dir}-#{$sp} {
+            #{$property}-#{$direction}: $spac;
+          }
+        }
+
+      }
+    }
+  }
+}
+
+@include spacing();

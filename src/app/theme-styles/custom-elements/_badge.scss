@@ -1,0 +1,131 @@
+$badge-sizes: ('sm': $font-size-xxs,
+  'md': $font-size-sm,
+  'lg': $font-size-md);
+
+.badge {
+  padding: 4px 8px;
+  display: inline-flex;
+  margin: 4px;
+  justify-content: center;
+  align-items: center;
+  font-weight: 400;
+  border-radius: 3px;
+  position: relative;
+
+  &.badge-upper {
+    text-transform: uppercase;
+  }
+
+  &.badge-rect {
+    border-radius: 0;
+  }
+
+  &.badge-pill {
+    border-radius: 100px;
+  }
+
+  &.badge-block {
+    display: block;
+  }
+
+  &.badge-sm {
+    font-size: $font-size-xxs;
+
+    &.badge-close {
+      i.close {
+        font-size: $font-size-xxs;
+      }
+    }
+  }
+
+  &.badge-md {
+    font-size: $font-size-sm;
+
+    &.badge-close {
+      i.close {
+        font-size: $font-size-sm;
+      }
+    }
+  }
+
+  &.badge-lg {
+    font-size: $font-size-md;
+
+    &.badge-close {
+      i.close {
+        font-size: $font-size-md;
+      }
+    }
+  }
+
+  &.badge-close {
+    padding-right: 30px;
+
+    .close {
+      width: 20px;
+      font-size: $font-size-xxs;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-left: 1px solid $white;
+      cursor: pointer;
+      opacity: 1;
+      text-shadow: none;
+    }
+  }
+
+  &.badge-count {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-radius: 100px;
+    font-size: $font-size-xxs;
+    font-weight: 500;
+    position: absolute;
+    top: -15px;
+    left: 5px;
+  }
+
+  &.badge-count-side {
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border-radius: 100px;
+    font-size: $font-size-xxs;
+    font-weight: 500;
+  }
+}
+
+@mixin badge-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .badge-#{$c} {
+
+      &.badge-outline {
+        background-color: map-deep-get($button-colors, $c, 'fore');
+        color: map-deep-get($button-colors, $c, 'back');
+        border: 1px solid map-deep-get($button-colors, $c, 'border');
+      }
+
+      &.badge-alternate {
+        background-color: lighten(map-deep-get($button-colors, $c, 'back'), 25);
+        color: map-deep-get($button-colors, $c, 'back');
+        border: map-deep-get($button-colors, $c, 'border');
+      }
+
+      &.badge-close {
+        i.close {
+          border-color: map-deep-get($button-colors, $c, 'fore');
+          color: map-deep-get($button-colors, $c, 'fore');
+        }
+      }
+    }
+  }
+}
+
+@include badge-colors();

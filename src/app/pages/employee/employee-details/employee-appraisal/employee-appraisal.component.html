@@ -1,0 +1,420 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Appraisal details.</h4>
+  <div class="text-sm text-grey">You cannot view the appraisal details for this employee.</div>
+</div>
+<div class="employee-appraisal-container" *ngIf="haveAccess">
+
+  <div *ngIf="documents.length > 0" class="added-document-container mt-md mb-lg hide-print">
+    <div class="mb-sm text-bold">Documents uploaded with Appraisal Objectives as type will be shown below.</div>
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 40%;">Document Name</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of documents">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <button class="btn btn-dark btn-outline btn-xs mr-sm" [tooltip]="'Open document'" (click)="view(item)">
+              <i class="fas fa-eye mr-xs"></i>
+              <span>View</span>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <tabset #employeeTabs [vertical]="false" class="tab-container tab-horizontal">
+
+    <tab>
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">My Active Objective/Appraisal</div>
+            <div class="sub-header  text-grey">The details on the active appraisal is shown here..</div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+
+        <div *ngIf="isAllowed">
+          <app-employee-appraisal-info *ngIf="currentAppraisal && ratings.length > 0" [ratings]="ratings"
+            [reportingEmpId]="employeeId" [appraisal]="currentAppraisal" [isActive]="true">
+          </app-employee-appraisal-info>
+
+          <div *ngIf="!currentAppraisal" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h4>No active objective/appraisal.</h4>
+            <div class="text-sm text-grey">There is no objective/appraisal that is active for the employee.
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!isAllowed">
+          <div class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i [ngClass]="icon"></i>
+            </div>
+            <h4>Cannot view the Appraisal.</h4>
+            <div class="text-sm text-grey">You cannot view the Appraisal for this employee.</div>
+          </div>
+        </div>
+      </div>
+
+    </tab>
+
+    <tab>
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-history"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">My Previous Objective/Appraisals</div>
+            <div class="sub-header  text-grey">All the previous objective/appraisals are shown here.</div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+        <div *ngIf="isAllowed">
+          <app-employee-appraisal-info *ngIf="previousAppraisals && ratings.length > 0" [ratings]="ratings"
+            [reportingEmpId]="employeeId" [appraisal]="previousAppraisals" [isActive]="false">
+          </app-employee-appraisal-info>
+
+          <div *ngIf="!previousAppraisals" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-history"></i>
+            </div>
+            <h4>No previous completed objective/appraisal.</h4>
+            <div class="text-sm text-grey">There is no appraisals that are over/ completed for the employee.
+            </div>
+          </div>
+        </div>
+        <div *ngIf="!isAllowed">
+          <div class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i [ngClass]="icon"></i>
+            </div>
+            <h4>Cannot view the Appraisal.</h4>
+            <div class="text-sm text-grey">You cannot view the Appraisal for this employee.</div>
+          </div>
+        </div>
+      </div>
+    </tab>
+
+    <tab *ngIf="isSelf">
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">My Objective/Appraisals as RM</div>
+            <div class="sub-header  text-grey">All the employees for whom you are RM is and has an objective/appraisal
+              active is
+              shown here..</div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+
+        <div class="reporting-employees-container mb-lg">
+
+          <div *ngIf="employeesReportingDirectly.length > 0" class="mb-md">
+            <h5>Employees reporting directly to you.</h5>
+          </div>
+
+          <table datatable *ngIf="employeesReportingDirectly.length > 0" class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th style="width: 10%;">Appraisal</th>
+                <th style="width: 10%;">Department & Designation</th>
+                <th style="width: 10%;">Grade</th>
+                <th style="width: 10%;">Self Filled</th>
+                <th style="width: 10%;">Manager</th>
+                <th style="width: 10%;">HR</th>
+                <th style="width: 10%;">Rating</th>
+                <th style="width: 10%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of employeesReportingDirectly">
+                <td class="text-center">
+                  <div class="login-status">
+                    <div *ngIf="item.hrFilledOn" class="status-indicator status-indicator-xs status-indicator-success"
+                      [tooltip]="'Appraisal Closed'">
+                    </div>
+                    <div *ngIf="!item.hrFilledOn && item.managerFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'HR Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.managerFilledOn && item.selfFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'Manager Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.selfFilledOn" class="status-indicator status-indicator-xs status-indicator-danger"
+                      [tooltip]="'Self Appraisal Pending'">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>{{ item.name }}</div>
+                  <div>
+                    <div *ngIf="item.code && item.code !== ''" class="text-xxs mt-xxs text-primary">
+                      <b>{{ item.code }}</b>
+                    </div>
+                    <div *ngIf="!item.code || item.code === ''" class="text-xxs mt-xxs text-danger"><b>NOT SET</b></div>
+                  </div>
+                </td>
+                <td>{{ item.appraisalName }}</td>
+                <td>
+                  <div>{{ item.department }}</div>
+                  <div>{{ item.designation }}</div>
+                </td>
+                <td>{{ item.grade }}</td>
+                <td>
+                  <div *ngIf="item.selfFilledOn">{{ item.selfFilledOnText }}</div>
+                </td>
+                <td>
+                  <div>{{ item.managerName }}</div>
+                  <div *ngIf="item.managerFilledOn">{{ item.managerFilledOnText }}</div>
+                </td>
+                <td>
+                  <div>{{ item.hrName }}</div>
+                  <div *ngIf="item.hrFilledOn">{{ item.hrFilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.rating">{{ item.rating }}</div>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-dark btn-sm"
+                    [routerLink]="'/employees/' + item.employeeId + '/appraisal'">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="employeesReportingDirectly.length === 0" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h5>No employees reporting directly to you have active objective/appraisals.</h5>
+          </div>
+        </div>
+
+        <div class="reporting-employees-container mt-lg">
+          <div *ngIf="employeesReportingIndirectly.length > 0" class="mb-md">
+            <h5>Employees reporting indirectly to you.</h5>
+          </div>
+
+          <table datatable *ngIf="employeesReportingIndirectly.length > 0" class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th style="width: 10%;">Appraisal</th>
+                <th style="width: 10%;">Department & Designation</th>
+                <th style="width: 10%;">Grade</th>
+                <th style="width: 10%;">Self Filled</th>
+                <th style="width: 10%;">Manager</th>
+                <th style="width: 10%;">L2 Manager</th>
+                <th style="width: 10%;">HR</th>
+                <th style="width: 10%;">Rating</th>
+                <th style="width: 10%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of employeesReportingIndirectly">
+                <td class="text-center">
+                  <div class="login-status">
+                    <div *ngIf="item.hrFilledOn" class="status-indicator status-indicator-xs status-indicator-success"
+                      [tooltip]="'Appraisal Closed'">
+                    </div>
+                    <div *ngIf="!item.hrFilledOn && item.l2FilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'HR Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.l2FilledOn && item.managerFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'L2 Manager Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.managerFilledOn && item.selfFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'Manager Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.selfFilledOn" class="status-indicator status-indicator-xs status-indicator-danger"
+                      [tooltip]="'Self Appraisal Pending'">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>{{ item.name }}</div>
+                  <div>
+                    <div *ngIf="item.code && item.code !== ''" class="text-xxs mt-xxs text-primary">
+                      <b>{{ item.code }}</b>
+                    </div>
+                    <div *ngIf="!item.code || item.code === ''" class="text-xxs mt-xxs text-danger"><b>NOT SET</b></div>
+                  </div>
+                </td>
+                <td>{{ item.appraisalName }}</td>
+                <td>
+                  <div>{{ item.department }}</div>
+                  <div>{{ item.designation }}</div>
+                </td>
+                <td>{{ item.grade }}</td>
+                <td>
+                  <div *ngIf="item.selfFilledOn">{{ item.selfFilledOnText }}</div>
+                </td>
+                <td>
+                  <div>{{ item.managerName }}</div>
+                  <div *ngIf="item.managerFilledOn">{{ item.managerFilledOnText }}</div>
+                </td>
+                <td>
+                  <div>{{ item.l2ManagerName }}</div>
+                  <div *ngIf="item.l2FilledOn">{{ item.l2FilledOnText }}</div>
+                </td>
+                <td>
+                  <div>{{ item.hrName }}</div>
+                  <div *ngIf="item.hrFilledOn">{{ item.hrFilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.rating">{{ item.rating }}</div>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-dark btn-sm"
+                    [routerLink]="'/employees/' + item.employeeId + '/appraisal'">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="employeesReportingIndirectly.length === 0" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h5>No employees reporting indirectly to you have active objective/appraisals.</h5>
+          </div>
+        </div>
+
+      </div>
+    </tab>
+
+    <tab *ngIf="isSelf && isHr">
+      <ng-template tabHeading>
+        <div class="tab-header">
+          <div class="tab-header-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="tab-header-content">
+            <div class="header no-m">Objective/Appraisals pending with HR</div>
+            <div class="sub-header  text-grey">All the active objective/appraisals pending with the HR are listed here.
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <div class="tab-body">
+
+        <div class="reporting-employees-container">
+          <table datatable *ngIf="hrPendingAppraisals.length > 0" class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Name</th>
+                <th style="width: 10%;">Department</th>
+                <th style="width: 10%;">Designation</th>
+                <th style="width: 10%;">Grade</th>
+                <th style="width: 10%;">Self Filled</th>
+                <th style="width: 10%;">Manager Filled</th>
+                <th style="width: 10%;">L2 Filled</th>
+                <th style="width: 10%;">HR Filled</th>
+                <th style="width: 10%;">Rating</th>
+                <th style="width: 10%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of hrPendingAppraisals">
+                <td class="text-center">
+                  <div class="login-status">
+                    <div *ngIf="item.hrFilledOn" class="status-indicator status-indicator-xs status-indicator-success"
+                      [tooltip]="'Appraisal Closed'">
+                    </div>
+                    <div *ngIf="!item.hrFilledOn && item.l2FilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'HR Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.l2FilledOn && item.managerFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'L2 Manager Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.managerFilledOn && item.selfFilledOn"
+                      class="status-indicator status-indicator-xs status-indicator-warning"
+                      [tooltip]="'Manager Appraisal Pending'">
+                    </div>
+                    <div *ngIf="!item.selfFilledOn" class="status-indicator status-indicator-xs status-indicator-danger"
+                      [tooltip]="'Self Appraisal Pending'">
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div>{{ item.name }}</div>
+                  <div>
+                    <div *ngIf="item.code && item.code !== ''" class="text-xxs mt-xxs text-primary">
+                      <b>{{ item.code }}</b>
+                    </div>
+                    <div *ngIf="!item.code || item.code === ''" class="text-xxs mt-xxs text-danger"><b>NOT SET</b></div>
+                  </div>
+                </td>
+                <td>{{ item.department }}</td>
+                <td>{{ item.designation }}</td>
+                <td>{{ item.grade }}</td>
+                <td>
+                  <div *ngIf="item.selfFilledOn">{{ item.selfFilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.managerFilledOn">{{ item.managerFilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.l2FilledOn">{{ item.l2FilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.hrFilledOn">{{ item.hrFilledOnText }}</div>
+                </td>
+                <td>
+                  <div *ngIf="item.rating">{{ item.rating }}</div>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-dark btn-sm"
+                    [routerLink]="'/employees/' + item.employeeId + '/appraisal'">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="hrPendingAppraisals.length === 0" class="empty-state p-md text-center">
+            <div class="empty-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h4>No active appraisals for any employee is pending.</h4>
+          </div>
+        </div>
+
+      </div>
+    </tab>
+
+  </tabset>
+
+</div>

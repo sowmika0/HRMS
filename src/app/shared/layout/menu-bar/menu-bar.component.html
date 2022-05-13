@@ -1,0 +1,166 @@
+<div class="menu">
+  <div class="logo-container">
+    <div class="logo">
+      <img [src]="logoUrl" alt="Kubota" />
+    </div>
+  </div>
+
+  <div class="menu-items-container">
+    <ul class="menu-items">
+      <li>
+        <a *ngFor="let item of menuItems" class="menu-item"
+          [ngClass]="[item.isHover ? 'show-menu' : '', item.isActive ? 'active' : '']" (mouseover)="item.isHover = true"
+          (mouseout)="item.isHover = false" [routerLink]="item.url" [routerLinkActive]="'active'"
+          [routerLinkActiveOptions]="{ exact: false }">
+          <div class="menu-item-container">
+            <div class="menu-item-icon">
+              <i [ngClass]="item.icon"></i>
+            </div>
+            <div class="menu-item-title">
+              <span>{{ item.title }}</span>
+            </div>
+          </div>
+          <div class="menu-item-info">
+            <div class="menu-item-title">
+              <span>{{ item.title }}</span>
+            </div>
+            <div class="menu-item-sub">
+              <div *ngFor="let sub of item.subMenuList" class="menu-item-sub-menu">
+                <span>{{ sub.title }}</span>
+              </div>
+            </div>
+
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="userInfo" class="user-action-container">
+    <div class="ks-dropdown" dropdown [dropup]="true" placement="bottom right">
+      <div dropdownToggle class="dropdown-toggle hide-caret image user-avatar hide-caret"
+        aria-controls="dropdown-basic">
+        <div class="user-text">
+          {{ userInfo.name.substr(0, 1) }}
+        </div>
+        <div *ngIf="unReadNotifications > 0" class="notification-circle wobble"></div>
+      </div>
+      <ul id="dropdown-basic" *dropdownMenu class="dropdown-menu" role="menu" aria-labelledby="button-basic">
+        <div class="user-info">
+          <div class="user-image">
+            <div class="user-avatar-thumbnail">
+              <div *ngIf="photoUrl" class="user-avatar-image" [ngStyle]="{ backgroundImage: 'url(' + photoUrl + ')' }">
+              </div>
+              <div *ngIf="!photoUrl" class="text">{{ userInfo.name.substr(0, 1) }}
+              </div>
+            </div>
+          </div>
+          <div class="user-name">{{ userInfo.name }}</div>
+          <div class="user-meta">
+            <div class="user-id">{{ userInfo.code }}</div>
+            <div class="user-email">{{ userInfo.emailId }}</div>
+            <div class="user-department">{{ userInfo.department }}</div>
+            <div class="user-designation">{{ userInfo.designation }}</div>
+            <div class="user-location">{{ userInfo.location }}</div>
+          </div>
+        </div>
+        <li class="divider dropdown-divider mb-sm"></li>
+        <div class="user-dropdown">
+          <li role="dropdown-menuitem">
+            <a class="dropdown-item" [routerLink]="'/my-profile'">
+              <span><i class="fas fa-user"></i></span>
+              <span>My Profile</span>
+            </a>
+          </li>
+          <li role="dropdown-menuitem">
+            <a class="dropdown-item" (click)="showNotifications()">
+              <span><i class="fas fa-bell"></i></span>
+              <span>
+                <span>Notifications</span>
+                <span *ngIf="unReadNotifications > 0"
+                  class="notifiation-count">{{ unReadNotifications > 9 ? '9+' : unReadNotifications }} unread</span>
+              </span>
+            </a>
+          </li>
+          <li role="dropdown-menuitem">
+            <a class="dropdown-item" (click)="showPasswordChange()">
+              <span><i class="fas fa-lock"></i></span>
+              <span>Change Password</span>
+            </a>
+          </li>
+          <li role="dropdown-menuitem">
+            <a class="dropdown-item dropdown-item-danger logout" (click)="logout()">
+              <span><i class="fas fa-sign-out-alt"></i></span>
+              <span>Logout</span>
+            </a>
+          </li>
+        </div>
+      </ul>
+    </div>
+
+  </div>
+
+  <app-custom-modal #passwordChange [title]="'Change your account password'"
+    [subTitle]="'Change your account password by entering a new password. You should use the new password set from the next login.'">
+    <div class="new-password">
+      <form #newPasswordForm="ngForm" class="form show-character-count">
+        <div class="form-group">
+          <label class="form-title required">Current Password</label>
+          <label class="form-explanation">Enter the current password.</label>
+          <input #curPasswordVar="ngModel" class="form-control" name="curPassword"
+            [(ngModel)]="passwordInfo.currentPassword" type="password" required />
+          <app-custom-validation [model]="curPasswordVar" [required]="'Enter the current password.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title required">New Password</label>
+          <label class="form-explanation">Enter the new password.</label>
+          <input #newPasswordVar="ngModel" class="form-control" name="newPassword"
+            [(ngModel)]="passwordInfo.newPassword" type="password" required [pattern]="regex.password" />
+          <app-custom-validation [model]="newPasswordVar" [required]="'Enter the new password.'"
+            [pattern]="'Password must contain 1 number,1 uppercase letter, 1 lowercase letter,1 special character and 8 characters with no space.'">
+          </app-custom-validation>
+        </div>
+        <div class="form-group">
+          <label class="form-title required">Retype New Password</label>
+          <label class="form-explanation">Enter the new password again.</label>
+          <input #retypePasswordVar="ngModel" class="form-control" name="retypePassword"
+            [(ngModel)]="passwordInfo.reTypeNewPassword" type="password" required [equalTo]="newPasswordVar" />
+          <app-custom-validation [model]="retypePasswordVar" [required]="'Enter the new password again.'"
+            [equalTo]="'Enter the same password as above.'">
+          </app-custom-validation>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="updatePassword()" [ngClass]="isProcessing ? 'spinning': ''"
+        [disabled]="isProcessing || !newPasswordForm.valid">
+        <span>Update Password</span>
+        <i class="fas fa-spinner spinner ml-xs"></i>
+      </button>
+    </div>
+
+  </app-custom-modal>
+
+  <app-custom-offcanvas #notificationOffcanvas [title]="'Notifications'">
+    <div class="notifications-container">
+      <div *ngFor="let item of notifications" class="notification-item" [ngClass]="item.isRead ? 'read' : ''"
+        (click)="routeNotification(item)" [routerLink]="item.route ? '/' + item.route : ''">
+        <!-- <div class="notification-icon">
+          <div class="notification-icon-container">
+            <i [ngClass]="item.icon"></i>
+          </div>
+        </div> -->
+        <div class="notification-content">
+          <div class="notification-text" [innerHTML]="item.text"></div>
+          <div class="notification-date text-xs">{{ item.receivedOnText }}</div>
+        </div>
+      </div>
+
+      <div *ngIf="notifications.length > 0" class="mt-sm text-center text-xs">
+        <a class="text-primary" [routerLink]="'/notifications'">View All Notifications</a>
+      </div>
+    </div>
+  </app-custom-offcanvas>
+</div>

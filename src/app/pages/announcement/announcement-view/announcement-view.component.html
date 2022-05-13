@@ -1,0 +1,29 @@
+<div *ngIf="announcement.announcementId" class="annoucement-view-modal">
+  <div class="announcement-content">
+    <div [innerHTML]="announcement.content"></div>
+  </div>
+  <div *ngIf="documentAttachments.length > 0" class="announcement-attachments pt-sm mt-sm b-t pb-sm b-b">
+    <h6>Attachments</h6>
+    <div *ngFor="let item of documentAttachments" class="announcement-attachment">
+      <div class="text-primary text-sm">
+        <span><b>{{ item.fileName }}</b></span>
+        <span class="ml-sm"><b>({{ item.size | filesize }})</b></span>
+        <span class="ml-sm">
+          <a [href]="item.fileUrl" target="_blank">
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="mt-md">
+    <div class="badge badge-grey badge-alternate">{{ announcement.dateText }}</div>
+    <div *ngIf="announcement.announcementTypeSelection" class="badge badge-primary">
+      {{ announcement.announcementTypeSelection.label }}</div>
+    <div *ngFor="let item of announcement.locationSelections" class="badge badge-secondary badge-alternate">
+      {{ item.label }}</div>
+  </div>
+  <div *ngIf="imageAttachments.length > 0" class="announcement-images mt-sm">
+    <gallery [items]="images" thumbPosition="bottom"></gallery>
+  </div>
+</div>

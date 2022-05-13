@@ -1,0 +1,121 @@
+/** Variables */
+$offcanvas-sm-width: 200px;
+$offcanvas-md-width: 350px;
+$offcanvas-lg-width: 500px;
+$offcanvas-xl-width: 800px;
+
+.custom-offcanvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+
+  .offcanvas-content {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    width: $offcanvas-md-width;
+    background: $almost-white;
+    z-index: 1002;
+    transform: translateX(105%);
+    transition: 0.5s;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-left: 1px solid $lighter-grey;
+
+    .offcanvas-header {
+      padding: $spacing-md;
+
+      .offcanvas-title {
+        line-height: normal;
+        word-break: break-word;
+        text-align: center;
+      }
+
+      .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        font-size: $font-size-base;
+
+        i {
+          transform: rotate(0deg);
+          transition: 0.3s;
+        }
+
+        &:hover {
+          i {
+            transform: rotate(180deg);
+            transition: 0.3s;
+          }
+        }
+      }
+    }
+
+    .offcanvas-body {
+      padding: $spacing-md;
+
+    }
+
+    .offcanvas-footer {
+      padding: $spacing-md;
+    }
+
+    &.show-shadow {
+      box-shadow: -3px 5px 5px 0px $light-grey;
+    }
+
+    &.show {
+      transform: translateX(0);
+      transition: 0.5s;
+    }
+
+    &.offcanvas-sm {
+      width: $offcanvas-sm-width;
+    }
+
+    &.offcanvas-md {
+      width: $offcanvas-md-width;
+    }
+
+    &.offcanvas-lg {
+      width: $offcanvas-lg-width;
+    }
+
+    &.offcanvas-xl {
+      width: $offcanvas-xl-width;
+    }
+  }
+
+  .offcanvas-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(200, 200, 200, 0.5);
+    display: none;
+  }
+
+  &.no-backdrop {
+    z-index: 0;
+  }
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1001;
+
+    .offcanvas-backdrop {
+      display: block;
+    }
+  }
+
+}

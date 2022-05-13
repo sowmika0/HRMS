@@ -1,0 +1,80 @@
+$headings: ('1': 2.3,
+  '2': 2,
+  '3': 1.7,
+  '4': 1.3,
+  '5': 1,
+  '6': 0.9);
+
+@mixin headingStyle {
+  font-family: $font-family-heading;
+  letter-spacing: 0.5px;
+}
+
+.heading {
+  @include headingStyle();
+}
+
+body {
+  font-family: $font-family-main;
+  font-size: $font-size-base;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  color: $dark-grey
+}
+
+a {
+  color: $dark-grey;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+p {
+  a {
+    color: $primary;
+    font-weight: 400;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+}
+
+.anchor {
+  color: $dark-grey;
+  cursor: pointer;
+
+  &.underline {
+    text-decoration: underline;
+  }
+}
+
+@mixin headings {
+
+  @each $h,
+  $head in $headings {
+    .heading#{$h} {
+      font-size: #{$head}rem;
+      @include headingStyle();
+    }
+
+    h#{$h} {
+      font-size: #{$head}rem;
+      @include headingStyle();
+    }
+  }
+}
+
+@mixin font-sizes {
+
+  @each $f,
+  $value in $font-sizes {
+    .text-#{$f} {
+      font-size: #{$value};
+    }
+  }
+}
+
+@include font-sizes();
+@include headings();

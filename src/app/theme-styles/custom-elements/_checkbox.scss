@@ -1,0 +1,122 @@
+.custom-checkbox {
+  position: absolute;
+  opacity: 0;
+
+  &+label {
+    cursor: pointer;
+    padding: 0;
+  }
+
+  // Box.
+  &+label:before {
+    content: '';
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: text-top;
+    width: 15px;
+    height: 15px;
+    background: $light-grey;
+    border-radius: 3px;
+  }
+
+  // Box hover
+  &:hover+label:before {
+    background: $mid-grey;
+  }
+
+  // Box focus
+  &:focus+label:before {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+  }
+
+  // Box checked
+  &:checked+label:before {
+    background: $primary;
+  }
+
+  // Disabled state label.
+  &:disabled+label {
+    color: $mid-grey;
+    cursor: auto;
+  }
+
+  // Disabled box.
+  &:disabled+label:before {
+    box-shadow: none;
+    background: $mid-grey;
+  }
+
+  // Checkmark. Could be replaced with an image
+  &:checked+label:after {
+    font-size: 8px;
+    content: "";
+    left: calc(-100% + 12px);
+    top: -2px;
+    font-weight: 900;
+    font-family: "Font Awesome 5 Free";
+    color: $white;
+    position: relative;
+  }
+}
+
+.custom-radio {
+  position: absolute;
+  opacity: 0;
+
+  &+label {
+    cursor: pointer;
+    padding: 0;
+  }
+
+  // Box.
+  &+label:before {
+    content: '';
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: text-top;
+    width: 15px;
+    height: 15px;
+    border-radius: 50px;
+    background: $light-grey;
+  }
+
+  // Box hover
+  &:hover+label:before {
+    background: $mid-grey;
+  }
+
+  // Box focus
+  &:focus+label:before {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+  }
+
+  // Box checked
+  &:checked+label:before {
+    background: $primary;
+  }
+
+  // Disabled state label.
+  &:disabled+label {
+    color: $mid-grey;
+    cursor: auto;
+  }
+
+  // Disabled box.
+  &:disabled+label:before {
+    box-shadow: none;
+    background: $mid-grey;
+  }
+
+  // Checkmark. Could be replaced with an image
+  &:checked+label:after {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 20px;
+    background: $white;
+    left: calc(-100% + 11px);
+    top: -2px;
+    position: relative;
+    display: inline-block;
+  }
+}

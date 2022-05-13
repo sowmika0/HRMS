@@ -1,0 +1,173 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Language details.</h4>
+  <div class="text-sm text-grey">You cannot view the language details for this employee.</div>
+</div>
+<div class="employee-container employee-language-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activeLanguages.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(languageForm)">New Language</button>
+  </div>
+
+  <div *ngIf="activeLanguages.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No languages added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new language.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(languageForm)">New
+        Language</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeLanguages.length > 0" class="added-language-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Language Name</th>
+          <th style="width: 15%;">Proficiency</th>
+          <th style="width: 10%;">Can Speak</th>
+          <th style="width: 10%;">Can Write</th>
+          <th style="width: 10%;">Can Read</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeLanguages">
+          <td>
+            <span>{{ item.language }}</span>
+          </td>
+          <td>
+            <span>{{ item.levelSelection?.label }}</span>
+          </td>
+          <td>
+            <span>{{ item.canSpeak ? 'Yes' : 'No' }}</span>
+          </td>
+          <td>
+            <span>{{ item.canWrite ? 'Yes' : 'No' }}</span>
+          </td>
+          <td>
+            <span>{{ item.canRead ? 'Yes' : 'No' }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit language information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [tooltip]="'Delete this language.'"
+              [disabled]="!canEdit || this.role !== 'hr'" (click)=" deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeeLanguages()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Languages</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #languageModal [title]="isUpdating ? 'Update Language Details' : 'Add New Language'"
+    [subTitle]="'Enter the details for the language to add or update the information.'" [modalSize]="'lg'">
+    <div *ngIf="language" class="new-language">
+      <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        You have already added this language.
+      </div>
+
+      <form #languageForm="ngForm" class="form show-character-count row no-x-m">
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Language Name</label>
+            <label class="form-explanation">Enter the name of the language.</label>
+            <ng-select #languageVar="ngModel" name="languageVar" [(ngModel)]="language.language"
+              (change)="language.language = $event.value" [items]="languageOptions" [multiple]="false"
+              placeholder="Choose language" [clearable]="false" required [disabled]="!canEdit">
+            </ng-select>
+            <app-custom-validation [model]="languageVar" [required]="'Enter the name for the language.'">
+            </app-custom-validation>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title">Language Proficiency</label>
+            <label class="form-explanation">Choose the language proficiency level.</label>
+            <ng-select #languageLevelVar="ngModel" name="languageLevelVar" [(ngModel)]="language.levelSelection"
+              (change)="language.level = $event.value" [items]="languageProficiencyOptions" [multiple]="false"
+              placeholder="Choose language proficiency" [clearable]="false" required [disabled]="!canEdit">
+            </ng-select>
+            <app-custom-validation [model]="languageLevelVar" [required]="'Choose the language proficiency level.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+        <div class="col-6">
+          <div class="form-group">
+            <label class="form-title required">Can Speak</label>
+            <label class="form-explanation">Check the box if you can speak the language fluently.</label>
+
+            <div class="col-12">
+              <input #canSpeakVar="ngModel" name="canSpeak-checkbox" class="custom-checkbox primary"
+                id="canSpeak-checkbox" type="checkbox" [value]="true" [(ngModel)]="language.canSpeak"
+                [disabled]="!canEdit">
+              <label for="canSpeak-checkbox">
+                <span class="text">Can Speak</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Can Write</label>
+            <label class="form-explanation">Check the box if you can write in the language.</label>
+
+            <div class="col-12">
+              <input #canWriteVar="ngModel" name="canWrite-checkbox" class="custom-checkbox primary"
+                id="canWrite-checkbox" type="checkbox" [value]="true" [(ngModel)]="language.canWrite"
+                [disabled]="!canEdit">
+              <label for="canWrite-checkbox">
+                <span class="text">Can Write</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Can Read</label>
+            <label class="form-explanation">Check the box if you can read the language.</label>
+
+            <div class="col-12">
+              <input #canReadVar="ngModel" name="canRead-checkbox" class="custom-checkbox primary" id="canRead-checkbox"
+                type="checkbox" [value]="true" [(ngModel)]="language.canRead" [disabled]="!canEdit">
+              <label for="canRead-checkbox">
+                <span class="text">Can Read</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" [disabled]="languageForm && !languageForm.valid || !canEdit"
+        (click)="addOrUpdate()">
+        <span>{{ isUpdating ? 'Update Language' : 'Add Language' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

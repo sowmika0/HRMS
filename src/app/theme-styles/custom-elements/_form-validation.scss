@@ -1,0 +1,46 @@
+.form,
+form {
+  .form-group {
+
+    .form-control {
+      &.ng-invalid {
+        &.ng-dirty {
+          &.ng-touched {
+            border: 1px solid $danger;
+          }
+        }
+      }
+    }
+
+    .form-error-icon {
+      color: $danger;
+      font-size: $font-size-sm;
+      display: inline-block;
+      position: absolute;
+      right: 10px;
+      margin-top: -30px;
+    }
+
+    .form-error-text {
+      color: $danger;
+      font-size: $font-size-xs;
+      font-weight: 400;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    &[class*='col-'] {
+      .form-error-icon {
+        right: 25px;
+      }
+    }
+  }
+
+  &.hide-error-icon {
+    .form-group {
+      .form-error-icon {
+        display: none;
+      }
+    }
+  }
+}

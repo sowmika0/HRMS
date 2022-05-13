@@ -1,0 +1,617 @@
+<div class="ticket-list-container">
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Tickets</h3>
+        <div class="sub-title">Tickets list is displayed here. Tickets can be
+          searched or filtered using various filters available. Creating and updating tickets will also be
+          done
+          from
+          this section.</div>
+      </div>
+    </div>
+    <div class="box-content">
+      <div class="text-right actions-container">
+        <button *ngIf="isFilterSet" class="btn btn-secondary btn-md mr-sm btn-outline"
+          (click)="clearFilter(filtersForm)">
+          <span>Clear Filter</span>
+        </button>
+        <button class="btn btn-dark btn-md mr-sm" [ngClass]="isFilterSet ? '' : 'btn-outline'" (click)="showFilters()">
+          <span>{{ isFilterSet ? 'Change Filter' : 'Filter' }}</span>
+        </button>
+        <button class="btn btn-primary btn-md" (click)="addFaqModal(faqForm)">
+          <span>Add Ticket</span>
+        </button>
+      </div>
+
+      <div class="tickets-list mt-md">
+        <table *ngIf="tickets.length > 0" class="table table-striped" datatable [dtOptions]="dtOptions">
+          <thead>
+            <tr>
+              <th style="width: 3%"></th>
+              <th style="width: 10%">Category</th>
+              <th style="width: 10%">SubCategory</th>
+              <th style="width: 10%">Title</th>
+              <th style="width: 10%">Status</th>
+              <th style="width: 10%">Added On</th>
+              <th style="width: 7%">Added By</th>
+              <th style="width: 5%">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of tickets; let i=index;">
+              <td>
+                <div class="flex-centered pt-xs">
+                  <div *ngIf="!item.isStarted && !item.isCompleted"
+                    class="status-indicator status-indicator-xs status-indicator-danger">
+                  </div>
+                  <div *ngIf="item.isStarted && !item.isCompleted"
+                    class="status-indicator status-indicator-xs status-indicator-warning">
+                  </div>
+                  <div *ngIf="item.isCompleted" class="status-indicator status-indicator-xs status-indicator-success">
+                  </div>
+
+                </div>
+              </td>
+              <td>
+                {{ item.category }}
+              </td>
+              <td>{{ item.subCategory  }}</td>
+              <td>{{ item.title }}</td>
+              <td>
+                <div *ngIf="!item.isStarted && !item.isCompleted" class="badge badge-danger badge-alternate">Not Started
+                </div>
+                <div *ngIf="item.isStarted && ! item.isCompleted" class="badge badge-warning badge-alternate">Started
+                </div>
+                <div *ngIf="item.isCompleted" class="badge badge-success badge-alternate">
+                  Closed
+                </div>
+              </td>
+              <td>{{ item.addedOnText }}</td>
+              <td>{{ item.addedBy }}</td>
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Ticket Actions</h6>
+
+                      <li *ngIf="isHr || item.isCreator || isAdmin">
+                        <a class="dropdown-item default" (click)="viewTicketDetails(item)">
+                          <span class="mr-sm"><i class="fas fa-info-circle"></i></span>
+                          <span>View Ticket Details</span>
+                        </a>
+                      </li>
+                      <li *ngIf="!isAdmin">
+                        <a *ngIf="(!item.isStarted ) && isHr && !item.isCompleted"
+                          class="dropdown-item dropdown-item-success" (click)="startTicketAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-play"></i></span>
+                          <span>Start Ticket</span>
+                        </a>
+                      </li>
+                      <!-- <li *ngIf="!isAdmin">
+                        <a *ngIf="item.isStarted && !item.isCompleted && isHr"
+                          class="dropdown-item dropdown-item-danger" (click)="undoStartTicketAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-undo-alt"></i></span>
+                          <span>Undo Start</span>
+                        </a>
+                      </li> -->
+                      <li *ngIf="!isAdmin">
+                        <a *ngIf="item.isStarted && !item.isCompleted && isHr"
+                          class="dropdown-item dropdown-item-success" (click)="closeTicketAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Close Ticket</span>
+                        </a>
+                      </li>
+                      <!-- <li *ngIf="!isAdmin">
+                        <a *ngIf="item.isCompleted && isHr" class="dropdown-item dropdown-item-danger"
+                          (click)="undoCloseTicketAlert(item)">
+                          <span class="mr-sm"><i class="fas fa-undo-alt"></i></span>
+                          <span>Undo Close</span>
+                        </a>
+                      </li> -->
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="tickets.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+        <ng-container *ngIf="!isFilterSet">
+          <h4 *ngIf="!isHr">No tickets were added by you yet.</h4>
+          <h4 *ngIf="isHr">No tickets were added by you and no tickets from anyone.</h4>
+          <div class="text-sm text-grey">Click the button below to add a new ticket.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="addFaqModal(faqForm)">New
+              Ticket</button>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="isFilterSet">
+          <h4>No tickets matched the filter conditions set. Please change the filter to get results.</h4>
+          <div class="text-sm text-grey">Click the button below to change the filter.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="showFilters()">
+              <span>Filter</span>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <app-custom-modal #ticketModal [title]="!isUpdating ? 'Add New Ticket' : 'Update Ticket'"
+    [modalSize]="isUpdating ? 'xl' : 'lg' "
+    [subTitle]="'Enter the details of the ticket to be added. Once added you can update more details in the ticket details page.'">
+    <div class="ticket-info-modal row">
+      <form #ticketForm="ngForm" class="form show-character-count"
+        [ngClass]="!isUpdating ? 'col-12 row no-x-m' : 'col-4'">
+
+        <div [ngClass]="!isUpdating ? 'col-6' : ''" class="form-group">
+          <label class="form-title required">Title</label>
+          <label class="form-explanation">Enter the title of the ticket.</label>
+          <input #ticketTitleVar="ngModel" class="form-control" name="ticketTitle" placeholder="Enter the ticket title"
+            [(ngModel)]="newTicket.title" type="text" required [disabled]="isUpdating ">
+          <app-custom-validation [model]="ticketTitleVar" [required]="'Enter the content for the ticket.'">
+          </app-custom-validation>
+        </div>
+
+        <div [ngClass]="!isUpdating ? 'col-6' : ''" class="form-group">
+          <label class="form-title required">Explanation</label>
+          <label class="form-explanation">Explain what the ticket is all about.</label>
+          <textarea #ticketExplanationVar="ngModel" [(ngModel)]="newTicket.explanation" name="ticketExplanantion"
+            type="text" placeholder="Ticket Explanation" class="form-control" rows="10"
+            [disabled]="isUpdating "></textarea>
+          <app-custom-validation [model]="ticketExplanationVar" [required]="'Enter the ticket details.'">
+          </app-custom-validation>
+        </div>
+
+        <div *ngIf="isUpdating" class="form-group">
+          <label class="form-title "> Status</label>
+          <label class="form-explanation">Progress of the ticket can be seen here</label>
+          <div>
+            <b *ngIf="!newTicket.isStarted && !newTicket.isCompleted" class="badge badge-danger badge-alternate">Not
+              Started</b>
+            <b *ngIf="newTicket.isStarted && !newTicket.isCompleted" class="badge badge-warning badge-alternate">Started
+            </b>
+            <b *ngIf="newTicket.isCompleted" class="badge badge-success badge-alternate">
+              Closed
+            </b>
+          </div>
+        </div>
+
+        <div [ngClass]="!isUpdating ? 'col-6' : ''" class="form-group">
+          <label class="form-title required">Category</label>
+          <label class="form-explanation">Choose the category for the ticket.</label>
+          <ng-select name="categoryVar" [(ngModel)]="newTicket.categorySelection" #categoryVar="ngModel"
+            (change)="loadSubCategory($event)" [items]="ticketCategorySelection" placeholder="Choose category"
+            [multiple]="false" [clearable]="false" class="reporting-top-select" [disabled]="isUpdating" required
+            [searchFn]="categorySearchFunction">
+
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.category }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+              <div class="reporting-to-dropdown-item">
+                <div class="employee-name">{{ item.category }}</div>
+              </div>
+            </ng-template>
+          </ng-select>
+          <app-custom-validation [model]="categoryVar" [required]="'Choose a category for the ticket.'">
+          </app-custom-validation>
+        </div>
+
+        <div [ngClass]="!isUpdating ? 'col-6' : ''" class="form-group">
+          <label class="form-title required">Sub Category</label>
+          <label class="form-explanation">Choose the sub category for the ticket.</label>
+          <ng-select name="subcategoryVar" [(ngModel)]="newTicket.subCategorySelection" #subcategoryVar="ngModel"
+            (change)="assignSubCategoryId($event)" [items]="ticketSubCategorySelection"
+            placeholder="Choose Sub category" [multiple]="false" [clearable]="false" class="reporting-top-select"
+            required [disabled]="isUpdating" [searchFn]="subCategorySearchFunction">
+
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.subCategory }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+              <div class="reporting-to-dropdown-item">
+                <div class="employee-name">{{ item.subCategory }}</div>
+              </div>
+            </ng-template>
+          </ng-select>
+          <app-custom-validation [model]="subcategoryVar" [required]="'Choose a sub category for the ticket.'">
+          </app-custom-validation>
+        </div>
+
+        <div [ngClass]="!isUpdating ? 'col-12' : ''" class="form-group">
+          <label class="form-title">Attachments</label>
+          <label class="form-explanation">Any supporting documents for the ticket.</label>
+
+          <table *ngIf="newAttachmentInfo.length > 0 || activeAttachments.length > 0" class="table table-compact mt-sm">
+            <thead>
+              <tr>
+                <th style="width: 50%;">File Info</th>
+                <th style="width: 40%;">Uploaded On</th>
+                <th style="width: 10%;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of activeAttachments; let i = index;">
+                <td>
+                  <div class=" uploaded-file-info text-sm">
+                    <div class="file-name" [tooltip]="item.fileName">{{ item.fileName }}</div>
+                    <div class="file-size text-xs"><b>{{ item.size | filesize }}</b></div>
+                    <div>
+                      <div class="badge badge-dark badge-alternate">{{ item.contentType }}</div>
+                      <div *ngIf="item.type && item.type === 'Image'"
+                        class="image-preview badge badge-success badge-alternate" [popover]="imagePreviewTemplate"
+                        [popoverTitle]="'Preview'" [outsideClick]="true">Preview
+                      </div>
+                      <div *ngIf="item.fileUrl" class="image-preview badge badge-success badge-alternate"
+                        [tooltip]="'Open the attachment'"><a [href]="item.fileUrl" target="_blank">Open</a>
+                      </div>
+                    </div>
+                    <ng-template #imagePreviewTemplate>
+                      <div class="popover-preview">
+                        <img [src]="item.fileUrl" [alt]="item.fileName" />
+                      </div>
+                    </ng-template>
+                  </div>
+                </td>
+                <td>
+
+                </td>
+                <td>
+                  <button class="btn btn-danger btn-sm" (click)="removeExistingFile(item)"
+                    [tooltip]="'Remove selected file'">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let item of newAttachmentInfo; let i = index;">
+                <td>
+                  <div class=" uploaded-file-info text-sm">
+                    <div class="file-name" [tooltip]="item.file.name">{{ item.file.name }}</div>
+                    <div class="file-size text-xs"><b>{{ item.file.size | filesize }}</b></div>
+                    <div>
+                      <div class="badge badge-dark badge-alternate">{{ item.file.type }}</div>
+                      <div *ngIf="item.isNew" class="badge badge-secondary badge-alternate">New</div>
+                      <div *ngIf="item.type === 'Image'" class="image-preview badge badge-success badge-alternate"
+                        [popover]="previewTemplate" [popoverTitle]="'Preview'" [outsideClick]="true">Preview</div>
+                    </div>
+                    <ng-template #previewTemplate>
+                      <ngx-dropzone-image-preview [removable]="false" [file]="item.file" class="popover-preview"
+                        ngProjectAs="ngx-dropzone-preview">
+                      </ngx-dropzone-image-preview>
+                    </ng-template>
+                  </div>
+                </td>
+                <td></td>
+                <td>
+                  <button class="btn btn-danger btn-sm mt-sm" (click)="removeUploadedFile(item)"
+                    [tooltip]="'Remove selected file'">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="text-center mt-md">
+            <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'file'"
+              [accept]="fileFormats" [multiple]="true" [maxFileSize]="5000000"
+              (change)="onFileSelected($event)">
+              <button class="btn btn-primary btn-sm">
+                <span>Add Attachments</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <div *ngIf="isUpdating && (isHr || newTicket.isCreator)" class="col-8">
+        <form #commentForm="ngForm" class="row">
+          <div class="form-group">
+            <label class="form-title">Comments.</label>
+            <label class="form-explanation ">Add your comments below </label>
+          </div>
+
+          <div class="form-group col-lg-10">
+            <textarea #newCommentVar="ngModel" class="form-control" name="newCommentVar"
+              [(ngModel)]="newTicket.newComment" type="text" rows="4" required></textarea>
+            <app-custom-validation [model]="newCommentVar" [required]="'Enter the comment.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group col-lg-2">
+            <button class="btn btn-primary btn-sm btn-block" [disabled]="!commentForm.valid || isCommentProcessing"
+              (click)="addNewComment(commentForm)" [ngClass]="isCommentProcessing ? 'spinning' : ''">
+              <span>Add</span>
+              <i class="fas fa-spinner spinner"></i>
+            </button>
+          </div>
+        </form>
+
+        <div class="row mt-sm no-x-m">
+
+          <div *ngIf="commentsList.length > 0" class="task-comment-table col-12">
+            <table class="table table-hover col-12" datatable [dtOptions]="dtOptions">
+              <thead>
+                <tr>
+                  <td style="width: 60%;">Comment</td>
+                  <td>Added By</td>
+                  <td>Action</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let eachComment of commentsList">
+                  <td>
+                    <div class="comment-text text-sm">
+                      <span>{{ eachComment.comment }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="comment-date text-xs">
+                      <span class="text-primary"><b>{{ eachComment.addedBy }} </b></span>
+                      <span> on </span>
+                      <span class="text-primary"><b>{{ eachComment.addedOnText }}</b></span>
+                    </div>
+                  </td>
+                  <td>
+                    <button *ngIf="eachComment.isCreator" class="btn btn-outline btn-danger btn-sm"
+                      [tooltip]="'Delete the comment.'" [disabled]="isUpdating && !eachComment.isCreator"
+                      (click)="deleteAddedComment(newTicket.ticketId, eachComment.commentId, eachComment.isCreator)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- <div *ngFor="let eachComment of commentsList" class="comment p-0 mt-sm row col-12 b-b no-x-m">
+
+            <div class="comment-info col-10">
+
+              <div class="comment-text text-sm">
+                <strong>{{ eachComment.comment }}</strong>
+              </div>
+
+              <div class="comment-date text-xs mt-xs pb-xs">
+                <span>Added by </span>
+                <span class="text-primary"><b>{{ eachComment.addedBy }} </b></span>
+                <span> on </span>
+                <span class="text-primary"><b>{{ eachComment.addedOnText }}</b></span>
+              </div>
+            </div>
+
+            <div class="col-lg-2 comment-delete-button">
+              <button *ngIf="eachComment.isCreator" class="btn btn-outline btn-danger btn-sm"
+                [tooltip]="'Delete the comment.'" [disabled]="isUpdating && !eachComment.isCreator"
+                (click)="deleteAddedComment(newTicket.ticketId, eachComment.commentId, eachComment.isCreator)">
+                <i class="fa fa-trash"></i>
+              </button>
+            </div>
+          </div> -->
+
+          <div *ngIf="commentsList != null && commentsList.length === 0" class="empty-state p-md text-center m-auto">
+            <div class="empty-icon">
+              <i class="fas fa-comments"></i>
+            </div>
+            <h4>No comments added yet.</h4>
+            <div class="text-sm text-grey"> Add a comment by entering the comment above.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div *ngIf="uploadingPercentage !== 0" class="upload-progress mt-md col-12">
+        <progressbar class="progress progress-bar progress-primary progress-centered progress-md" max="100"
+          [value]="uploadingPercentage" [striped]="true" [animate]="true">
+          <span>{{ uploadingPercentage }} % Uploaded</span>
+        </progressbar>
+      </div>
+
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <ng-container *ngIf="isUpdating">
+        <button type="submit" class="btn btn-success mr-sm "
+          *ngIf="!newTicket.isStarted && !newTicket.isCompleted && isHr" (click)="startTicketAlert(newTicket)">
+          Start Ticket
+        </button>
+        <button type="submit" *ngIf="newTicket.isStarted && !newTicket.isCompleted && isHr"
+          (click)="undoStartTicketAlert(newTicket, commentForm)" class="btn btn-danger mr-sm">
+          <span>Undo Start</span>
+        </button>
+        <button *ngIf="newTicket.isStarted && !newTicket.isCompleted && isHr" (click)="closeTicketAlert(newTicket)"
+          class="btn btn-success mr-sm">
+          <span>Complete Ticket</span>
+        </button>
+        <button *ngIf="newTicket.isCompleted && isHr" class="btn btn-danger mr-sm"
+          (click)="undoCloseTicketAlert(newTicket, commentForm)">
+          <span>Undo Complete</span>
+        </button>
+      </ng-container>
+      <button type="button" class="btn btn-primary" [ngClass]="[isProcessing ? 'spinning' : '']"
+        [disabled]="(isUpdating && !newTicket.isCreator && !isHr) || isProcessing || ticketForm.invalid"
+        (click)="addnewTicket(ticketForm)">
+        <span *ngIf="!isUpdating">Add new ticket</span>
+        <span *ngIf="isUpdating">Update ticket attachment</span>
+        <i class="fas fa-spinner spinner"></i>
+      </button>
+    </div>
+
+  </app-custom-modal>
+
+  <app-custom-modal #faqModal [title]="'Add Ticket'" [modalSize]="'lg'"
+    [subTitle]="'Please check if the question you would want to ask is already in the FAQ.'">
+    <div class="faq-info-modal">
+      <div class=" form-group">
+        <form #faqForm="ngForm" class="form show-character-count">
+          <div class="row">
+
+            <div class="col-12 text-center mb-md">
+              <h5>Before you create a ticket, please make sure it is not in our faqs. You can search for the related
+                content to retrieve the faqs added.</h5>
+            </div>
+
+            <div class="form-group col-12 ">
+              <input #faqSearchVar="ngModel" class="form-control" name="faqSearch" [(ngModel)]="faqSearchText"
+                autocomplete="off" placeholder="Type to start searching ..." type="text" (keyup)="searchFaq()" />
+            </div>
+
+            <div class="col-12">
+              <div *ngIf="searchedFaqList.length > 0" class="list-group list-group-with-action">
+                <div class="list-group-info">{{ searchedFaqList.length }} results</div>
+                <div *ngFor="let item of searchedFaqList" class="list-group-item">
+                  <div class="list-group-item-text">{{ item.faqTitle }}</div>
+                  <div class="list-group-item-action">
+                    <button class="btn btn-dark btn-sm" (click)="showFaqDetail(item)">View</button>
+                  </div>
+                </div>
+                <div class="text-center mt-lg">
+                  <div class="text-sm text-grey">Couldn't find your question properly answered? Create a new ticket
+                    below.</div>
+                  <div class="text-center mt-xs">
+                    <button class="btn btn-primary btn-sm btn-outline" (click)="addTicketModal(ticketForm)">New
+                      Ticket</button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="searchedFaqList.length === 0" class="empty-state p-md text-center">
+                <div class="empty-icon">
+                  <i class="fas fa-scroll"></i>
+                </div>
+                <h5>The text you searched for isnt found in the faqs. You can create a new ticket to process it.</h5>
+                <div class="text-sm text-grey">Click the button below to add a new ticket.</div>
+                <div class="text-center mt-md">
+                  <button class="btn btn-primary btn-sm btn-outline" (click)="addTicketModal(ticketForm)">New
+                    Ticket</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </app-custom-modal>
+
+  <app-custom-modal #faqInfoModal [title]="'Ticket FAQ'" [modalSize]="'md'"
+    [subTitle]="'The details of the FAQs added for tickets.'">
+    <div *ngIf="selectedFaq" class="faq-info-modal">
+      <div class="">
+        <h4>{{ selectedFaq.faqTitle }}</h4>
+      </div>
+      <div class="mt-md" [innerHTML]="selectedFaq.description"></div>
+    </div>
+  </app-custom-modal>
+
+  <app-custom-modal #filterModal [title]="'Filter Tickets'"
+    [subTitle]="'Choose various filters to refine the tickets search.'" [modalSize]="'lg'">
+    <div class="filter-tickets">
+
+      <form #filtersForm="ngForm" class="row no-x-m">
+
+        <div class="form-group col-6">
+          <label class="form-title">Ticket Title</label>
+          <label class="form-explanation">Enter the ticket title to search.</label>
+          <input #titleVar="ngModel" class="form-control" name="titleVar" [(ngModel)]="ticketFilter.title"
+            type="text" />
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title">Ticket Created Date Range</label>
+          <label class="form-explanation">Choose the date range to search the ticket created date.</label>
+          <input #dateRangeVar="ngModel" [(ngModel)]="ticketFilter.dateRangeSelection" name="dateRangeVar" type="text"
+            placeholder="Select a date range" (bsValueChange)="onFilterDateChosen($event)" class="form-control"
+            bsDaterangepicker [bsConfig]="datePickerOptions">
+        </div>
+
+        <div *ngIf="isHr" class="form-group col-6">
+          <label class="form-title">Ticket Created By</label>
+          <label class="form-explanation">Choose the employee to search for task created by.</label>
+          <ng-select #createdByVar="ngModel" name="createdByVar" [(ngModel)]="ticketFilter.addedBySelections"
+            (change)="ticketFilter.addedBy = selectMultipleEmployee($event)" [items]="employeeFitlerOptions"
+            placeholder="Choose employee" [multiple]="true" [clearable]="true" class="reporting-top-select"
+            [searchFn]="reportingSearchFunction">
+
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.employeeName }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+              <div class="reporting-to-dropdown-item">
+                <div class="employee-name">{{ item.employeeName }}</div>
+                <div class="employee-code">{{ item.employeeCode }}</div>
+              </div>
+
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title">Ticket Category</label>
+          <label class="form-explanation">Choose the ticket category to search for.</label>
+          <ng-select #filterCategoryVar="ngModel" name="filterCategoryVar" [(ngModel)]="ticketFilter.categorySelection"
+            (change)="selectCategory($event)" [items]="categoryOptions" [multiple]="false"
+            placeholder="Choose a ticket category" [clearable]="true">
+          </ng-select>
+        </div>
+
+        <div *ngIf="ticketFilter.categorySelection" class="form-group col-6">
+          <label class="form-title">Ticket Sub Category</label>
+          <label class="form-explanation">Choose the ticket sub category to search for.</label>
+          <ng-select #filterSubCategoryVar="ngModel" name="filterSubCategoryVar"
+            placeholder="Choose a ticket sub category" [(ngModel)]="ticketFilter.subCategorySelection"
+            (change)="ticketFilter.subCategory = $event.value" [items]="subCategoryOptions" [multiple]="false"
+            [clearable]="true">
+          </ng-select>
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title">Ticket Status?</label>
+          <label class="form-explanation">Choose the ticket statuses you want to filter?.</label>
+          <ng-select #statusVar="ngModel" name="statusVar" [(ngModel)]="ticketFilter.statusSelection"
+            placeholder="Choose ticket status" (change)="ticketFilter.status = selectMultiple($event)"
+            [items]="statusOptions" [multiple]="true" [clearable]="true">
+          </ng-select>
+        </div>
+
+      </form>
+
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+
+      <button class="btn btn-dark btn-outline mr-sm" [disabled]="isFiltering" (click)="clearFilter(filtersForm)">
+        <span>Clear Filter</span>
+      </button>
+
+      <button class="btn btn-primary" [disabled]="isFiltering" [ngClass]="isFiltering ? 'spinning' : ''"
+        (click)="applyFilter()">
+        <span>Apply Filter</span>
+        <i class="fas fa-spinner spinner"></i>
+      </button>
+    </div>
+
+  </app-custom-modal>
+
+
+</div>

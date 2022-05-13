@@ -1,0 +1,57 @@
+$tooltip-sizes: ('sm': 150,
+  'md': 250,
+  'lg': 350,
+  'xl': 450);
+
+$tooltip-positions: ('left': left,
+  'right': right,
+  'top': top,
+  'bottom': bottom);
+
+@mixin tooltip-background {
+
+  @each $c,
+  $color in $colors {
+
+    .tooltip-#{$c} {
+
+      @each $p,
+      $value in $tooltip-positions {
+        &.bs-tooltip-#{$p} {
+          .tooltip-arrow {
+            &:before {
+              border-#{$p}-color:#{$color};
+            }
+          }
+        }
+      }
+
+      .tooltip-inner {
+        background-color: #{$color};
+      }
+    }
+
+  }
+}
+
+@mixin tooltip-size {
+
+  @each $s,
+  $value in $tooltip-sizes {
+
+    .tooltip-#{$s} {
+      .tooltip-arrow {
+        &:after {
+          border-bottom-color:#{$color};
+        }
+      }
+
+      .tooltip-inner {
+        background-color: #{$color};
+      }
+    }
+
+  }
+}
+
+@include tooltip-background();

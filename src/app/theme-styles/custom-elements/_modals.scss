@@ -1,0 +1,140 @@
+/** Modal Styles and Variables */
+
+/** Variables */
+$modal-xs-width: 300px;
+$modal-sm-width: 400px;
+$modal-md-width: 500px;
+$modal-lg-width: 800px;
+$modal-xl-width: 1140px;
+$modal-xxl-width: 95%;
+
+.modal {
+  display: flex;
+
+  .modal-dialog {
+    box-shadow: 3px 6px 10px 0px $light-grey;
+    // border: 2px solid rgba(200, 200, 200, 0.2);
+    border-radius: 5px;
+
+    .modal-content {
+      border: none;
+
+      .modal-header {
+        padding: $spacing-sm;
+        padding-top: $spacing-md;
+        padding-bottom: $spacing-sm;
+        text-align: center;
+        display: block;
+        border: none;
+        position: relative;
+
+        .modal-title {
+          width: 80%;
+          margin: auto;
+          line-height: normal;
+          word-break: break-word;
+        }
+
+        .modal-sub-title {
+          width: 90%;
+          margin: auto;
+          margin-top: 5px;
+          font-size: $font-size-sm;
+          color: $mid-grey;
+          line-height: normal;
+          word-break: break-word;
+        }
+
+        .close {
+          position: absolute;
+          top: 15px;
+          right: 15px;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          font-size: $font-size-base;
+
+          i {
+            transform: rotate(0deg);
+            transition: 0.3s;
+          }
+
+          &:hover {
+            i {
+              transform: rotate(180deg);
+              transition: 0.3s;
+            }
+          }
+        }
+      }
+
+      .modal-body {
+        padding: $spacing-md;
+      }
+
+      .modal-footer {
+        padding: $spacing-sm;
+        border: none;
+      }
+    }
+
+    &.modal-xs {
+      width: $modal-xs-width;
+      max-width: $modal-xs-width;
+
+      .modal-footer {
+        flex-direction: column-reverse;
+      }
+    }
+
+    &.modal-sm {
+      width: $modal-sm-width;
+      max-width: $modal-sm-width;
+
+      .modal-footer {
+        flex-direction: column-reverse;
+      }
+    }
+
+    &.modal-md {
+      width: $modal-md-width;
+      max-width: $modal-md-width;
+    }
+
+    &.modal-lg {
+      width: $modal-lg-width;
+      max-width: $modal-lg-width;
+    }
+
+    &.modal-xl {
+      width: $modal-xl-width;
+      max-width: $modal-xl-width;
+    }
+
+    &.modal-xxl {
+      width: $modal-xxl-width;
+      max-width: $modal-xxl-width;
+    }
+  }
+
+  &.blur-backdrop {
+    backdrop-filter: blur(2px);
+  }
+
+  &.fade {
+    opacity: 0;
+    visibility: hidden;
+    z-index: -1;
+  }
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1050;
+  }
+}
+
+.modal-backdrop {
+  background-color: $almost-white;
+  z-index: 1039;
+}

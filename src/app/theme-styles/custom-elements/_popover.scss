@@ -1,0 +1,104 @@
+.ks-popover {
+  border: 1px solid $light-grey;
+
+  .popover-title {}
+
+  .popover-arrow {}
+
+  .popover-content {
+    font-size: $font-size-sm;
+    padding: 10px;
+  }
+}
+
+$popover-positions: ('left': left,
+  'right': right,
+  'top': top,
+  'bottom': bottom);
+
+@mixin popover-position {
+
+  @each $p,
+  $value in $popover-positions {
+    .ks-popover {
+
+      &.popover-#{$p} {
+        .popover-arrow {
+          &:before {
+            border-#{$p}-color: $light-grey;
+          }
+
+          &:after {
+            border-#{$p}-color: $light-grey;
+          }
+        }
+      }
+    }
+
+  }
+}
+
+@mixin popover-colors {
+
+  .ks-popover {
+
+    @each $c,
+    $value in $button-colors {
+      &.popover-#{$c} {
+        border: 1px solid map-deep-get($button-colors, $c, 'back');
+
+        @each $p,
+        $value in $popover-positions {
+          &.popover-#{$p} {
+
+            .popover-arrow {
+              &:before {
+                border-#{$p}-color: map-deep-get($button-colors, $c, 'back');
+              }
+
+              &:after {
+                border-#{$p}-color: map-deep-get($button-colors, $c, 'back');
+              }
+            }
+          }
+        }
+      }
+
+      &.popover-header-#{$c} {
+        .popover-title {
+          background-color: lighten(map-deep-get($button-colors, $c, 'back'), 35);
+          color: map-deep-get($button-colors, $c, 'back');
+          font-weight: 500;
+        }
+
+        &.popover-header-solid {
+          .popover-title {
+            background-color: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+            font-weight: 500;
+          }
+        }
+      }
+
+      &.popover-content-#{$c} {
+        .popover-content {
+          background-color: lighten(map-deep-get($button-colors, $c, 'back'), 35);
+          color: map-deep-get($button-colors, $c, 'back');
+          font-weight: 500;
+        }
+
+        &.popover-content-solid {
+          .popover-content {
+            background-color: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+            font-weight: 500;
+          }
+        }
+      }
+    }
+
+  }
+}
+
+@include popover-position();
+@include popover-colors();

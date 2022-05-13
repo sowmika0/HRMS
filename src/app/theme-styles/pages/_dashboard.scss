@@ -1,0 +1,130 @@
+.dashboard-container {
+  .announcements-list {
+    max-height: 100vh;
+    overflow: auto;
+
+    .announcement-item {
+      padding-bottom: $spacing-sm;
+      border-bottom: 1px solid $light-grey;
+      cursor: pointer;
+      padding: 10px;
+
+      .announcement-header {
+        font-weight: 500;
+        font-size: $font-size-lg;
+      }
+
+      .announcement-sub-title {
+        font-size: $font-size-sm;
+      }
+
+      .announcement-meta {
+        font-size: $font-size-sm;
+        display: flex;
+        justify-content: space-between;
+
+        .announcement-date {}
+
+        .announcement-type {}
+
+        .announcement-attachments {}
+      }
+
+      &:hover {
+        background-color: $very-light-grey;
+      }
+    }
+  }
+
+  .employee-birthday-container {
+    .employee-item {
+      padding: 10px;
+      display: flex;
+      border: 2px solid $primary;
+      margin-bottom: 15px;
+      border-radius: 5px;
+
+      .employee-image {
+        width: 40px;
+        height: 40px;
+        background-size: cover;
+        margin-right: 20px;
+        border-radius: 100px;
+        flex: 0 0 40px;
+      }
+
+      .employee-info {
+        .employee-name {
+          font-size: $font-size-md;
+          font-weight: 500;
+          word-break: break-all;
+          max-height: 50px;
+          overflow: hidden;
+        }
+
+        .employee-title {}
+      }
+    }
+  }
+
+  .holiday-types-container {
+    display: flex;
+    justify-content: center;
+
+    .holiday-type {
+      display: flex;
+
+      .holiday-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 100px;
+        margin-right: 5px;
+      }
+
+      .holiday-type {
+        font-weight: 500;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .location-stats {
+    .location-item {
+
+      .location {
+        font-size: $font-size-md;
+      }
+
+      .location-onroll {
+        flex: 0 0 25%;
+        font-size: $font-size-lg;
+        font-weight: 600;
+      }
+
+      .location-offroll {
+        flex: 0 0 25%;
+        font-size: $font-size-lg;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .dashboard-box {
+    .box-content {
+      height: 300px;
+      overflow: auto;
+      padding: 25px;
+    }
+
+    &.hierarchy-box {
+      .box-content {
+        height: auto;
+        overflow: inherit;
+      }
+    }
+  }
+}
+
+.pointer {
+  cursor: pointer;
+}

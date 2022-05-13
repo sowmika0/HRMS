@@ -1,0 +1,28 @@
+.placeholder {
+  .placeholder-line {
+    animation-duration: .8s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: $lighter-grey;
+    background: linear-gradient(to right, $lighter-grey 8%, darken($lighter-grey, 10) 18%, $lighter-grey 33%);
+    background-size: 800px 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .placeholder-circle {
+    animation-duration: .8s;
+    animation-fill-mode: forwards;
+    animation-iteration-count: infinite;
+    animation-name: shimmer;
+    animation-timing-function: linear;
+    background: $lighter-grey;
+    background: linear-gradient(to right, $lighter-grey 8%, darken($lighter-grey, 10) 18%, $lighter-grey 33%);
+    background-size: 800px 10px;
+    height: 100px;
+    width: 100px;
+    border-radius: 100px;
+  }
+}

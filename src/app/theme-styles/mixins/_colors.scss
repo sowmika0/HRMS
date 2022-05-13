@@ -1,0 +1,26 @@
+@mixin backgrounds {
+
+  @each $c,
+  $color in $colors {
+
+    .bg-#{$c} {
+      background-color: #{$color} !important;
+    }
+
+  }
+}
+
+@mixin foregrounds {
+
+  @each $c,
+  $color in $colors {
+
+    .text-#{$c} {
+      color: #{$color} !important;
+    }
+
+  }
+}
+
+@include backgrounds();
+@include foregrounds();

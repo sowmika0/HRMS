@@ -1,0 +1,111 @@
+.project-action-container{
+    button {
+        margin-right: 10px;
+    }
+}
+
+.project-list-container .projects-container .tab-container.tab-horizontal .nav.nav-tabs .nav-item .nav-link.active {
+    border: none;
+    background-color: white;
+}
+
+
+.project-list-container{
+    &.tab-container {
+        .tab-container {
+        .nav-item {
+            background-color: red;
+            .nav-link {
+                border: none;
+                background-color: white;
+            }
+        }
+    }
+    }
+}
+
+.elementToFadeInAndOut {
+    width:200px;
+    height: 200px;
+    background: red;
+    -webkit-animation: fadeinout 2s linear forwards;
+    animation: fadeinout 2s linear forwards;
+}
+
+@-webkit-keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.project-list-container {
+    .open-tasks-list {
+        button {
+            min-width: 80px;
+        }
+    }
+    .task-completed-container{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        z-index: 10;
+        border: solid 1px;
+        border-radius: 4px;
+        .fa-thumbs-up {
+            font-size: 100px;
+            transition: opacity 2s linear;
+            &:before {
+                color: green;
+            }
+        }
+    }
+    .tab-container {
+        .tab-pane {
+            padding: 15px 0;
+            // border: solid 1px black;
+            border: solid 1px #77adaf;
+            // border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .tab-body {
+            padding: 0 15px;
+        }
+        
+    }
+    .table-striped{
+        tr td, thead tr th{
+            border: solid 1px #77adaf;
+            vertical-align: middle;
+        }
+
+        thead tr th {
+            background-color: #2a696b;
+            color: white;
+            &:before, &:after {
+                color: white;
+            }
+        }
+    }
+
+    .projects-wrap {
+        padding: 0;
+    }
+
+    .projects-container{
+        padding: 15px 0 0 0 ;
+    }
+
+    .color-display{
+        min-width: 20px;
+        height: 10px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+}

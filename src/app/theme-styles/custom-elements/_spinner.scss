@@ -1,0 +1,20 @@
+@keyframes rotate {
+  from {
+    transform: rotateZ(0deg);
+  }
+
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
+.spinner {
+  display: none;
+}
+
+.spinning {
+  .spinner {
+    display: inline-block;
+    animation: rotate 1s infinite linear;
+  }
+}

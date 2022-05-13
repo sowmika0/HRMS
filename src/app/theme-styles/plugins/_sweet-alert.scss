@@ -1,0 +1,106 @@
+// Sweet alert styles
+.swal2-container {
+  z-index: 1150 !important;
+
+  .swal2-popup {
+    width: 27em !important;
+    padding: 2.5em !important;
+
+    .swal2-actions {
+      margin: 0 !important;
+      margin-top: 2rem !important;
+
+      button {
+        margin: 0 !important;
+        white-space: normal;
+        max-width: 45%;
+
+        &:first-of-type {
+          margin-right: 0.5em !important;
+        }
+      }
+    }
+  }
+}
+
+.c-alert {
+  .c-alert-header {
+    text-align: center;
+
+    .c-alert-emoji {
+      img {
+        width: 60px;
+      }
+    }
+
+    .c-alert-title {
+      font-size: $font-size-base * 1.5;
+      font-weight: 500;
+      line-height: 29px;
+      margin-top: 10px;
+    }
+  }
+
+  .c-alert-content {
+    margin-top: 15px;
+
+    .c-alert-subtitle {
+      span {
+        display: block;
+        text-align: center;
+        font-size: $font-size-base;
+        line-height: 20px;
+        font-weight: 400;
+        color: $mid-grey;
+        padding: 0 0.5rem;
+        margin-top: 1rem;
+      }
+    }
+
+    .c-alert-confirm {
+      margin-top: 2em;
+
+      form {
+        .c-alert-form-group {
+          label {
+            margin-bottom: 10px;
+            font-size: $font-size-base;
+            font-weight: 400;
+            color: $dark-grey;
+
+            &.c-alert-form-confirm-text {
+              color: $danger;
+              margin: 0 8px;
+              font-weight: 500;
+            }
+          }
+
+          ::placeholder {
+            color: $light-grey;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+
+  .c-alert-actions {
+    button {
+      margin: 0;
+      width: 170px;
+
+      &:first-of-type {
+        margin-right: 0.5em;
+      }
+    }
+  }
+}
+
+.swal2-actions {
+  margin-top: 0;
+
+  .swal-button {
+    margin: 0 1em;
+    min-width: 170px;
+  }
+}

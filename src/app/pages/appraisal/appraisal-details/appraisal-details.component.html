@@ -1,0 +1,231 @@
+<div class="appraisal-container">
+
+  <div class="content-box">
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Appraisal Details</h3>
+        <div class="sub-title">All the employees under the selected appraisal are shown here with the details of the
+          appraisal status.</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+
+      <div class="mb-lg row no-x-m">
+        <div class="col-lg-2">
+          <div class="widget-box widget-box-primary">
+            <h2>{{ employees.length }}</h2>
+            <span class="percentage">100%</span>
+            <div class="label">Total Employees</div>
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <div class="widget-box widget-box-danger">
+            <h2>{{ notStarted }}</h2>
+            <span class="percentage">{{ (notStarted / employees.length) | percent }}</span>
+            <div class="label">Not Started</div>
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <div class="widget-box widget-box-secondary">
+            <h2>{{ selfCompleted }}</h2>
+            <span class="percentage">{{ (selfCompleted / employees.length) | percent }}</span>
+            <div class="label">Self Appraisal Done</div>
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <div class="widget-box widget-box-warning">
+            <h2>{{ rmCompleted }}</h2>
+            <span class="percentage">{{ (rmCompleted / employees.length) | percent }}</span>
+            <div class="label">Rm Appraisal Done</div>
+          </div>
+        </div>
+        <div class="col-lg-2">
+          <div class="widget-box widget-box-success">
+            <h2>{{ hrCompleted }}</h2>
+            <span class="percentage">{{ (hrCompleted / employees.length) | percent }}</span>
+            <div class="label">HR Appraisal Done</div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="employees.length > 0">
+        <div class="text-left mt-md">
+          <button class="btn btn-primary btn-md" (click)="openBulkHRProcessModal()">Bulk HR Process</button>
+        </div>
+        <table class="table table-striped" datatable [dtOptions]="dtOptions">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Name</th>
+              <th style="width: 10%;">Department</th>
+              <th style="width: 10%;">Designation</th>
+              <th style="width: 10%;">Grade</th>
+              <th style="width: 10%;">Self Filled</th>
+              <th style="width: 10%;">Manager</th>
+              <th style="width: 10%;">L2 Manager</th>
+              <th style="width: 10%;">HR</th>
+              <th style="width: 10%;">Rating</th>
+              <th style="width: 10%;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of employees">
+              <td class="text-center">
+                <div class="login-status">
+                  <div *ngIf="item.hrFilledOn" class="status-indicator status-indicator-xs status-indicator-success"
+                    [tooltip]="'Appraisal Closed'">
+                  </div>
+                  <div *ngIf="!item.hrFilledOn && item.l2FilledOn"
+                    class="status-indicator status-indicator-xs status-indicator-warning"
+                    [tooltip]="'HR Appraisal Pending'">
+                  </div>
+                  <div *ngIf="!item.l2FilledOn && item.rmFilledOn"
+                    class="status-indicator status-indicator-xs status-indicator-warning"
+                    [tooltip]="'L2 Manager Appraisal Pending'">
+                  </div>
+                  <div *ngIf="!item.rmFilledOn && item.selfFilledOn"
+                    class="status-indicator status-indicator-xs status-indicator-warning"
+                    [tooltip]="'Manager Appraisal Pending'">
+                  </div>
+                  <div *ngIf="!item.selfFilledOn" class="status-indicator status-indicator-xs status-indicator-danger"
+                    [tooltip]="'Self Appraisal Pending'">
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div>{{ item.name }}</div>
+                <div>
+                  <div *ngIf="item.code && item.code !== ''" class="text-xxs mt-xxs text-primary">
+                    <b>{{ item.code }}</b>
+                  </div>
+                  <div *ngIf="!item.code || item.code === ''" class="text-xxs mt-xxs text-danger"><b>NOT SET</b></div>
+                </div>
+              </td>
+              <td>
+                <div>{{ item.department }}</div>
+              </td>
+              <td>
+                <div>{{ item.designation }}</div>
+              </td>
+              <td>{{ item.grade }}</td>
+              <td>
+                <div *ngIf="item.selfFilledOn">{{ item.selfFilledOnText }}</div>
+                <div *ngIf="!item.selfFilledOn" class="badge badge-danger badge-sm  badge-alternate m-0">NA
+                </div>
+              </td>
+              <td>
+                <div>{{ item.managerName }}</div>
+                <div *ngIf="item.rmFilledOn">{{ item.rmFilledOnText }}</div>
+                <div *ngIf="!item.rmFilledOn" class="badge badge-danger badge-sm badge-alternate m-0">NA</div>
+              </td>
+              <td>
+                <div>{{ item.l2ManagerName }}</div>
+                <div *ngIf="item.l2FilledOn">{{ item.l2FilledOnText }}</div>
+              </td>
+              <td>
+                <div>{{ item.hrName }}</div>
+                <div *ngIf="item.hrFilledOn">{{ item.hrFilledOnText }}</div>
+                <div *ngIf="!item.hrFilledOn" class="badge badge-danger badge-sm badge-alternate m-0">NA</div>
+              </td>
+              <td>
+                <div *ngIf="item.rating">{{ item.rating }}</div>
+              </td>
+              <td class="text-center">
+                <div class="btn-group btn-dropdown ks-dropdown" dropdown>
+                  <button type="button" dropdownToggle
+                    class="btn btn-primary dropdown-toggle btn-sm btn-dropdown hide-caret" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-ellipsis-v"></i>
+                  </button>
+                  <div *dropdownMenu class="dropdown-menu dropdown-menu-right">
+                    <div>
+                      <h6 class="dropdown-header">Actions</h6>
+                      <li>
+                        <a class="dropdown-item default" (click)="Modal(item.employeeId, 1)"
+                          *ngIf="item.selfObjectiveFilledOn">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Objective</span>
+                        </a>
+                        <a class="dropdown-item default" (click)="Modal(item.employeeId, 2)"
+                          *ngIf="item.selfVariableFilledOn">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Variable Bonus</span>
+                        </a>
+                        <a class="dropdown-item default" (click)="Modal(item.employeeId, 3)"
+                          *ngIf="item.appraisalMode === 3 && item.selfFilledOn">
+                          <span class="mr-sm"><i class="fas fa-check"></i></span>
+                          <span>Appraisal</span>
+                        </a>
+                      </li>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="employees.length === 0" class="empty-state p-md text-center">
+        <div class="empty-icon">
+          <i class="fas fa-scroll"></i>
+        </div>
+
+        <h4>No employees were added in this appraisal.</h4>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<app-custom-modal #appraisalFormModal [title]="''" [modalSize]="'xxl'" [subTitle]="''">
+  <app-employee-appraisal *ngIf="showObjective" [employeeId]="employeeId" [source]="'report'" [appraisalMode]="1"
+    [appraisalId]="appraisalId"></app-employee-appraisal>
+  <app-employee-appraisal *ngIf="showVB" [employeeId]="employeeId" [source]="'report'" [appraisalMode]="2"
+    [appraisalId]="appraisalId"></app-employee-appraisal>
+  <app-employee-appraisal *ngIf="showAppraisal" [employeeId]="employeeId" [source]="'report'" [appraisalMode]="3"
+    [appraisalId]="appraisalId"></app-employee-appraisal>
+</app-custom-modal>
+<app-custom-modal #bulkHRProcessModal [title]="'Comprehensive Appraisal Process'" [subTitle]="''" [modalSize]="'xl'">
+  <div class="bulk-hr-process" *ngIf="filteredEmployees.length > 0">
+    <table class="table table-striped" datatable>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Department</th>
+          <th>Designation</th>
+          <th>Grade</th>
+          <th>Name</th>
+          <th>
+            <input #headerCheckBox="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+              id="header-checkbox" type="checkbox" [value]="false"
+              [(ngModel)]="selectAll">
+              <label class="form-check-label" for="header-checkbox"></label>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filteredEmployees; let i = index;">
+          <td>{{item.code}}</td>
+          <td>{{item.department}}</td>
+          <td>{{item.designation}}</td>
+          <td>{{item.grade}}</td>
+          <td>{{item.name}}</td>
+          <td>
+            <input #rowCheckbox="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+              id="row-checkbox{{i}}" type="checkbox" [value]="false"
+              [(ngModel)]="item.selected">
+              <label class="form-check-label" for="row-checkbox{{i}}"></label>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div footer-buttons class="footer-buttons">
+    <button class="btn btn-primary mr-sm" (click)="bulkHRProcess()">
+      <span>Process</span>
+    </button>
+  </div>
+</app-custom-modal>

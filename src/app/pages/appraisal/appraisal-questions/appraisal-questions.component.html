@@ -1,0 +1,115 @@
+<div class="appraisal-container">
+  <div class="content-box">
+    <a [routerLink]="'/appraisals'" class="back-link mb-md">
+      <span>Back to Appraisal List</span>
+    </a>
+    <div class="box-header">
+      <div class="header-content">
+        <h3 class="">Management / Capability / Attitude Questions</h3>
+        <div class="sub-title">Add the appraisal questions that should be added in the question bank and shown when
+          creating the appraisal windows..</div>
+      </div>
+    </div>
+
+    <div class="box-content">
+
+      <div class="settings-container settings-question-container p-sm">
+        <div *ngIf="activeQuestions.length !== 0" class="text-right">
+          <button class="btn btn-primary" (click)="add(questionForm)">New Question</button>
+        </div>
+
+        <div *ngIf="activeQuestions.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i class="fas fa-question-circle"></i>
+          </div>
+          <h4>No questions added yet.</h4>
+          <div class="text-sm text-grey">Click the button below to add new question.</div>
+          <div class="text-center mt-md">
+            <button class="btn btn-primary btn-sm btn-outline" (click)="add(questionForm)">New Question</button>
+          </div>
+        </div>
+
+        <div *ngIf="activeQuestions.length > 0" class="added-question-container mt-md">
+          <table class="table table-responsive table-striped">
+            <thead>
+              <tr>
+                <th style="width: 20%;">Question Title</th>
+                <th style="width: 45%;">Description</th>
+                <th style="width: 15%;">Active Appraisals</th>
+                <th style="width: 20%;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of activeQuestions">
+                <td>
+                  <span>{{ item.question }}</span>
+                </td>
+                <td>
+                  <span>{{ item.description }}</span>
+                </td>
+                <td>
+                  <span>{{ item.appraisalsCount }}</span>
+                </td>
+                <td>
+                  <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit question information'"
+                    (click)="edit(item)">
+                    <i class="fas fa-pen mr-xs"></i>
+                    <span>Edit</span>
+                  </button>
+
+                  <button class="btn btn-danger btn-xs"
+                    [tooltip]="item.appraisalsCount > 0 ? 'Cannot delete this question as employees are assigned to it.' : 'Delete this question.'"
+                    [disabled]="item.appraisalsCount > 0" (click)="deleteAlert(item)">
+                    <i class="fas fa-trash mr-xs"></i>
+                    <span>Delete</span>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="text-center mt-lg pt-lg b-t">
+          <button class="btn btn-primary" (click)="updateAppraisalQuestions()" [disabled]="isProcessing"
+            [ngClass]="isProcessing ? 'spinning' : ''">
+            <span>Save Questions</span>
+            <i class="fas fa-spinner spinner ml-xs"></i>
+          </button>
+        </div>
+
+        <app-custom-modal #questionModal [title]=" question.questionId ? 'Update Question Details' : 'Add New Question'"
+          [subTitle]="'Enter the details for the question to add or update the information.'">
+          <div class="new-documentation">
+            <div *ngIf="isAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+              The question title you are trying to add is already present. Try another question title.
+            </div>
+            <form #questionForm="ngForm" class="form show-character-count">
+              <div class="form-group">
+                <label class="form-title required">Question Title</label>
+                <label class="form-explanation">Enter the title of the question.</label>
+                <input #questionVar="ngModel" class="form-control" name="question" [(ngModel)]="question.question"
+                  type="text" required />
+                <app-custom-validation [model]="questionVar" [required]="'Enter the name for the question.'">
+                </app-custom-validation>
+              </div>
+              <div class="form-group">
+                <label class="form-title">Question Description</label>
+                <label class="form-explanation">Enter the description for the question that is created.</label>
+                <textarea #descriptionVar="ngModel" class="form-control" name="description"
+                  [(ngModel)]="question.description" rows="5" characterCount characterLimit="500"></textarea>
+              </div>
+            </form>
+          </div>
+
+          <div footer-buttons class="footer-buttons">
+            <button class="btn btn-primary" (click)="addOrUpdate()">
+              <span>{{ question.questionId ? 'Update Question' : 'Add Question' }}</span>
+            </button>
+          </div>
+
+        </app-custom-modal>
+      </div>
+
+    </div>
+  </div>
+</div>

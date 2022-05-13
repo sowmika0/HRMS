@@ -1,0 +1,289 @@
+$top-bar-bg-colors: ('blue-gradient': ('background': linear-gradient(135deg, #6B73FF 10%, #000DFF 100%), 'color': $very-light-grey, 'active': $white),
+  'grey-gradient': ('background': linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%), 'color': $dark-grey, 'active': $primary),
+  'light': ('background': $almost-white, 'color': $dark-grey, 'active': $primary),
+  'grey': ('background': $grey, 'color': $dark-grey, 'active': $primary),
+  'dark': ('background': $dark-grey, 'color': $very-light-grey, 'active': $white));
+
+.top-bar {
+  background-color: $almost-white;
+  border-bottom: 1px solid $lighter-grey;
+  color: $dark-grey;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+
+  .navbar-brand-container {
+    padding-left: 50px;
+    width: 200px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .top-nav {
+    padding: 0 30px;
+    margin-left: 30px;
+
+    .nav-item {
+      font-weight: 500;
+      padding-left: 10px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+
+      .navigation-dropdown {
+
+        .nav-link {
+          color: $dark-grey;
+          position: relative;
+        }
+
+        .dropdown-menu {
+          .dropdown-item {
+            font-size: $font-size-sm;
+            font-weight: 300;
+            display: flex;
+
+            .icon {
+              width: 30px;
+              flex: 0 0 30px;
+              display: flex;
+              justify-content: flex-start;
+              align-items: center;
+              font-size: $font-size-xs;
+            }
+
+            .text {
+              flex: 1;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            }
+
+            &:hover {
+              // background-color: inherit;
+              color: $primary;
+            }
+          }
+        }
+      }
+
+      .nav-link {
+        color: $dark-grey;
+        position: relative;
+        font-size: $font-size-sm;
+      }
+
+      &.active {
+        .nav-link {
+          color: $primary;
+        }
+      }
+
+      &.show-caret {
+        .nav-link {
+          &:after {
+            @include font-awesome();
+            content: '\f107';
+            margin-left: 5px;
+          }
+        }
+      }
+    }
+  }
+
+  .top-bar-actions {
+    display: flex;
+    flex: 1;
+
+    .actions-container {
+      display: flex;
+      justify-content: flex-end;
+      list-style: none;
+      padding: 0 20px;
+      align-items: center;
+      margin: 0;
+      flex: 1;
+
+      .action-item {
+        padding-left: 30px;
+        cursor: pointer;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .action-icon {
+
+          position: relative;
+
+          i {
+            font-size: $font-size-xl;
+          }
+        }
+
+        &:hover {
+          .action-icon {
+            i {
+              // color: $primary;
+            }
+          }
+        }
+
+        &.user-actions-container {
+
+          .ks-dropdown {
+            position: relative;
+
+            .user-avatar {
+              display: flex;
+              justify-content: center;
+              align-content: center;
+              position: relative;
+
+              img {
+                width: 50px;
+                height: 50px;
+                border-radius: 100px;
+                cursor: pointer;
+              }
+
+              .notification-circle {
+                width: 10px;
+                position: absolute;
+                top: 0px;
+                right: 5px;
+                height: 10px;
+                border-radius: 10px;
+                background: $secondary;
+              }
+            }
+
+            .dropdown-menu {
+              width: 280px;
+              padding: 0;
+
+              .user-info {
+                display: flex;
+                padding: 10px;
+
+                .user-image {
+                  display: flex;
+                  justify-content: center;
+                  padding-bottom: 15px;
+
+                  img {
+                    width: 75px;
+                    height: auto;
+                    margin: auto;
+                  }
+                }
+
+                .user-details {
+                  flex: 1;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  flex-direction: column;
+
+                  .user-name {
+                    font-weight: 500;
+                    text-align: center;
+                    font-size: $font-size-md;
+                    word-break: break-word;
+                  }
+
+                  .user-meta {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                    color: $mid-grey;
+
+                    >div {
+                      font-size: $font-size-xs;
+                      font-weight: 500;
+                    }
+                  }
+                }
+              }
+
+              .user-dropdown {
+                .dropdown-item {
+                  font-size: $font-size-sm;
+
+                  .notifiation-count {
+                    position: absolute;
+                    margin: 0;
+                    margin-left: 15px;
+                    margin-top: 1px;
+                  }
+
+                  i {
+                    font-size: $font-size-sm;
+                    margin-right: $spacing-sm;
+                  }
+
+                  span {
+                    font-weight: 400;
+                  }
+
+                  &.logout {
+                    border-radius: 0 0 5px 5px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.top-bar-fixed {
+    position: fixed;
+  }
+}
+
+@mixin top-bar-colors() {
+
+  @each $c,
+  $value in $top-bar-bg-colors {
+    .top-bar {
+      &.top-bar-#{$c} {
+        background: map-deep-get($top-bar-bg-colors, $c, 'background');
+
+        .nav-item {
+          .navigation-dropdown {
+            .nav-link {
+              color: map-deep-get($top-bar-bg-colors, $c, 'color');
+            }
+          }
+
+          .nav-link {
+            color: map-deep-get($top-bar-bg-colors, $c, 'color');
+          }
+
+          &.active {
+            .navigation-dropdown {
+              .nav-link {
+                color: map-deep-get($top-bar-bg-colors, $c, 'active');
+              }
+            }
+
+            .nav-link {
+              color: map-deep-get($top-bar-bg-colors, $c, 'active');
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include top-bar-colors();

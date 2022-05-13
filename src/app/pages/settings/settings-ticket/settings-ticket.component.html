@@ -1,0 +1,230 @@
+<div class="settings-container settings-ticket-category-container p-sm">
+  <div *ngIf="activeTicketCategories.length !== 0" class="new-button-div text-right">
+    <button class="btn btn-primary" (click)="add(ticketCategoryForm)">New Ticket Category</button>
+  </div>
+
+  <div *ngIf="activeTicketCategories.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No ticket categories added.</h4>
+    <div class="text-sm text-grey">Click the button below to add new ticket category.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" (click)="add(ticketCategoryForm)">New Ticket Category</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeTicketCategories.length > 0" class="added-ticket-category-container mt-md">
+    <table datatable [dtOptions]="dtOptions"  [dtTrigger]="dtTrigger"  class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Ticket Category Name</th>
+          <th style="width: 30%;">Description</th>
+          <th style="width: 15%;">Tickets Count</th>
+          <th style="width: 15%;">Sub Categories Count</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeTicketCategories">
+          <td>
+            <span>{{ item.name }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.ticketsCount }}</span>
+          </td>
+          <td>
+            <span>{{ item.activeSubCategoriesCount }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit ticket category information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <div class="d-inline-block" [tooltip]="'Delete this ticket category.'">
+              <button class="btn btn-danger btn-xs" (click)="deleteAlert(item)">
+                <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button class="btn btn-primary" (click)="updateCompanySettings()" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Ticket Categories</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #ticketCategoryModal
+    [title]=" ticketCategory.ticketCategoryId ? 'Update Ticket Category Details' : 'Add New Ticket Category'"
+    [subTitle]="'Enter the details for the ticketCategory to add or update the information.'" [modalSize]="'xl'">
+    <div class="new-documentation">
+      <div *ngIf="isCategoryAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+        The ticket category you are trying to add is already present. Try another ticket category.
+      </div>
+      <form #ticketCategoryForm="ngForm" class="form show-character-count row no-x-m">
+        <div class="col-lg-4">
+          <div class="form-group">
+            <label class="form-title required">Ticket Category Name</label>
+            <label class="form-explanation">Enter the name of the ticket category.</label>
+            <input #ticketCategoryVar="ngModel" class="form-control" name="ticketCategory"
+              [(ngModel)]="ticketCategory.name" type="text" required  [disabled]="isUpdating"/>
+            <app-custom-validation [model]="ticketCategoryVar" [required]="'Enter the name for the ticket category.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group">
+            <label class="form-title">Ticket Category Description</label>
+            <label class="form-explanation">Enter the description for the ticket category that is created.</label>
+            <textarea #descriptionVar="ngModel" class="form-control" name="description"
+              [(ngModel)]="ticketCategory.description" rows="5" characterCount characterLimit="500"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-title required">Ticket Category Owners</label>
+            <label class="form-explanation">Choose one or more owners for the ticket category.</label>
+            <ng-select #ownersVar="ngModel" name="ownersVar" [(ngModel)]="ticketCategory.ownersSelection"
+              (change)="ticketCategory.owners = selectMultiple($event)" [items]="hrEmployees"
+              placeholder="Choose owners for category" [multiple]="true" [clearable]="true" class="reporting-top-select"
+              [searchFn]="reportingSearchFunction" required>
+
+              <ng-template ng-label-tmp let-item="item">
+                {{ item.employeeName }}
+              </ng-template>
+
+              <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+                <div class="reporting-to-dropdown-item">
+                  <div class="employee-name">{{ item.employeeName }}</div>
+                  <div class="employee-code">{{ item.employeeCode }}</div>
+                </div>
+
+              </ng-template>
+            </ng-select>
+            <app-custom-validation [model]="ownersVar" [required]="'Choose an owner for the ticket category.'">
+            </app-custom-validation>
+          </div>
+
+        </div>
+        <div class="col-lg-8">
+          <div class="form-group">
+            <label class="form-title required">Sub Catgories</label>
+            <label class="form-explanation">Add sub categories for the category selected.</label>
+
+            <div *ngIf="activeTicketSubCategories.length !== 0" class="text-right">
+              <button class="btn btn-primary" (click)="addSubCategory(ticketSubCategoryForm)">New Ticket Sub
+                Category</button>
+            </div>
+
+            <div *ngIf="activeTicketSubCategories.length === 0" class="empty-state p-md text-center">
+              <div class="empty-icon">
+                <i [ngClass]="icon"></i>
+              </div>
+              <h4>No ticket sub categories added.</h4>
+              <div class="text-sm text-grey">Click the button below to add new ticket sub category.</div>
+              <div class="text-center mt-md">
+                <button class="btn btn-primary btn-sm btn-outline" (click)="addSubCategory(ticketSubCategoryForm)">New
+                  Ticket Sub
+                  Category</button>
+              </div>
+            </div>
+
+            <div *ngIf="activeTicketSubCategories.length > 0" class="added-ticket-category-container mt-md">
+              <table class="table table-responsive table-striped">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Ticket Sub Category</th>
+                    <th style="width: 30%;">Description</th>
+                    <th style="width: 20%;">Ticket Count</th>
+                    <th style="width: 30%;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of activeTicketSubCategories">
+                    <td>
+                      <span>{{ item.name }}</span>
+                    </td>
+                    <td>
+                      <span>{{ item.description }}</span>
+                    </td>
+                    <td>
+                      <span>{{ item.ticketsCount }}</span>
+                    </td>
+                    <td>
+                      <button class="btn btn-primary btn-outline btn-xs mr-sm"
+                        [tooltip]="'Edit ticket sub category information'" (click)="editSubCategory(item)">
+                        <i class="fas fa-pen"></i>
+                        <!-- <span>Edit</span> -->
+                      </button>
+
+                      <div class="d-inline-block" [tooltip]="'Delete this ticket sub category.'">
+                        <button class="btn btn-danger btn-xs" (click)="deleteSubCategoryAlert(item)">
+                          <i class="fas fa-trash"></i>
+                          <!-- <span>Delete</span> -->
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <app-custom-modal #ticketSubCategoryModal
+              [title]="ticketSubCategory.ticketSubCategoryId ? 'Update Sub Category Details' : 'Add New Sub Category'"
+              [subTitle]="'Enter the details for the sub category to add or update the information.'">
+              <div class="new-documentation">
+                <div *ngIf="isSubCategoryAdded" class="mt-sm mb-sm alert alert-danger alert-sm">
+                  The ticket sub category you are trying to add is already present. Try another ticket sub category.
+                </div>
+                <form #ticketSubCategoryForm="ngForm" class="form show-character-count">
+                  <div class="form-group">
+                    <label class="form-title required">Sub Category Name</label>
+                    <label class="form-explanation">Enter the name of the sub category.</label>
+                    <input #subCategoryVar="ngModel" class="form-control" name="subcategory"
+                      [(ngModel)]="ticketSubCategory.name" type="text" required />
+                    <app-custom-validation [model]="subCategoryVar" [required]="'Enter the name for the sub category.'">
+                    </app-custom-validation>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-title">Sub Category Description</label>
+                    <label class="form-explanation">Enter the description for the category that is created.</label>
+                    <textarea #subCategoryDescriptionVar="ngModel" class="form-control" name="description"
+                      [(ngModel)]="ticketSubCategory.description" rows="5" characterCount
+                      characterLimit="500"></textarea>
+                  </div>
+                </form>
+              </div>
+
+              <div footer-buttons class="footer-buttons">
+                <button class="btn btn-primary" (click)="addOrUpdateSubCategory()"
+                  [disabled]="ticketSubCategoryForm.invalid">
+                  <span>{{ isSubCategoryUpdating ? 'Update Sub Category' : 'Add Sub Category' }}</span>
+                </button>
+              </div>
+
+            </app-custom-modal>
+
+
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!ticketCategoryForm.valid">
+        <span>{{ isUpdating ? 'Update Ticket Category' : 'Add Ticket Category' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

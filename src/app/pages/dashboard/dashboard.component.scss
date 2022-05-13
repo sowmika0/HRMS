@@ -1,0 +1,89 @@
+.training-details {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: solid 1px grey;
+    display: flex;
+    flex-wrap: wrap;
+    li {
+        
+        display: flex;
+        border-bottom: solid 1px white;
+        &:nth-child(2n){
+        // &:nth-child(odd){
+            // background-color: red;
+            // background-color: #fbfbfb;
+        }
+        width: 50%;
+        word-break: break-all;
+        span {
+            padding: 5px;
+            background-color: #d4e8e9;
+            &:nth-child(1) {
+                background-color: #a4d4d6;
+                font-weight: bold;
+            }
+            min-width: 185px;
+            max-width: 185px;
+            display: inline-block;
+            text-transform: capitalize;
+        }
+    }
+}
+
+.trainingLegend{
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    &.info {
+        background-color: #423568;
+        color: white
+    }
+
+    &.warning {
+        background-color: #e3bc08;
+    }
+}
+
+.custom-checkbox + label:before {
+    margin-right: 5px !important;
+}
+
+.elementToFadeInAndOut {
+    width:200px;
+    height: 200px;
+    background: red;
+    -webkit-animation: fadeinout 2s linear forwards;
+    animation: fadeinout 2s linear forwards;
+}
+
+@-webkit-keyframes fadeinout {
+    0%,100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+  
+  @keyframes fadeinout {
+    0%,100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+
+.dashboard-container {
+    .mood-submitted-container{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100px;
+        height: 100px;
+        background-color: white;
+        z-index: 10;
+        border: solid 1px;
+        border-radius: 4px;
+        .load-gif {
+            font-size: 100px;
+            transition: opacity 2s linear;
+            &:before {
+                color: green;
+            }
+        }
+    }
+}

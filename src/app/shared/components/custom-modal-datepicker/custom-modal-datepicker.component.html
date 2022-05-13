@@ -1,0 +1,18 @@
+<app-custom-modal #modalDatePicker [modalSize]="isDateRange ? 'lg' : 'md'"
+  [title]="isDateRange ? 'Choose Date Range' : 'Choose Date'" [subTitle]="''" class="datepicker-modal">
+  <div class="datepicker-container">
+    <ng-content select="[datepicker-container]"></ng-content>
+  </div>
+
+  <div footer-buttons class="footer-buttons">
+    <button class="btn btn-dark btn-pill btn-air mr-sm" (click)="dateCleared()">
+      <i class="fas fa-times mr-sm"></i>
+      <span>Clear</span>
+    </button>
+    <button class="btn btn-primary" (click)="dateSelected()">
+      <i class="fas fa-plus mr-sm"></i>
+      <span *ngIf="!isDateRange">Choose Date</span>
+      <span *ngIf="isDateRange">Choose Date Range</span>
+    </button>
+  </div>
+</app-custom-modal>

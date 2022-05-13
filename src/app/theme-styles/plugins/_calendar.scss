@@ -1,0 +1,60 @@
+.cal-month-view {
+  .cal-day-cell {
+    min-height: 60px;
+  }
+
+  .cal-cell-top {
+    min-height: 60px;
+
+    .cal-day-number {
+      margin-top: 5px;
+      margin-right: 5px;
+    }
+  }
+
+  .cal-header {
+    .cal-cell {
+      font-size: $font-size-sm;
+      font-weight: 500;
+    }
+  }
+
+  .cal-days {
+    .cal-weekend {
+      background-color: lighten($secondary, 30);
+
+      &:hover {
+        background-color: lighten($secondary, 30);
+      }
+    }
+
+    .cal-day-cell {
+      position: relative;
+
+      .cal-cell-top {
+        position: relative;
+        z-index: 2;
+
+        .cal-day-badge {
+          display: none;
+        }
+      }
+
+      .event {
+        font-size: $font-size-xs;
+        padding: 4px;
+        font-weight: 400;
+        text-align: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        line-height: 0.8rem;
+        z-index: 1;
+      }
+    }
+  }
+}

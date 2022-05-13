@@ -1,0 +1,1309 @@
+<div *ngIf="isActive" class="print-button-wrap col-lg-12">
+  <button class="dt-button buttons-print btn btn-primary btn-md" (click)="printPage()" tabindex="0" type="button">
+    <span><i class="fa fa-print"></i> Print</span>
+  </button>
+</div>
+<div class="show-table-print text-left">
+  <h3 class="">
+    <span>Employee Details - </span>
+    <span *ngIf="existResponse" class="text-primary">{{ existResponse.name }} ( {{ existResponse.code }}
+      )</span>
+  </h3>
+</div>
+<div class="printed-date">
+  Printed on : {{printedDate}}
+</div>
+<div *ngIf="appraisal" class="employee-container appraisal-info-container">
+  <div class="appraisal-information">
+    <h5>Appraisal Name : {{ appraisal.title }}</h5>
+    <div>Appraisal Dates :
+      <span>{{ appraisal.startDateText }} to {{ appraisal.endDateText }}</span>
+      <span class="text-danger ml-md">({{ this.daysLeft}})</span>
+    </div>
+  </div>
+
+  <div class="self-assesment-questions mt-lg mb-sm">
+    <h5 class="hide-print">Dept./Role Based Objective</h5>
+    <h5 class="show-table-print">Dept./Role Based Objective's</h5>
+
+    <div class="self-assesment-questions-container mt-md">
+      <form #appraisalForm="ngForm" class="form">
+        <div
+          *ngIf="isActive && ((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted))"
+          class="text-right mt-sm mb-sm hide-print">
+          <button class="btn btn-primary btn-sm" (click)="addObjective()">Add Objective</button>
+        </div>
+
+        <div *ngIf="activeSelfObjs.length === 0" class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <h4>No objectives added yet.</h4>
+          <div *ngIf="isSelf && !isSelfSubmitted" class="text-sm text-grey">Click the button below to add new objective.
+          </div>
+          <div *ngIf="isActive && isSelf && !isSelfSubmitted" class="text-center mt-md hide-print">
+            <button class="btn btn-primary btn-sm" (click)="addObjective()">Add Objective</button>
+          </div>
+        </div>
+
+        <table datatable *ngIf="activeSelfObjs.length > 0" class="table table-bordered" style="width: 100%;">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 35%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 15%" class="text-center">Weightage %</th>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                  class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                  Achievements %</th>
+              </ng-container>
+              <th *ngIf="isSelf" rowspan="2" style="width: 10%" class="text-center">Action</th>
+            </tr>
+            <ng-container *ngIf="appraisal.mode !== 'objective'">
+              <tr>
+                <th style="width: 10%" class="text-center">Self %</th>
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%">L2 %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                  class="text-center">Mgmt %</th>
+                <!-- <th style="width: 10%;"></th> -->
+              </tr>
+            </ng-container>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of activeSelfObjs;">
+              <td>
+                <div class="form-group">
+                  <input #selfQuestionTitleVar="ngModel" class="form-control" [name]="'self-title-' + item.count"
+                    [(ngModel)]="item.title" type="text" required disabled="true"
+                    placeholder="Enter the objective title here" />
+                  <app-custom-validation [model]="selfQuestionTitleVar" [required]="'Enter the objective title.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <textarea #selfQuestionVar="ngModel" class="form-control" [name]="'self-' + item.count"
+                    [(ngModel)]="item.description" [disabled]="!((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) 
+                      || (appraisal.mode !== 'objective' && item.appraisalMode !== 1 && !isSelfSubmitted))" type="text"
+                    required rows="5" placeholder="Enter the objective here"></textarea>
+                  <app-custom-validation [model]="selfQuestionVar" [required]="'Enter the objective content.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <input #weightageVar="ngModel" class="form-control" [name]="'weightage-' + item.count"
+                    [(ngModel)]="item.weightage" [disabled]="!((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) 
+                      || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted))" type="number" min="0"
+                    max="100" required />
+                  <app-custom-validation [model]="weightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td>
+                  <div class="form-group">
+                    <input #selfWeightageVar="ngModel" class="form-control" [name]="'self-weightage-' + item.count"
+                      [(ngModel)]="item.selfWeightage" [disabled]="!isSelf || isSelfSubmitted" type="number" min="0"
+                      max="100" required />
+                    <app-custom-validation [model]="selfWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="!isSelf || isHr">
+                  <div class="form-group">
+                    <input #mgmtWeightageVar="ngModel" class="form-control" [name]="'mgmt-weightage-' + item.count"
+                      [(ngModel)]="item.managementWeightage"
+                      [disabled]="!isManager || !isSelfSubmitted || isRmSubmitted" type="number" min="0" max="100"
+                      required />
+                    <app-custom-validation [model]="mgmtWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                  <div class="form-group">
+                    <input #l2WeightageVar="ngModel" class="form-control" [name]="'l2-weightage-' + item.count"
+                      [(ngModel)]="item.l2Weightage" [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                      (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''"
+                      [disabled]="!isL2Manager || !isSelfSubmitted || !isRmSubmitted ||isL2Submitted " type="number"
+                      min="0" max="100" required />
+                    <app-custom-validation [model]="l2WeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+              </ng-container>
+              <td *ngIf="isSelf">
+                <div class="form-group text-center"
+                  *ngIf="isSelf && (item.newRecord 
+                    || (!item.newRecord && appraisal.mode === 'objective' && !isSelfObjectiveSubmitted) 
+                    || (!item.newRecord && appraisal.mode === 'appraisal' && !isSelfSubmitted && item.appraisalMode === 3)
+                    || (!item.newRecord && appraisal.mode === 'variablebonus' && !isSelfSubmitted && item.appraisalMode === 2))">
+                  <button [tooltip]="'Delete the objective added.'" class="btn btn-danger btn-sm"
+                    (click)="deleteObjectiveAlert(item)">
+                    <span><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{weightageTotal}}</h5>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td class="text-center">
+                  <h5>{{selfWeightageTotal}}</h5>
+                </td>
+                <td *ngIf="!isSelf || isHr" class="text-center">
+                  <h5>{{rmWeightageTotal}}</h5>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                  class="text-center">
+                  <h5>{{l2WeightageTotal}}</h5>
+                </td>
+              </ng-container>
+              <td *ngIf="isSelf"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table *ngIf="activeSelfObjs.length > 0" class="table table-bordered show-table-print">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 35%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 15%" class="text-center">Weightage %</th>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                  class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                  Achievements %</th>
+              </ng-container>
+              <th *ngIf="isSelf" rowspan="2" style="width: 10%" class="text-center">Action</th>
+            </tr>
+            <ng-container *ngIf="appraisal.mode !== 'objective'">
+              <tr>
+                <th style="width: 10%" class="text-center">Self %</th>
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%">L2 %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                  class="text-center">Mgmt %</th>
+              </tr>
+            </ng-container>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of activeSelfObjs;">
+              <td>
+                <div class="form-group">
+                  {{item.title}}
+                  <!-- <input #selfQuestionTitleVar="ngModel" class="form-control" [name]="'self-title-' + item.count"
+                    [(ngModel)]="item.title" type="text" required disabled="true"
+                    placeholder="Enter the objective title here" />
+                  <app-custom-validation [model]="selfQuestionTitleVar" [required]="'Enter the objective title.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{item.description}}
+                  <!-- <textarea #selfQuestionVar="ngModel" class="form-control" [name]="'self-' + item.count"
+                    [(ngModel)]="item.description" [disabled]="!((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) 
+                      || (appraisal.mode !== 'objective' && item.appraisalMode !== 1 && !isSelfSubmitted))" type="text"
+                    required rows="5" placeholder="Enter the objective here"></textarea>
+                  <app-custom-validation [model]="selfQuestionVar" [required]="'Enter the objective content.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-group">
+                  {{item.weightage}}
+                  <!-- <input #weightageVar="ngModel" class="form-control" [name]="'weightage-' + item.count"
+                    [(ngModel)]="item.weightage" [disabled]="!((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) 
+                      || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted))" type="number" min="0"
+                    max="100" required />
+                  <app-custom-validation [model]="weightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td>
+                  <div class="form-group">
+                    {{item.selfWeightage}}
+                    <!-- <input #selfWeightageVar="ngModel" class="form-control" [name]="'self-weightage-' + item.count"
+                      [(ngModel)]="item.selfWeightage" [disabled]="!isSelf || isSelfSubmitted" type="number" min="0"
+                      max="100" required />
+                    <app-custom-validation [model]="selfWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+                <td *ngIf="!isSelf || isHr">
+                  <div class="form-group">
+                    {{item.managementWeightage}}
+                    <!-- <input #mgmtWeightageVar="ngModel" class="form-control" [name]="'mgmt-weightage-' + item.count"
+                      [(ngModel)]="item.managementWeightage"
+                      [disabled]="!isManager || !isSelfSubmitted || isRmSubmitted" type="number" min="0" max="100"
+                      required />
+                    <app-custom-validation [model]="mgmtWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                  <div class="form-group">
+                    {{item.l2Weightage}}
+                    <!-- <input #l2WeightageVar="ngModel" class="form-control" [name]="'l2-weightage-' + item.count"
+                      [(ngModel)]="item.l2Weightage" [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                      (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''"
+                      [disabled]="!isL2Manager || !isSelfSubmitted || !isRmSubmitted ||isL2Submitted " type="number"
+                      min="0" max="100" required />
+                    <app-custom-validation [model]="l2WeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+              </ng-container>
+              <td *ngIf="isSelf">
+                <div class="form-group text-center"
+                  *ngIf="isSelf && (item.newRecord 
+                    || (!item.newRecord && appraisal.mode === 'objective' && !isSelfObjectiveSubmitted) 
+                    || (!item.newRecord && appraisal.mode === 'appraisal' && !isSelfSubmitted && item.appraisalMode === 3)
+                    || (!item.newRecord && appraisal.mode === 'variablebonus' && !isSelfSubmitted && item.appraisalMode === 2))">
+                  <button [tooltip]="'Delete the objective added.'" class="btn btn-danger btn-sm"
+                    (click)="deleteObjectiveAlert(item)">
+                    <span><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{weightageTotal}}</h5>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td class="text-center">
+                  <h5>{{selfWeightageTotal}}</h5>
+                </td>
+                <td *ngIf="!isSelf || isHr" class="text-center">
+                  <h5>{{rmWeightageTotal}}</h5>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                  class="text-center">
+                  <h5>{{l2WeightageTotal}}</h5>
+                </td>
+              </ng-container>
+              <td *ngIf="isSelf"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div
+          *ngIf="isActive && activeSelfObjs.length > 0 && ((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted))"
+          class="text-right mt-sm mb-sm hide-print">
+          <button class="btn btn-primary btn-sm" (click)="addObjective()">Add Objective</button>
+        </div>
+
+        <div *ngIf="isActive" class="show-comments">
+          <form #selfAssessmentForm="ngForm" class="form">
+            <div class="form-group">
+              <label class="form-title">Comments</label>
+              <textarea #selfAssessmentCommentVar="ngModel" class="form-control" [name]="'self-assessment'"
+                [(ngModel)]="selfAssessmentComment" type="text" required rows="5" (blur)="addCommentFeedback('Role based - ',selfAssessmentComment, false)"></textarea>
+              <app-custom-validation [model]="selfAssessmentCommentVar" [required]="'Enter the comment.'">
+              </app-custom-validation>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="isActive && ((appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) 
+          || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted) 
+          || (isManager && !isRmSubmitted && isSelfSubmitted) 
+          || (isL2Manager && !isL2Submitted && isRmSubmitted &&isSelfSubmitted))" class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isSelfProcessing ? 'spinning' :''"
+            [disabled]="!appraisalForm.valid || isSelfProcessing" (click)="saveSelfObjectives()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="defined-assesment-questions mt-lg mb-sm b-t pt-lg">
+    <h5>Management / Capability / Attitude</h5>
+
+    <div class="defined-assesment-questions-container mt-md">
+
+      <form #questionForm="ngForm" class="form">
+        <table datatable *ngIf="appraisal.questions.length > 0" class="table table-bordered" style="width: 100%;">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 40%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 10%" class="text-center">Weightage %</th>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                  class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                  Achievements %</th>
+              </ng-container>
+            </tr>
+            <tr *ngIf="appraisal.mode !== 'objective'">
+              <th style="width: 10%" class="text-center">Self %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">L2 %</th>
+              <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                class="text-center">Mgmt %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of appraisal.questions; let i = index;">
+              <td>
+                <div class="form-group">
+                  {{ item.title }}
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{ item.description }}
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{ item.weightage }}
+                </div>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td>
+                  <div class="form-group">
+                    <input #selfQuestionWeightageVar="ngModel" class="form-control"
+                      [name]="'self-question-weightage-' + i" [(ngModel)]="item.selfWeightage"
+                      [disabled]="appraisal.mode === 'objective' || (!isSelf || isSelfSubmitted)" type="number" min="0"
+                      required />
+                    <app-custom-validation [model]="selfQuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="!isSelf || isHr">
+                  <div class="form-group">
+                    <input #mgmtQuestionWeightageVar="ngModel" class="form-control"
+                      [name]="'mgmt-question-weightage-' + i" [(ngModel)]="item.managementWeightage"
+                      [disabled]="appraisal.mode === 'objective' || (!isManager || !isSelfSubmitted || isRmSubmitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="mgmtQuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                  <div class="form-group">
+                    <input #l2QuestionWeightageVar="ngModel" class="form-control" [name]="'l2-question-weightage-' + i"
+                      [(ngModel)]="item.l2Weightage" [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                      (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''"
+                      [disabled]="appraisal.mode === 'objective' || (!isL2Manager || !isSelfSubmitted || !isRmSubmitted || isL2Submitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="l2QuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+              </ng-container>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfAnswerWeightageTotal}}</h5>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td class="text-center">
+                  <h5>{{selfAnserTotal}}</h5>
+                </td>
+                <td *ngIf="!isSelf || isHr" class="text-center">
+                  <h5>{{rmAnserTotal}}</h5>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                  class="text-center">
+                  <h5>{{l2AnserTotal}}</h5>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+
+        <table *ngIf="appraisal.questions.length > 0" class="table table-bordered show-table-print">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 40%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 10%" class="text-center">Weightage %</th>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                  class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                  Achievements %</th>
+              </ng-container>
+            </tr>
+            <tr *ngIf="appraisal.mode !== 'objective'">
+              <th style="width: 10%" class="text-center">Self %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">L2 %</th>
+              <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                class="text-center">Mgmt %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of appraisal.questions; let i = index;">
+              <td>
+                <div class="form-group">
+                  {{ item.title }}
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{ item.description }}
+                </div>
+              </td>
+              <td class="text-center">
+                <div class="form-group">
+                  {{ item.weightage }}
+                </div>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td>
+                  <div class="form-group">
+                    {{item.selfWeightage}}
+                    <!-- <input #selfQuestionWeightageVar="ngModel" class="form-control"
+                      [name]="'self-question-weightage-' + i" [(ngModel)]="item.selfWeightage"
+                      [disabled]="appraisal.mode === 'objective' || (!isSelf || isSelfSubmitted)" type="number" min="0"
+                      required />
+                    <app-custom-validation [model]="selfQuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+                <td *ngIf="!isSelf || isHr">
+                  <div class="form-group">
+                    {{item.managementWeightage}}
+                    <!-- <input #mgmtQuestionWeightageVar="ngModel" class="form-control"
+                      [name]="'mgmt-question-weightage-' + i" [(ngModel)]="item.managementWeightage"
+                      [disabled]="appraisal.mode === 'objective' || (!isManager || !isSelfSubmitted || isRmSubmitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="mgmtQuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                  <div class="form-group">
+                    {{item.l2Weightage}}
+                    <!-- <input #l2QuestionWeightageVar="ngModel" class="form-control" [name]="'l2-question-weightage-' + i"
+                      [(ngModel)]="item.l2Weightage" [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                      (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''"
+                      [disabled]="appraisal.mode === 'objective' || (!isL2Manager || !isSelfSubmitted || !isRmSubmitted || isL2Submitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="l2QuestionWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation> -->
+                  </div>
+                </td>
+              </ng-container>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfAnswerWeightageTotal}}</h5>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td class="text-center">
+                  <h5>{{selfAnserTotal}}</h5>
+                </td>
+                <td *ngIf="!isSelf || isHr" class="text-center">
+                  <h5>{{rmAnserTotal}}</h5>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                  class="text-center">
+                  <h5>{{l2AnserTotal}}</h5>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="isActive" class="show-comments">
+          <form #MCAForm="ngForm" class="form">
+            <div class="form-group">
+              <label class="form-title">Comments</label>
+              <textarea #MCACommentVar="ngModel" class="form-control" [name]="'MCA'"
+                [(ngModel)]="MCAComment" type="text" required rows="5" (blur)="addCommentFeedback('Management Capability - ',MCAComment, true)"></textarea>
+              <app-custom-validation [model]="MCACommentVar" [required]="'Enter the comment.'">
+              </app-custom-validation>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="isActive && appraisal.mode !== 'objective' && ((isSelf && !isSelfSubmitted) 
+        || (isManager && !isRmSubmitted && isSelfSubmitted) 
+        || (isL2Manager && !isL2Submitted && isRmSubmitted &&isSelfSubmitted))" class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isOrgProcessing ? 'spinning' :''"
+            [disabled]="!questionForm.valid || isOrgProcessing" (click)="saveOrgObjectives()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+
+  <div class="defined-internal-questions mt-lg mb-sm b-t pt-lg">
+    <h5>Internal Control</h5>
+
+    <div class="defined-internal-questions-container mt-md">
+
+      <form #internalForm="ngForm" class="form">
+        <table class="table table-bordered show-table">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 40%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 10%" class="text-center">Weightage %</th>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                  class="text-center">
+                  Achievements %</th>
+                <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                  Achievements %</th>
+              </ng-container>
+            </tr>
+            <tr *ngIf="appraisal.mode !== 'objective'">
+              <th style="width: 10%" class="text-center">Self %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">L2 %</th>
+              <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                class="text-center">Mgmt %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="form-group">
+                  Internal Control
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  Internal Control
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  100
+                </div>
+              </td>
+              <ng-container *ngIf="appraisal.mode !== 'objective'">
+                <td>
+                  <div class="form-group">
+                    <input #internalSelfVar="ngModel" class="form-control" [name]="'self-internal-weightage'"
+                      [(ngModel)]="appraisal.internalSelf"
+                      [disabled]="appraisal.mode === 'objective' || (!isSelf || isSelfSubmitted)" type="number" min="0"
+                      required />
+                    <app-custom-validation [model]="internalSelfVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="!isSelf || isHr">
+                  <div class="form-group">
+                    <input #mgmtInternalWeightageVar="ngModel" class="form-control" [name]="'mgmt-internal-weightage'"
+                      [(ngModel)]="appraisal.internalMgmt"
+                      [disabled]="appraisal.mode === 'objective' || (!isManager || !isSelfSubmitted || isRmSubmitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="mgmtInternalWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+                <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                  <div class="form-group">
+                    <input #l2InternalWeightageVar="ngModel" class="form-control" [name]="'l2-internal-weightage'"
+                      [(ngModel)]="appraisal.internalL2" [ngClass]="isHr ? (appraisal.internalL2 < appraisal.internalMgmt ? 'red' : 
+                      (appraisal.internalL2 > appraisal.internalMgmt ? 'green' : '') ) : ''"
+                      [disabled]="appraisal.mode === 'objective' || (!isL2Manager || !isSelfSubmitted || !isRmSubmitted || isL2Submitted)"
+                      type="number" min="0" required />
+                    <app-custom-validation [model]="l2InternalWeightageVar" [required]="'Enter the weightage.'">
+                    </app-custom-validation>
+                  </div>
+                </td>
+              </ng-container>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="isActive" class="show-comments">
+          <form #internalControlForm="ngForm" class="form">
+            <div class="form-group">
+              <label class="form-title">Comments</label>
+              <textarea #internalControlCommentVar="ngModel" class="form-control" [name]="'Internal Control'"
+                [(ngModel)]="internalControlComment" type="text" required rows="5" (blur)="addCommentFeedback('Internal Control - ',internalControlComment, true)"></textarea>
+              <app-custom-validation [model]="internalControlCommentVar" [required]="'Enter the comment.'">
+              </app-custom-validation>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="isActive && appraisal.mode !== 'objective' && ((isSelf && !isSelfSubmitted) 
+        || (isManager && !isRmSubmitted && isSelfSubmitted) 
+        || (isL2Manager && !isL2Submitted && isRmSubmitted &&isSelfSubmitted))" class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isInternalProcessing ? 'spinning' :''"
+            [disabled]="!internalForm.valid || isInternalProcessing" (click)="saveInternalObjective()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <div class="business-needs-questions mt-lg mb-sm">
+    <h5 *ngIf="appraisal.mode !== 'objective'">Circumstances or Business Need Objectives - (Non Mandatory) (Max value
+      allowed 10)</h5>
+
+    <div class="business-needs-questions-container mt-md">
+      <form #businessForm="ngForm" class="form">
+        <div *ngIf="isActive && appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted"
+          class="text-right mt-sm mb-sm">
+          <button class="btn btn-primary btn-sm" (click)="addBusinessNeed()">Add Business Need</button>
+        </div>
+
+        <div *ngIf="appraisal.mode !== 'objective' && activeBusinessNeeds.length === 0"
+          class="empty-state p-md text-center">
+          <div class="empty-icon">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <h4>No business needs added yet.</h4>
+          <div *ngIf="isSelf && !isSelfSubmitted" class="text-sm text-grey">Click the button below to add new business
+            needs.
+          </div>
+          <div *ngIf="isActive && isSelf && !isSelfSubmitted" class="text-center mt-md">
+            <button class="btn btn-primary btn-sm" (click)="addBusinessNeed()">Add Business Need</button>
+          </div>
+        </div>
+
+        <table datatable *ngIf="appraisal.mode !== 'objective' && activeBusinessNeeds.length > 0"
+          class="table table-bordered" style="width: 100%;">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 35%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 15%" class="text-center">Weightage %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isSelfSubmitted" rowspan="2" style="width: 10%" class="text-center">Action</th>
+            </tr>
+            <tr>
+              <th style="width: 10%" class="text-center">Self %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">L2 %</th>
+              <th *ngIf="isSelf && !isHr  && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                class="text-center">Mgmt %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of activeBusinessNeeds;">
+              <td>
+                <div class="form-group">
+                  <input #busiNeedTitleVar="ngModel" class="form-control" [name]="'self-title-' + item.count"
+                    [(ngModel)]="item.title" disabled="true" type="text" required
+                    placeholder="Enter the objective title here" />
+                  <app-custom-validation [model]="busiNeedTitleVar" [required]="'Enter the objective title.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <textarea #businessNeedVar="ngModel" class="form-control" [name]="'self-' + item.count"
+                    [(ngModel)]="item.description" [disabled]="!isSelf || isSelfSubmitted" type="text" required rows="5"
+                    placeholder="Enter the objective here"></textarea>
+                  <app-custom-validation [model]="businessNeedVar" [required]="'Enter the objective content.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <input #businessNeedWeightageVar="ngModel" class="form-control" [name]="'weightage-' + item.count"
+                    [(ngModel)]="item.weightage" [disabled]="!isSelf || isSelfSubmitted" type="number" min="1" max="10"
+                    required />
+                  <app-custom-validation [model]="businessNeedWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  <input #busiNeedSelfWeightageVar="ngModel" class="form-control"
+                    [name]="'self-weightage-' + item.count" [(ngModel)]="item.selfWeightage"
+                    [disabled]="!isSelf || isSelfSubmitted" type="number" min="0" max="10" required />
+                  <app-custom-validation [model]="busiNeedSelfWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td *ngIf="!isSelf || isHr">
+                <div class="form-group">
+                  <input #busNeedMgmtWeightageVar="ngModel" class="form-control" [name]="'mgmt-weightage-' + item.count"
+                    [(ngModel)]="item.managementWeightage" [disabled]="!isManager || !isSelfSubmitted || isRmSubmitted"
+                    type="number" min="0" max="10" required />
+                  <app-custom-validation [model]="busNeedMgmtWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                <div class="form-group">
+                  <input #l2BusinessWeightageVar="ngModel" class="form-control"
+                    [name]="'l2-business-weightage-' + item.count" [(ngModel)]="item.l2Weightage"
+                    [disabled]="!isL2Manager || !isSelfSubmitted || !isRmSubmitted || isL2Submitted" type="number"
+                    min="0" max="10" required [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                    (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''" />
+                  <app-custom-validation [model]="l2BusinessWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+              <td *ngIf="isSelf && !isSelfSubmitted">
+                <div class="form-group text-center">
+                  <button [tooltip]="'Delete the business need added.'" class="btn btn-danger btn-sm"
+                    (click)="deleteBusinessNeedAlert(item)">
+                    <span><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfBussWeightageTotal}}</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfBusinessTotal}}</h5>
+              </td>
+              <td *ngIf="!isSelf || isHr" class="text-center">
+                <h5>{{rmBusinessTotal}}</h5>
+              </td>
+              <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                class="text-center">
+                <h5>{{l2BusinessTotal}}</h5>
+              </td>
+              <td *ngIf="isSelf && !isSelfSubmitted">
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table *ngIf="appraisal.mode !== 'objective' && activeBusinessNeeds.length > 0"
+          class="table table-bordered show-table-print">
+          <thead>
+            <tr>
+              <th rowspan="2" style="width: 20%" class="text-center">Classification</th>
+              <th rowspan="2" style="width: 35%" class="text-center">Objectives and Measures</th>
+              <th rowspan="2" style="width: 15%" class="text-center">Weightage %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 20%" colspan="3" class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isHr && isHrSubmitted && appraisal.showCalculation" style="width: 20%" colspan="2"
+                class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isHr && !isHrSubmitted" style="width: 20%" colspan="1" class="text-center">
+                Achievements %</th>
+              <th *ngIf="isSelf && !isSelfSubmitted" rowspan="2" style="width: 10%" class="text-center">Action</th>
+            </tr>
+            <tr>
+              <th style="width: 10%" class="text-center">Self %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">RM %</th>
+              <th *ngIf="isManager || isHr || isL2Manager" style="width: 10%" class="text-center">L2 %</th>
+              <th *ngIf="isSelf && !isHr  && isHrSubmitted && appraisal.showCalculation" style="width: 10%"
+                class="text-center">Mgmt %</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of activeBusinessNeeds;">
+              <td>
+                <div class="form-group">
+                  {{item.title}}
+                  <!-- <input #busiNeedTitleVar="ngModel" class="form-control" [name]="'self-title-' + item.count"
+                    [(ngModel)]="item.title" disabled="true" type="text" required
+                    placeholder="Enter the objective title here" />
+                  <app-custom-validation [model]="busiNeedTitleVar" [required]="'Enter the objective title.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{item.description}}
+                  <!-- <textarea #businessNeedVar="ngModel" class="form-control" [name]="'self-' + item.count"
+                    [(ngModel)]="item.description" [disabled]="!isSelf || isSelfSubmitted" type="text" required rows="5"
+                    placeholder="Enter the objective here"></textarea>
+                  <app-custom-validation [model]="businessNeedVar" [required]="'Enter the objective content.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{item.weightage}}
+                  <!-- <input #businessNeedWeightageVar="ngModel" class="form-control" [name]="'weightage-' + item.count"
+                    [(ngModel)]="item.weightage" [disabled]="!isSelf || isSelfSubmitted" type="number" min="1" max="10"
+                    required />
+                  <app-custom-validation [model]="businessNeedWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  {{item.selfWeightage}}
+                  <!-- <input #busiNeedSelfWeightageVar="ngModel" class="form-control"
+                    [name]="'self-weightage-' + item.count" [(ngModel)]="item.selfWeightage"
+                    [disabled]="!isSelf || isSelfSubmitted" type="number" min="0" max="10" required />
+                  <app-custom-validation [model]="busiNeedSelfWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td *ngIf="!isSelf || isHr">
+                <div class="form-group">
+                  {{item.managementWeightage}}
+                  <!-- <input #busNeedMgmtWeightageVar="ngModel" class="form-control" [name]="'mgmt-weightage-' + item.count"
+                    [(ngModel)]="item.managementWeightage" [disabled]="!isManager || !isSelfSubmitted || isRmSubmitted"
+                    type="number" min="0" max="10" required />
+                  <app-custom-validation [model]="busNeedMgmtWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)">
+                <div class="form-group">
+                  {{item.l2Weightage}}
+                  <!-- <input #l2BusinessWeightageVar="ngModel" class="form-control"
+                    [name]="'l2-business-weightage-' + item.count" [(ngModel)]="item.l2Weightage"
+                    [disabled]="!isL2Manager || !isSelfSubmitted || !isRmSubmitted || isL2Submitted" type="number"
+                    min="0" max="10" required [ngClass]="isHr ? (item.l2Weightage < item.managementWeightage ? 'red' : 
+                    (item.l2Weightage > item.managementWeightage ? 'green' : '')) : ''" />
+                  <app-custom-validation [model]="l2BusinessWeightageVar" [required]="'Enter the weightage.'">
+                  </app-custom-validation> -->
+                </div>
+              </td>
+              <td *ngIf="isSelf && !isSelfSubmitted">
+                <div class="form-group text-center">
+                  <button [tooltip]="'Delete the business need added.'" class="btn btn-danger btn-sm"
+                    (click)="deleteBusinessNeedAlert(item)">
+                    <span><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="text-center">
+                <h5>Total</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfBussWeightageTotal}}</h5>
+              </td>
+              <td class="text-center">
+                <h5>{{selfBusinessTotal}}</h5>
+              </td>
+              <td *ngIf="!isSelf || isHr" class="text-center">
+                <h5>{{rmBusinessTotal}}</h5>
+              </td>
+              <td *ngIf="isManager || isL2Manager || isHr || (isSelf && isHrSubmitted && appraisal.showCalculation)"
+                class="text-center">
+                <h5>{{l2BusinessTotal}}</h5>
+              </td>
+              <td *ngIf="isSelf && !isSelfSubmitted">
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="isActive && ((appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted) 
+        || (isManager && !isRmSubmitted && isSelfSubmitted) 
+        || (isL2Manager && !isL2Submitted && isRmSubmitted && isSelfSubmitted))" class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isSelfProcessing ? 'spinning' :''"
+            [disabled]="!appraisalForm.valid || isSelfProcessing || activeBusinessNeeds.length === 0"
+            (click)="saveBusinessNeeds()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="trainings-questions mt-lg mb-sm b-t pt-lg">
+    <h5>Training programs requests (Technical trainings, Management, language, Soft Skills)</h5>
+
+    <div class="defined-internal-questions-container mt-md">
+
+      <form #trainingForm="ngForm" class="form">
+
+        <div class="row no-x-m">
+          <div class="form-group col-6">
+            <label class="form-title">Trainings chosen by employee</label>
+            <label class="form-explanation">These are the trainings that are chosen by the employee.</label>
+            <ng-select #employeeTrainingsVar="ngModel" name="employeeTrainingsVar"
+              [(ngModel)]="appraisal.selfTrainingSelections" placeholder="Choose trainings" [items]="trainingsList"
+              [disabled]="(appraisal.mode === 'objective' && isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isSelfSubmitted) || !isSelf"
+              (change)="appraisal.selfTrainings = selectMultiple($event)" [multiple]="true" [clearable]="true">
+            </ng-select>
+            <input #trainingComments="ngModel" class="form-control mt-sm hide-print"
+              placeholder="Enter training here, if no in training suggested" [name]="trainingComments"
+              [(ngModel)]="appraisal.trainingComments"
+              [disabled]="(appraisal.mode === 'objective' && isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isHrSubmitted) || (isHr && !isSelf)"
+              type="text" />
+          </div>
+
+          <div class="form-group col-6">
+            <label class="form-title">Trainings chosen by manager</label>
+            <label class="form-explanation">These are the trainings that are chosen by the manager.</label>
+
+            <button class="btn btn-sm btn-primary btn-outline" style="margin-left: 15px;"
+              [disabled]="!((!isRmObjectiveSubmitted && isSelfObjectiveSubmitted && isManager) || (!isRmSubmitted && isSelfSubmitted && isManager))"
+              (click)="copyEmployeeTrainings()">Copy from
+              employee</button>
+
+            <ng-select #managerTrainingsVar="ngModel" name="managerTrainingsVar"
+              [(ngModel)]="appraisal.rmTrainingSelections" placeholder="Choose trainings" [items]="trainingsList"
+              [disabled]="isSelf || (appraisal.mode === 'objective' && (isL2ObjectiveSubmitted ||(isSelf && isSelfObjectiveSubmitted)))
+              || (appraisal.mode !== 'objective' && (isL2Submitted || (isSelf && isSelfSubmitted)))"
+              (change)="appraisal.rmTrainings = selectMultiple($event)" [multiple]="true" [clearable]="true">
+            </ng-select>
+          </div>
+        </div>
+        <div class="row no-x-m show-table-print">
+          <div class="form-group col-12">
+            <input #trainingComments="ngModel" class="form-control mt-sm show-table-print"
+              placeholder="Enter training here, if no in training suggested" [name]="trainingComments"
+              [(ngModel)]="appraisal.trainingComments"
+              [disabled]="(appraisal.mode === 'objective' && isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isHrSubmitted) || (isHr && !isSelf)"
+              type="text" />
+          </div>
+        </div>
+
+        <div class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isTrainingProcessing ? 'spinning' :''" [disabled]="!isActive || !trainingForm.valid || isTrainingProcessing 
+              || (appraisal.mode === 'objective' && (isL2ObjectiveSubmitted ||(isSelf && isSelfObjectiveSubmitted)))
+              || (appraisal.mode !== 'objective' && (isL2Submitted || (isSelf && isSelfSubmitted)))"
+            (click)="saveTrainings()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+
+  </div>
+
+  <div class="fitment-promotion mt-lg mb-sm b-t pt-lg" *ngIf="!isSelf && appraisal.mode !== 'objective'">
+    <h5>Recommended for Fitment/Promotion</h5>
+
+    <div class="defined-internal-questions-container mt-md">
+      <div class="row no-x-m">
+        <div class="col-4">
+          <input #fitmentVar="ngModel" name="fitment-checkbox" class="custom-checkbox primary" id="fitment-checkbox"
+            type="checkbox" [disabled]="isSelf" [value]="true" [(ngModel)]="appraisal.isFitmentRecommended">
+          <label for="fitment-checkbox">
+            <span class="text">Recommended for Fitment</span>
+          </label>
+        </div>
+        <div class="col-4">
+          <input #promotionVar="ngModel" name="promotion-checkbox" class="custom-checkbox primary"
+            id="promotion-checkbox" type="checkbox" [disabled]="isSelf" [value]="true"
+            [(ngModel)]="appraisal.isPromotionRecommended">
+          <label for="promotion-checkbox">
+            <span class="text">Recommended for Promotion</span>
+          </label>
+          <div>(Separate form to be submitted)</div>
+        </div>
+      </div>
+      <div *ngIf="(isActive && !isHrSubmitted && appraisal.mode !== 'objective' && ((isManager && !isRmSubmitted && isSelfSubmitted) 
+      || (isL2Manager && !isL2Submitted && isRmSubmitted &&isSelfSubmitted) || (isHr && !isSelf)))"
+        class="mt-md mb-md text-center hide-print">
+        <button class="btn btn-primary" [ngClass]="isSelfProcessing ? 'spinning' :''" [disabled]="isSelfProcessing"
+          (click)="saveRecommendedFitmentOrPromotion()">
+          <span>Save this Section</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="appraisal-feedback mt-lg mb-sm b-t pt-lg">
+    <h5>Comments</h5>
+
+    <div class="appraisal-feedback-container">
+
+      <form #feedbackForm="ngForm" class="form">
+        <table datatable *ngIf="appraisal.feedbacks.length > 0" class="table table-bordered hide-print  mt-sm mb-sm">
+          <thead>
+            <tr>
+              <th style="width: 20%;" class="text-center">Comment By</th>
+              <th  style="width: 20%;" class="text-center">Commented On</th>
+              <th class="text-center">Comment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of appraisal.feedbacks; let i = index;">
+              <td style="width: 20%;">
+                <div>{{ item.givenByName }}</div>
+                <div class="mt-sm badge badge-secondary">{{ item.appraiseeType }}</div>
+              </td>
+              <td  style="width: 20%;">
+                {{ item.givenOn }}
+              </td>
+              <td>
+                <div class="form-group">
+                  <textarea #feedbackVar="ngModel" class="form-control" [name]="'feedback-' + i"
+                    [(ngModel)]="item.feedback" type="text" required rows="5"
+                    [disabled]="(!canAddComment || item.appraiseeType !== appraiseeType)"
+                    placeholder="Enter the comment here"></textarea>
+                  <app-custom-validation [model]="feedbackVar" [required]="'Enter the comment.'">
+                  </app-custom-validation>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="mt-md mb-md text-center hide-print">
+          <button class="btn btn-primary" [ngClass]="isCommentProcessing ? 'spinning' :''"
+            [disabled]="!isActive || !canAddComment || !feedbackForm.valid || isCommentProcessing"
+            (click)="saveAppraisalFeedback()">
+            <span>Save this Section</span>
+            <i class="fas fa-spinner spinner"></i>
+          </button>
+        </div>
+        <div *ngFor="let comment of appraisal.feedbacks" class="show-table-print">
+          <div *ngIf="comment.appraiseeType === 'Self'">
+            <label class="form-explanation"><b>Employee's Comments:</b></label>
+            <div><pre>{{comment.feedback}}</pre></div>
+          </div>
+          <div *ngIf="comment.appraiseeType === 'Manager'">
+            <label class="form-explanation"><b>Reporting Manager / HOD Comments:</b></label>
+            <p>{{comment.feedback}}</p>
+          </div>
+          <div *ngIf="comment.appraiseeType === 'L2'">
+            <label class="form-explanation"><b>L+2 Manager's Comments:</b></label>
+            <p>{{comment.feedback}}</p>
+          </div>
+          <div *ngIf="comment.appraiseeType === 'HR'">
+            <label class="form-explanation"><b>HR Comments:</b></label>
+            <p>{{comment.feedback}}</p>
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="appraisal-rating mt-lg mb-sm  b-t pt-lg" *ngIf="appraisal.mode !== 'objective'">
+
+    <h5>Achievement Formula Calculation</h5>
+
+    <table class="table table-bordered show-table">
+      <thead>
+        <tr>
+          <th style="width: 25%" class="text-center">Grade</th>
+          <th style="width: 25%" class="text-center">Dept./Role Based Objective</th>
+          <th style="width: 25%" class="text-center">Mangt/Cap/Att</th>
+          <th style="width: 25%" class="text-center">Internal Control</th>
+        </tr>
+        <tr>
+          <th colspan="4" class="text-center">{{ appraisal.mode === 'variablebonus' ? 'Variable Bonus Payt' :
+            appraisal.mode === 'appraisal' ? 'Annual Hike' : '' }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-center">
+            <h6>{{appraisal.grade}}</h6>
+          </td>
+          <td class="text-center">
+            <h6>{{depRolePercentage * 100}}%</h6>
+          </td>
+          <td class="text-center">
+            <h6>{{capAttitudePercentage * 100}}%</h6>
+          </td>
+          <td class="text-center">
+            <h6>{{internalPercentage * 100}}%</h6>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h5>Achievement Rating</h5>
+
+    <div class="appraisal-rating-container">
+
+      <div *ngIf="selfAverageScore && appraisal.showCalculation" class="alert alert-sm alert-primary alert-block mt-md">
+        <div class="">
+          <h5>Employee Self Rating calculation:</h5>
+          <div><b>Dept./Role Based Objective Total</b> : {{ selfWeightageTotal }}</div>
+          <div><b>Circumstances or Business Need Total</b> : {{ selfBusinessTotal }}</div>
+          <div><b>Management Capability/Attitude Total</b> : {{ selfAnserTotal }}</div>
+          <div><b>Internal Control Total</b> : {{ selfInternal }}</div>
+          <div><b>Formula</b> : ({{selfWeightageTotal }} +
+            {{ selfBusinessTotal }}) * {{depRolePercentage}} +
+            {{ selfAnserTotal }} * {{capAttitudePercentage}} +
+            {{ selfInternal }} * {{internalPercentage}}</div>
+
+          <div><b>Rating Total</b> : {{ selfAverageScore }}</div>
+        </div>
+
+        <span>Based on your weightages obtained the overall score
+          is <strong class="text-lg">{{ selfAverageScore | number }}</strong> and based on the score the suggested
+          rating
+          for the employee is
+          <strong class="text-lg"> {{ selfSuggestedRating.tag }} - {{ selfSuggestedRating.rating }}</strong>
+        </span>
+      </div>
+
+      <div *ngIf="rmAverageScore && appraisal.showCalculation" class="alert alert-sm alert-primary alert-block mt-md">
+        <div class="">
+          <h5>RM Rating calculation:</h5>
+          <div><b>Dept./Role Based Objective Total</b> : {{ rmWeightageTotal }}</div>
+          <div><b>Circumstances or Business Need Total</b> : {{ rmBusinessTotal }}</div>
+          <div><b>Management Capability/Attitude Total</b> : {{ rmAnserTotal }}</div>
+          <div><b>Internal Control Total</b> : {{ rmInternal }}</div>
+          <div><b>Formula</b> : ({{rmWeightageTotal }} +
+            {{ rmBusinessTotal }}) * {{depRolePercentage}} +
+            {{ rmAnserTotal }} * {{capAttitudePercentage}} +
+            {{ rmInternal }} * {{internalPercentage}}</div>
+
+          <div><b>Rating Total</b> : {{ rmAverageScore }}</div>
+        </div>
+
+        <span>Based on your weightages obtained the overall score
+          is <strong class="text-lg">{{ rmAverageScore | number }}</strong> and based on the score the suggested rating
+          for the employee is
+          <strong class="text-lg"> {{ rmSuggestedRating && rmSuggestedRating.tag }} - {{ rmSuggestedRating &&
+            rmSuggestedRating.rating }}</strong>
+        </span>
+      </div>
+
+      <div *ngIf="l2AverageScore && appraisal.showCalculation" class="alert alert-sm alert-primary alert-block mt-md">
+        <div class="">
+          <h5>L2 Rating calculation:</h5>
+          <div><b>Dept./Role Based Objective Total</b> : {{ l2WeightageTotal }}</div>
+          <div><b>Circumstances or Business Need Total</b> : {{ l2BusinessTotal }}</div>
+          <div><b>Management Capability/Attitude Total</b> : {{ l2AnserTotal }}</div>
+          <div><b>Internal Control Total</b> : {{ l2Internal }}</div>
+          <div><b>Formula</b> : ({{l2WeightageTotal }} +
+            {{ l2BusinessTotal }}) * {{depRolePercentage}} +
+            {{ l2AnserTotal }} * {{capAttitudePercentage}} +
+            {{ l2Internal }} * {{internalPercentage}}</div>
+
+          <div><b>Rating Total</b> : {{ l2AverageScore }}</div>
+        </div>
+
+        <span>Based on your weightages obtained the overall score
+          is <strong class="text-lg">{{ l2AverageScore | number }}</strong> and based on the score the suggested rating
+          for the employee is
+          <strong class="text-lg"> {{ l2SuggestedRating && l2SuggestedRating.tag }} - {{ l2SuggestedRating &&
+            l2SuggestedRating.rating }}</strong>
+        </span>
+      </div>
+
+      <div *ngIf="!this.isHrSubmitted" class="empty-state p-md text-center">
+        <h4>Your achievement rating is not yet set.</h4>
+      </div>
+
+      <div *ngIf="this.isHrSubmitted" class="empty-state p-md text-center">
+        <h4 class="text-primary">Your achievement rating has been set. </h4>
+      </div>
+
+      <div class="appraisal-rating-display">
+        <div *ngFor="let item of ratings" class="rating-item" (click)="chooseRating(item)"
+          [ngClass]="appraisal.rating === item.ratingId ? 'active' : ''">
+          <div class="rating-tag">{{ item.tag }}</div>
+          <div class="rating-title">{{ item.rating }}</div>
+          <div class="rating-description">{{ item.description }}</div>
+          <div class="rating-description">{{ item.tag === 'A' ? 'Achievement >=110%'
+            : item.tag === 'B' ? '95%=< Achievement <110%' : item.tag==='C' ? '75%< Achievement <95% ' : item.tag==='D'
+              ? 'Achievement =<75%' : '' }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="(isActive && appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted) 
+  || (appraisal.mode === 'objective' && isManager && !isRmObjectiveSubmitted && isSelfObjectiveSubmitted)
+  || (isManager && !isRmSubmitted && isSelfSubmitted) 
+  || (appraisal.mode === 'objective' && isL2Manager && isRmObjectiveSubmitted && isSelfObjectiveSubmitted && !isL2ObjectiveSubmitted)
+  || (isL2Manager && !isL2Submitted && isSelfSubmitted && isRmSubmitted)
+  || (isHr && !isHrSubmitted && isSelfSubmitted && isRmSubmitted && isL2Submitted)
+  || (isHr && !isHrObjectiveSubmitted && isSelfObjectiveSubmitted && isRmObjectiveSubmitted && isL2ObjectiveSubmitted)"
+    class="self-submit-button pt-md pb-md text-center b-t b-b mt-lg hide-print">
+    <button
+      *ngIf="(appraisal.mode === 'objective' && isSelf && !isHrObjectiveSubmitted) || (appraisal.mode !== 'objective' && isSelf && !isSelfSubmitted)"
+      class="btn btn-secondary" [disabled]="isSubmitProcessing" [ngClass]="isSubmitProcessing ? 'spinning' : ''"
+      (click)="submitAppraisalSelfAlert(appraisalForm, questionForm, feedbackForm, businessForm, appraisal.mode)">
+      <span>Submit Self {{ appraisal.mode === 'objective' ? 'Objective' : appraisal.mode === 'appraisal' ? 'Appraisal'
+          : 'Variable Bonus' }} Process</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+    <button
+      *ngIf="(appraisal.mode === 'objective' && isManager && !isRmObjectiveSubmitted && isSelfObjectiveSubmitted) || (isManager && !isRmSubmitted && isSelfSubmitted)"
+      class="btn btn-secondary" [disabled]="isSubmitProcessing" [ngClass]="isSubmitProcessing ? 'spinning' : ''"
+      (click)="submitAppraisalSelfAlert(appraisalForm, questionForm, feedbackForm, businessForm, appraisal.mode)">
+      <span>Submit RM {{ appraisal.mode === 'objective' ? 'Objective' : appraisal.mode === 'appraisal' ? 'Appraisal' :
+          'Variable Bonus' }} Process</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+    <button
+      *ngIf="(appraisal.mode === 'objective' && isL2Manager && isRmObjectiveSubmitted && isSelfObjectiveSubmitted && !isL2ObjectiveSubmitted) || (isL2Manager && isRmSubmitted && isSelfSubmitted && !isL2Submitted)"
+      class="btn btn-secondary" [disabled]="isSubmitProcessing" [ngClass]="isSubmitProcessing ? 'spinning' : ''"
+      (click)="submitAppraisalSelfAlert(appraisalForm, questionForm, feedbackForm, businessForm, appraisal.mode)">
+      <span>Submit L2 {{ appraisal.mode === 'objective' ? 'Objective' : appraisal.mode === 'appraisal' ? 'Appraisal' :
+          'Variable Bonus' }} Process</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+    <button
+      *ngIf="(isHr && !isSelf && ((!isHrObjectiveSubmitted && isSelfObjectiveSubmitted && isRmObjectiveSubmitted && isL2ObjectiveSubmitted) || (!isHrSubmitted && isSelfSubmitted && isRmSubmitted && isL2Submitted)))"
+      class="btn btn-secondary" [disabled]="isSubmitProcessing" [ngClass]="isSubmitProcessing ? 'spinning' : ''"
+      (click)="appraisal.mode === 'objective' ?  submitAppraisalSelfAlert(appraisalForm, questionForm, feedbackForm, businessForm, appraisal.mode) :  submitAppraisalRating()">
+      <span>Submit HR {{ appraisal.mode === 'objective' ? 'Objective' : appraisal.mode === 'appraisal' ? 'Appraisal' :
+          'Variable Bonus' }} Process</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+  </div>
+
+</div>

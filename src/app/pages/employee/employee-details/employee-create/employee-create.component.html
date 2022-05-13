@@ -1,0 +1,127 @@
+<div class="new-employee">
+    <form #employeeForm="ngForm" class="form show-character-count">
+
+        <div *ngIf="isEmailAlreadyAdded" class="alert alert-danger alert-sm">
+            <span>An employee with the same email id is already added in the system. Duplicate email ids cannot be
+                added.</span>
+        </div>
+
+        <div class="form-group">
+            <label class="form-title required">Employee Name</label>
+            <label class="form-explanation">Enter the name of the employee.</label>
+            <input #employeeVar="ngModel" class="form-control" name="employee" [(ngModel)]="newEmployee.name"
+                type="text" required />
+            <app-custom-validation [model]="employeeVar" [required]="'Enter the name for the employee.'">
+            </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+            <label class="form-title required">Employee Email</label>
+            <label class="form-explanation">Enter the official login email for the employee.</label>
+            <input #employeeEmailVar="ngModel" class="form-control" name="employeeEmail"
+                [(ngModel)]="newEmployee.officialEmail" type="email" ngvemail required />
+            <app-custom-validation [model]="employeeEmailVar" [required]="'Enter the official email for the employee.'"
+                [email]="'Enter the email properly.'">
+            </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+            <label class="form-title required">Copy Employee Data?</label>
+            <label class="form-explanation">Do you want to copy the employee data from a resigned employee?</label>
+
+            <div class="col-12">
+                <input #copyDataVar="ngModel" name="copydata-checkbox" class="custom-checkbox primary"
+                    id="copydata-checkbox" type="checkbox" [value]="true" [(ngModel)]="newEmployee.copyData">
+                <label for="copydata-checkbox">
+                    <span class="text">Copy Data</span>
+                </label>
+            </div>
+
+        </div>
+
+        <div *ngIf="newEmployee.copyData" class="form-group">
+            <label class="form-title">Employee Unique Code</label>
+            <label class="form-explanation">Enter the unique code of the employe you want to copy the details
+                from.</label>
+            <input #uniqueCodeVar="ngModel" class="form-control" name="uniqueCodeVar"
+                [(ngModel)]="newEmployee.uniqueCode" type="number" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-title required">Status</label>
+            <label class="form-explanation">Choose the employee status.</label>
+
+            <div class="col-4">
+                <input name="status-radio" class="custom-radio primary" id="status-radio-off" type="radio"
+                    [value]="'off-roll'" [(ngModel)]="newEmployee.status">
+                <label for="status-radio-off">
+                    <span class="text">Off Roll</span>
+                </label>
+            </div>
+
+            <div class="col-4">
+                <input name="status-radio" class="custom-radio primary" id="status-radio-on" type="radio"
+                    [value]="'on-roll'" [(ngModel)]="newEmployee.status">
+                <label for="status-radio-on">
+                    <span class="text">On Roll</span>
+                </label>
+            </div>
+
+            <div class="col-4">
+                <input name="status-radio" class="custom-radio primary" id="status-radio-trainee" type="radio"
+                    [value]="'trainee'" [(ngModel)]="newEmployee.status">
+                <label for="status-radio-trainee">
+                    <span class="text">Trainee</span>
+                </label>
+            </div>
+
+            <div class="col-6">
+                <input name="status-radio" class="custom-radio primary" id="status-radio-temp" type="radio"
+                    [value]="'temp'" [(ngModel)]="newEmployee.status">
+                <label for="status-radio-temp">
+                    <span class="text">Casual / Temp</span>
+                </label>
+            </div>
+
+            <!-- <app-custom-validation [model]="roleVar" [required]="'Choose a role for the employee.'">
+        </app-custom-validation> -->
+        </div>
+
+        <div class="form-group">
+            <label class="form-title required">Can Login</label>
+            <label class="form-explanation">Check the box is the user will be allowed to login into the
+                application.</label>
+
+            <div class="col-12">
+                <input #canLoginVar="ngModel" name="canLogin-checkbox" class="custom-checkbox primary"
+                    id="canLogin-checkbox" type="checkbox" [value]="true" [(ngModel)]="newEmployee.canLogin">
+                <label for="canLogin-checkbox">
+                    <span class="text">Can Login</span>
+                </label>
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label class="form-title">Role</label>
+            <label class="form-explanation">Choose the role to be assigned to the employee.</label>
+            <ng-select #roleVar="ngModel" name="roleOptions" [(ngModel)]="newEmployee.roleSelection"
+                (change)="newEmployee.roleId = $event.value" [items]="employeeRoles" [multiple]="false"
+                [clearable]="false" required placeholder="Choose employee role">
+            </ng-select>
+            <app-custom-validation [model]="roleVar" [required]="'Choose a role for the employee.'">
+            </app-custom-validation>
+        </div>
+
+    </form>
+
+</div>
+<div class="create-employee-footer">
+    <button type="submit" class="btn btn-primary" [disabled]="isProcessing"
+        [ngClass]="[isProcessing ? 'spinning' : '', !employeeForm.valid ? 'disabled' : '']"
+        (click)="addNewEmployee(employeeForm)">
+        <span>Add New Employee</span>
+        <i class="fas fa-spinner spinner"></i>
+    </button>
+    <button type="button" class="btn btn-dark btn-outline" (click)="hideModal()">Close</button>
+</div>

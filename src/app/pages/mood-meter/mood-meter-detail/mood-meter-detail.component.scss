@@ -1,0 +1,15 @@
+.yellow-color {
+    color: #ffc107 !important;
+}
+
+.hide-no-data {
+    tbody {
+        tr.odd > td.dataTables_empty {
+            display: none;
+        }
+    }
+}
+
+.dataTables_empty {
+    display: none !important;
+}

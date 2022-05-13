@@ -1,0 +1,228 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Official details.</h4>
+  <div class="text-sm text-grey">You cannot view the official details for this employee.</div>
+</div>
+<div class="employee-section-container employee-company-container p-sm" *ngIf="haveAccess">
+
+  <div *ngIf="employeeCompany">
+
+    <div *ngIf="circularManager" class="alert alert-block alert-danger alert-outline alert-sm">
+      <div>The selection of the manager triggers a circular reporting structure. Please see the screen for more
+        details.</div>
+
+      <div class="mt-sm">
+        <span *ngFor="let manager of managerList; let i = index">
+          <span class="text-sm"><b>{{ manager.name }}</b></span>
+          <span *ngIf="i !== managerList.length - 1"> reports to </span>
+        </span>
+      </div>
+    </div>
+
+    <form #companyForm="ngForm" class="form row no-x-m">
+
+      <div class="col-lg-4">
+
+        <div class="form-group">
+          <label class="form-title required">Department</label>
+          <label class="form-explanation">Choose the department the employee belongs.</label>
+          <ng-select #departmentVar="ngModel" name="departmentOptions" [(ngModel)]="employeeCompany.departmentSelection"
+            placeholder="Choose department" [items]="departmentOptions" [disabled]="!canEdit"
+            (change)="employeeCompany.departmentId = $event ? $event.value : null" [multiple]="false" [clearable]="true"
+            required>
+          </ng-select>
+          <app-custom-validation [model]="departmentVar" [required]="'Choose a department for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Designation</label>
+          <label class="form-explanation">Choose the designation of the employee.</label>
+          <ng-select #designationVar="ngModel" name="designationOptions"
+            [(ngModel)]="employeeCompany.designationSelection" [disabled]="!canEdit"
+            (change)="employeeCompany.designationId = $event ? $event.value : null" placeholder="Choose designation"
+            [items]="designationOptions" [multiple]="false" [clearable]="true" required>
+          </ng-select>
+          <app-custom-validation [model]="designationVar" [required]="'Choose a designation for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Category</label>
+          <label class="form-explanation">Choose the category in which the employee belongs.</label>
+          <ng-select #locationVar="ngModel" name="locationOptions" [(ngModel)]="employeeCompany.locationSelection"
+            (change)="employeeCompany.locationId = $event ? $event.value : null" [items]="locationOptions"
+            [multiple]="false" [clearable]="true" placeholder="Choose category" required [disabled]="!canEdit">
+          </ng-select>
+          <app-custom-validation [model]="locationVar" [required]="'Choose a category for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Reporting To</label>
+          <label class="form-explanation">Choose the employee to report to.</label>
+          <ng-select #reportingToVar="ngModel" name="reportingToVar" [(ngModel)]="employeeCompany.reportingToSelection"
+            (change)="employeeCompany.reportingToId = $event ? $event.employeeId : null" [items]="reportingToOptions"
+            [disabled]="!canEdit" placeholder="Choose reporting to" [multiple]="false" [clearable]="true"
+            class="reporting-top-select" [searchFn]="reportingSearchFunction">
+
+            <ng-template ng-label-tmp let-item="item">
+              {{ item.employeeName }}
+            </ng-template>
+
+            <ng-template ng-option-tmp let-item="item" let-index="index" let-search="searchTerm">
+
+              <div class="reporting-to-dropdown-item">
+                <div class="employee-name">{{ item.employeeName }}</div>
+                <div class="employee-code">{{ item.employeeCode }}</div>
+              </div>
+
+            </ng-template>
+          </ng-select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Zone</label>
+          <label class="form-explanation">Choose the zone in which the employee belongs.</label>
+          <ng-select #regionVar="ngModel" name="regionOptions" [(ngModel)]="employeeCompany.regionSelection"
+            (change)="employeeCompany.regionId = $event ? $event.value : null" [items]="regionOptions"
+            [disabled]="!canEdit" placeholder="Choose zone" [multiple]="false" [clearable]="true" required>
+          </ng-select>
+          <app-custom-validation [model]="regionVar" [required]="'Choose a zone for the employee.'">
+          </app-custom-validation>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="form-group">
+          <label class="form-title required">Grade</label>
+          <label class="form-explanation">Choose the grade in which the employee belongs.</label>
+          <ng-select #gradeVar="ngModel" name="gradeOptions" [(ngModel)]="employeeCompany.gradeSelection"
+            (change)="employeeCompany.gradeId = $event ? $event.value : null" [items]="gradeOptions" [multiple]="false"
+            [clearable]="true" placeholder="Choose grade" [disabled]="!canEdit" required>
+          </ng-select>
+          <app-custom-validation [model]="gradeVar" [required]="'Choose a grade for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Team</label>
+          <label class="form-explanation">Choose the team in which the employee belongs.</label>
+          <ng-select #teamVar="ngModel" name="teamOptions" [(ngModel)]="employeeCompany.teamSelection"
+            [disabled]="!canEdit" (change)="employeeCompany.teamId = $event ? $event.value : null" [items]="teamOptions"
+            [multiple]="false" [clearable]="true" placeholder="Choose team" required>
+          </ng-select>
+          <app-custom-validation [model]="teamVar" [required]="'Choose a team for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Location</label>
+          <label class="form-explanation">Choose the location in which the employee belongs.</label>
+          <ng-select #categoryVar="ngModel" name="categoryOptions" [(ngModel)]="employeeCompany.categorySelection"
+            (change)="employeeCompany.categoryId = $event ? $event.value : null" [items]="categoryOptions"
+            [disabled]="!canEdit" [multiple]="false" [clearable]="true" placeholder="Choose location" required>
+          </ng-select>
+          <app-custom-validation [model]="categoryVar" [required]="'Choose a location for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Division</label>
+          <label class="form-explanation">Enter the division for the employee.</label>
+          <ng-select #divisionVar="ngModel" name="divisionVar" [(ngModel)]="employeeCompany.divisionSelection"
+            (change)="employeeCompany.division = $event ? $event.value : null" [items]="divisionOptions"
+            [disabled]="!canEdit" [multiple]="false" [clearable]="true" placeholder="Choose division" required>
+          </ng-select>
+          <app-custom-validation [model]="divisionVar" [required]="'Choose a division for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Location Bifurcation</label>
+          <label class="form-explanation">Enter the location bifurcation for the employee.</label>
+          <input #bifurcationVar="ngModel" class="form-control" name="bifurcationVar"
+            placeholder="Enter the location bifurcation" [(ngModel)]="employeeCompany.locationBifurcation" type="text"
+            required [disabled]="!canEdit" />
+          <app-custom-validation [model]="bifurcationVar" [required]="'Enter the location bifurcation.'">
+          </app-custom-validation>
+        </div>
+
+        <div *ngIf="employeeCompany.status === 'off-roll'" class="form-group">
+          <label class="form-title">Vendor</label>
+          <label class="form-explanation">Enter the vendor for the employee.</label>
+          <input #vendorVar="ngModel" class="form-control" name="vendorVar" placeholder="Enter the vendor"
+            [(ngModel)]="employeeCompany.vendor" type="text" [disabled]="!canEdit" />
+        </div>
+
+      </div>
+      <div class="col-lg-4">
+
+        <div class="form-group">
+          <label class="form-title required">Date Of Joining</label>
+          <label class="form-explanation">Choose the date of joining of the employee.</label>
+          <input #dojVar="ngModel" [(ngModel)]="employeeCompany.doj" name="dojVar" type="text"
+            placeholder="Select a date" (bsValueChange)="probationDateChange($event)" class="form-control" bsDatepicker
+            [bsConfig]="datePickerOptions" [disabled]="!canEdit">
+          <app-custom-validation [model]="dojVar" [required]="'Choose the date of joining for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Probation Days</label>
+          <label class="form-explanation">The number of days the probation period is.</label>
+          <input #probationDaysVar="ngModel" class="form-control" name="probationDaysVar" placeholder="Probation days"
+            disabled [(ngModel)]="employeeCompany.probationDays" type="number" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Probation Extra Days</label>
+          <label class="form-explanation">The number of days to extend the probation period.</label>
+          <input #probationExtraDaysVar="ngModel" class="form-control" name="probationExtraDaysVar"
+            (change)="probationDateChange()" placeholder="Probation extra days" min="0"
+            [(ngModel)]="employeeCompany.probationExtraDays" type="number" [disabled]="!canEdit" />
+          <app-custom-validation [model]="probationExtraDaysVar" [min]="'The days cannot be less than 0.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Confirmation Date</label>
+          <label class="form-explanation">Confirmation date for the employee.</label>
+          <input disabled #probEndVar="ngModel" [(ngModel)]="employeeCompany.probationEndDate" name="probEndVar"
+            type="text" placeholder="Select a date" class="form-control" bsDatepicker [bsConfig]="datePickerOptions">
+          <app-custom-validation [model]="probEndVar" [required]="'Confirmation date for the employee.'">
+          </app-custom-validation>
+        </div>
+
+        <div *ngIf="employeeCompany.status === 'on-roll'" class="form-group">
+          <label class="form-title">Confirmation Remarks</label>
+          <label class="form-explanation">Enter the confirmation remarks for the employee.</label>
+          <textarea #confRemarksVar="ngModel" class="form-control" name="confRemarksVar"
+            placeholder="Enter confirmation remarks" [(ngModel)]="employeeCompany.confirmationRemarks" rows="10"
+            characterCount characterLimit="1000" [disabled]="!canEdit"></textarea>
+        </div>
+
+
+        <!-- <div class="form-group">
+          <label class="form-title">Location for field employees</label>
+          <label class="form-explanation">Enter the location for field employees.</label>
+          <input #fieldLocationVar="ngModel" class="form-control" name="fieldLocationVar"
+            placeholder="Enter location for field employees" [(ngModel)]="employeeCompany.locationForField"
+            characterCount characterLimit="100" [disabled]="!canEdit" />
+        </div> -->
+
+      </div>
+
+      <div *ngIf="canEdit" class="col-lg-12 text-center mt-lg">
+        <button class="btn btn-primary" [disabled]="isProcessing || !companyForm.valid"
+          [ngClass]="isProcessing ? 'spinning' : ''" (click)="saveCompanyInfo()">
+          <span>Update Employee Company Info</span>
+          <i class="fas fa-spinner spinner"></i>
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>

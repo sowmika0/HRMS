@@ -1,0 +1,151 @@
+<div class="company-settings-container mt-md">
+  <form #companyForm="ngForm" class="form show-character-count row no-x-m">
+
+    <div class="col-lg-6">
+
+      <div class="form-group">
+        <label class="form-title required">Company Name</label>
+        <label class="form-explanation">Enter the name of the company to be displayed in the application.</label>
+        <input #nameVar="ngModel" class="form-control" name="location" [(ngModel)]="companyDetails.name" type="text"
+          required />
+        <app-custom-validation [model]="nameVar" [required]="'Enter the name for the company.'">
+        </app-custom-validation>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Address</label>
+        <label class="form-explanation">Enter the company address.</label>
+        <textarea #addressVar="ngModel" class="form-control" name="address" [(ngModel)]="companyDetails.address"
+          rows="5" characterCount characterLimit="500" required></textarea>
+        <app-custom-validation [model]="addressVar" [required]="'Enter the address of the company.'">
+        </app-custom-validation>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Contact Email</label>
+        <label class="form-explanation">Enter the company contact email address.</label>
+        <input #emailVar="ngModel" class="form-control" name="email" [(ngModel)]="companyDetails.email" type="email"
+          required ngvemail />
+        <app-custom-validation [model]="emailVar" [required]="'Please enter the company contact email.'"
+          [email]="'Please enter the email in the proper format.'">
+        </app-custom-validation>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Contact Phone</label>
+        <label class="form-explanation">Enter the company contact phone number.</label>
+        <input #phoneVar="ngModel" class="form-control" name="phone" [(ngModel)]="companyDetails.phone" type="tel"
+          required [pattern]="regex.phoneNumber" />
+        <app-custom-validation [model]="phoneVar" [pattern]="'Please enter valid phone number.'"
+          [required]="'Please enter the company contact phone number.'">
+        </app-custom-validation>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Company GST Number</label>
+        <label class="form-explanation">Enter the GST number for the company.</label>
+        <input #gstNumberVar="ngModel" class="form-control" name="gstNumberVar" [(ngModel)]="companyDetails.gstNumber"
+          type="text" required [pattern]="regex.gstnumber" />
+        <app-custom-validation [model]="gstNumberVar" [required]="'Enter the GST number for the company.'"
+          [pattern]="'The GST number doesnt seem proper. Please check again.'">
+        </app-custom-validation>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Company PAN Number</label>
+        <label class="form-explanation">Enter the PAN number for the company.</label>
+        <input #panNumberVar="ngModel" class="form-control text-uppercase" name="panNumber"
+          [(ngModel)]="companyDetails.panNumber" type="text" required [pattern]="regex.panNumber" />
+        <app-custom-validation [model]="panNumberVar" [required]="'Enter the PAN number for the company.'"
+          [pattern]="'The PAN number doesnt seem proper. Please check again.'">
+        </app-custom-validation>
+      </div>
+
+    </div>
+
+    <div class="col-lg-6">
+
+      <div class="form-group">
+        <label class="form-title required">Company Dashboard Logo</label>
+        <label class="form-explanation">Choose the company logo to be shown on the dashboard.</label>
+        <div class="logo-preview small-logo">
+          <img *ngIf="!fullLogoFile" [src]="logos.full" />
+          <ngx-dropzone-image-preview *ngIf="fullLogoFile" [removable]="false" [file]="fullLogoFile"
+            ngProjectAs="ngx-dropzone-preview">
+          </ngx-dropzone-image-preview>
+        </div>
+
+        <div *ngIf="fullLogoRejected" class="alert alert-danger alert-sm">
+          The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+          upload is not allowed. Please choose a file below 5MB.
+        </div>
+
+        <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'fullLogo'" [accept]="fileFormats"
+          [multiple]="false" [maxFileSize]="5000000" (change)="onLogoSelected($event, 'fullLogo')">
+          <button class="btn btn-primary">
+            <span>Choose Dashboard Logo</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Company Small Logo</label>
+        <label class="form-explanation">Choose the company small logo to be uploaded and used on application menu bar
+          etc.</label>
+
+        <div class="logo-preview small-logo">
+          <img *ngIf="!smallLogoFile " [src]='logos.small' />
+          <ngx-dropzone-image-preview *ngIf="smallLogoFile" [removable]="false" [file]="smallLogoFile"
+            ngProjectAs="ngx-dropzone-preview">
+          </ngx-dropzone-image-preview>
+        </div>
+
+        <div *ngIf="smallLogoRejected" class="alert alert-danger alert-sm">
+          The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+          upload is not allowed. Please choose an file below 5MB.
+        </div>
+
+        <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'smallLogo'" [accept]="fileFormats"
+          [multiple]="false" [maxFileSize]="5000000" (change)="onLogoSelected($event, 'smallLogo')">
+          <button class="btn btn-primary">
+            <span>Choose Small Logo</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-title required">Company Login Logo</label>
+        <label class="form-explanation">Choose the company logo that will be shown in the login pages.</label>
+
+        <div class="logo-preview full-logo">
+          <img *ngIf="!alternateLogoFile " [src]='logos.alternate' />
+          <ngx-dropzone-image-preview *ngIf="alternateLogoFile" [removable]="false" [file]="alternateLogoFile"
+            ngProjectAs="ngx-dropzone-preview">
+          </ngx-dropzone-image-preview>
+        </div>
+
+        <div *ngIf="alternateLogoRejected" class="alert alert-danger alert-sm">
+          The size of the uploaded file is more than 5MB, which is the allowed limit or the file type you tried to
+          upload is not allowed. Please choose a file below 5MB.
+        </div>
+
+        <div class="ks-uploader simple-uploader" ngx-dropzone [id]="'alternateLogo'" [accept]="fileFormats"
+          [multiple]="false" [maxFileSize]="5000000" (change)="onLogoSelected($event, 'alternateLogo')">
+          <button class="btn btn-primary">
+            <span>Choose Login Logo</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-group col-lg-12 mt-lg pt-lg b-t text-center">
+      <button class="btn btn-primary" [ngClass]="isProcessing ? 'spinning': ''"
+        [disabled]="!companyForm.valid || isProcessing" (click)="updateCompanySettings()">
+        <span>Update Company Details</span>
+        <i class="fas fa-spinner spinner"></i>
+      </button>
+    </div>
+
+  </form>
+</div>

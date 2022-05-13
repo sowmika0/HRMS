@@ -1,0 +1,122 @@
+/* Toastr */
+
+// Toaster Colors
+$toast-success: #2ED6A0;
+$toast-danger: #EF8164;
+$toast-info: #57A5FF;
+$toast-warning: #FFCA6E;
+$toast-dark: #4C4D56;
+
+.toast-container {
+  pointer-events: unset;
+
+  &.toast-top-center {}
+
+  .ks-toast {
+    margin: auto;
+    margin-top: 10px;
+    width: fit-content;
+    border-radius: 3px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 20px 0 20px;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    font-weight: 400;
+
+    &.ks-toast-success {
+      background-color: $toast-success;
+    }
+
+    &.ks-toast-warning {
+      color: $dark-grey;
+      background-color: $toast-warning;
+    }
+
+    &.ks-toast-error {
+      background-color: $toast-danger;
+    }
+
+    &.ks-toast-info {
+      background-color: $toast-info;
+    }
+
+    @include respond-below(md) {
+      background-image: none !important;
+      padding-left: 2rem;
+    }
+  }
+
+  .ks-toast-with-icon {
+    width: fit-content;
+    border-radius: 3px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+
+    padding: 0 30px 0 50px;
+    background-color: $toast-info;
+    background-repeat: no-repeat;
+    background-size: 25px;
+    background-position: 10px 15px;
+
+    &.ks-toast-success {
+      background-color: $toast-success;
+      background-image: url(/assets/emoji/smile.png);
+    }
+
+    &.ks-toast-warning {
+      color: $dark-grey;
+      background-color: $toast-warning;
+      background-image: url(/assets/emoji/sad.png);
+    }
+
+    &.ks-toast-error {
+      background-color: $toast-danger;
+      background-image: url(/assets/emoji/dead.png);
+    }
+
+    &.ks-toast-info {
+      background-color: $toast-dark;
+      background-image: url(/assets/emoji/neutral.png);
+    }
+
+    @include respond-below(md) {
+      background-image: none !important;
+      padding-left: 2rem;
+    }
+  }
+
+  .ks-toast-title {
+    color: $white;
+    letter-spacing: 1px;
+    font-weight: 500;
+    font-size: $font-size-base;
+    margin-right: 2rem;
+  }
+
+  .ks-toast-message {
+    color: $white;
+    letter-spacing: 1px;
+    font-weight: 300;
+    font-size: $font-size-sm;
+    margin-right: 2rem;
+  }
+
+  .toast-close-button {
+    position: absolute;
+    top: -1px;
+    right: 5px;
+    font-weight: 300;
+    line-height: initial;
+    height: 100%;
+  }
+
+}

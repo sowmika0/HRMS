@@ -1,0 +1,100 @@
+<div class="content-box">
+  <a *ngIf="isHr" [routerLink]="'/employees'" class="back-link mb-md">
+    <span>Back to Employees</span>
+  </a>
+  <div class="box-header">
+    <div class="header-content">
+      <h3 class="">
+        <span>Employee Details - </span>
+        <span *ngIf="existResponse" class="text-primary">{{ existResponse.name }} ( {{ existResponse.code }}
+          )</span>
+      </h3>
+      <div class="sub-title">This section shows all the details of the selected employee like Personal, Company,
+        Bank,
+        Education etc. Every employee will be able to view their own profile in this section but not view other's
+        details.</div>
+    </div>
+  </div>
+
+  <div class="box-content">
+    <div class="toggle-button-div">
+      <button class="btn btn-lg btn-transparent" (click)="toggleHeaderContent()" [tooltip]="'Toggle section headers.'">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+    </div>
+    <div class="employee-tab-container tab-container" [ngClass]="showHeaderContent ? 'show-content': ''">
+
+      <tabset #employeeTabs [vertical]="true" class="tab-container tab-vertical">
+
+        <tab *ngFor="let item of employeeSections" (selectTab)="onTabChanged(item)">
+          <ng-template tabHeading>
+            <div class="tab-header" [tooltipPlacement]="'right'" [tooltip]="!showHeaderContent ? item.leftHeader : ''">
+              <div class="tab-header-icon">
+                <i class="" [ngClass]="item.icon"></i>
+              </div>
+              <div class="tab-header-content">
+                <div class="header no-m">
+                  <span>{{ item.leftHeader }}</span>
+                  <span class="ml-xs" *ngIf="item.verification">
+                    <span *ngIf="item.verification.verifiedBy">
+                      <i class="fas fa-check-circle text-success text-sm"></i>
+                    </span>
+                    <span *ngIf="!item.verification.verifiedBy">
+                      <i class="fas fa-times-circle text-danger text-sm"></i>
+                    </span>
+                  </span>
+                </div>
+                <!-- <div class="sub-header text-grey">{{ item.leftSubHeader }}</div> -->
+              </div>
+            </div>
+          </ng-template>
+          <div class="tab-body">
+            <div class="header-content">
+              <h4 class="heading">{{ item.rightHeader }}</h4>
+              <div class="sub-title text-sm text-grey">{{ item.rightSubHeader }}</div>
+
+              <div *ngIf="item.verification" class="verification text-right">
+
+                <div *ngIf="!item.verification.verifiedBy">
+                  <div class="badge badge-danger badge-sm badge-alternate">
+                    UnVerified</div>
+                  <div class="text-xs">Updated on <b>{{ item.verification.updatedOnText }}</b> </div>
+                </div>
+
+                <div *ngIf="item.verification.verifiedBy">
+                  <div class="badge badge-success badge-sm badge-alternate">
+                    Verified
+                  </div>
+                  <div class="text-xs">Verified by <b>{{ item.verification.verifiedBy }}</b> on
+                    <b>{{ item.verification.verifiedOnText }}</b> </div>
+                </div>
+
+              </div>
+
+            </div>
+            <div *ngIf="isEmployeeExist">
+              <router-outlet *ngIf="item.route === activeSection.route">
+              </router-outlet>
+            </div>
+
+          </div>
+        </tab>
+
+      </tabset>
+
+    </div>
+
+  </div>
+</div>
+
+<ng-template #tabHeaderTemplate let-item="item">
+  <div class="tab-header">
+    <div class="tab-header-icon">
+      <i class="" [ngClass]="item.icon"></i>
+    </div>
+    <div class="tab-header-content">
+      <div class="header no-m">{{ item.header }}</div>
+      <div class="sub-header">{{ item.subHeader }}</div>
+    </div>
+  </div>
+</ng-template>

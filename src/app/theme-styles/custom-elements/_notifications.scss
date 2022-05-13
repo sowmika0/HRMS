@@ -1,0 +1,93 @@
+app-custom-notification {
+  padding: 0;
+
+  .ks-notification {
+    margin-left: auto;
+    margin-right: 5px;
+    margin-top: 5px;
+    width: 300px;
+    max-width: 350px;
+    overflow: hidden;
+    font-size: $font-size-sm;
+    background-color: rgba(255, 255, 255, .85);
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .1);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+
+    .notification-header {
+      display: flex;
+      min-height: 30px;
+      align-items: center;
+      padding: 8px;
+      color: $mid-grey;
+      background-color: $very-light-grey;
+      background-clip: padding-box;
+      border-bottom: 1px solid rgba(0, 0, 0, .05);
+      font-weight: 400;
+
+      .notification-heading {
+        flex: 1;
+        height: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        word-break: break-all;
+      }
+
+      .notification-close {
+        width: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        height: 100%;
+        cursor: pointer;
+      }
+    }
+
+    .notification-body {
+      padding: 10px;
+      word-break: break-all;
+      word-wrap: break-word;
+    }
+
+    .notification-footer {
+      display: flex;
+
+      .notification-added-on {
+        font-size: $font-size-xs;
+        padding-left: 10px;
+        display: flex;
+        text-align: left;
+        height: 100%;
+        margin-right: 10px;
+        font-weight: 300;
+        width: 100px;
+        flex: 1;
+      }
+    }
+  }
+}
+
+@mixin notification-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .notification-#{$c} {
+      .ks-notification {
+        border: 1px solid map-deep-get($button-colors, $c, 'back');
+
+        .notification-header {
+          color: map-deep-get($button-colors, $c, 'back');
+          background-color: lighten(map-deep-get($button-colors, $c, 'back'), 40);
+          border-bottom: 1px solid map-deep-get($button-colors, $c, 'back');
+        }
+      }
+    }
+  }
+}
+
+@include notification-colors();

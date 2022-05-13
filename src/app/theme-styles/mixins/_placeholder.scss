@@ -1,0 +1,51 @@
+$placeholder-width: ('sm': 20,
+  'md': 50,
+  'lg': 75,
+  'xl': 100);
+
+$placeholder-height: ('xs': 10,
+  'sm': 15,
+  'md': 25,
+  'lg': 35,
+  'xl': 50);
+
+@mixin placeholder {
+
+  @each $p,
+  $value in $placeholder-width {
+    .placeholder-line {
+      &.placeholder-width-#{$p} {
+        width: #{$value};
+      }
+    }
+  }
+
+  @for $p from 1 to 100 {
+    .placeholder-line {
+      &.placeholder-width-#{$p} {
+        width: #{$p};
+      }
+    }
+  }
+
+  @each $p,
+  $value in $placeholder-height {
+    .placeholder-line {
+      &.placeholder-height-#{$p} {
+        height: #{$value}px;
+      }
+    }
+  }
+
+  @each $p,
+  $value in $colors {
+    .placeholder {
+      .placeholder-#{$p} {
+        background-color: lighten($value, 20) !important;
+        background-image: linear-gradient(to right, lighten($value, 20) 8%, darken($value, 10) 18%, lighten($value, 20) 33%) !important;
+      }
+    }
+  }
+}
+
+@include placeholder();

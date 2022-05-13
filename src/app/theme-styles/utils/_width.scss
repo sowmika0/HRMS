@@ -1,0 +1,10 @@
+@mixin width-percentage($from: 0, $to: 100, $inc: 5) {
+  @for $i from $from to $to {
+    .w-#{$i} {
+      width: #{$i * 1%};
+    }
+    $i:$i + $inc;
+  }
+}
+
+@include width-percentage();

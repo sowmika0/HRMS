@@ -1,0 +1,187 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Education details.</h4>
+  <div class="text-sm text-grey">You cannot view the education details for this employee.</div>
+</div>
+<div class="employee-container employee-education-container p-sm" *ngIf="haveAccess">
+  <div *ngIf="activeEducations.length !== 0" class="text-right">
+    <button class="btn btn-primary" [disabled]="!canEdit" (click)="add(educationForm)">New Education</button>
+  </div>
+
+  <div *ngIf="activeEducations.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No educations added yet.</h4>
+    <div class="text-sm text-grey">Click the button below to add new education.</div>
+    <div class="text-center mt-md">
+      <button class="btn btn-primary btn-sm btn-outline" [disabled]="!canEdit" (click)="add(educationForm)">New
+        Education</button>
+    </div>
+  </div>
+
+  <div *ngIf="activeEducations.length > 0" class="added-education-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 15%;">Course Name</th>
+          <th style="width: 15%;">Institute</th>
+          <th style="width: 20%;">Major</th>
+          <th style="width: 10%;">Started Year</th>
+          <th style="width: 10%;">Completed Year</th>
+          <th style="width: 10%;">Grade</th>
+          <th style="width: 20%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of activeEducations">
+          <td>
+            <span>{{ item.courseName }}</span>
+          </td>
+          <td>
+            <span>{{ item.institute }}</span>
+          </td>
+          <td>
+            <span>{{ item.majorSubject }}</span>
+          </td>
+          <td>
+            <span>{{ item.startedYear }}</span>
+          </td>
+          <td>
+            <span>{{ item.completedYear }}</span>
+          </td>
+          <td>
+            <span>{{ item.grade }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit education information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+
+            <button class="btn btn-danger btn-xs" [disabled]="!canEdit || this.role !== 'hr'"
+              [tooltip]="'Delete this education.'" (click)="deleteAlert(item)">
+              <i class="fas fa-trash"></i>
+              <!-- <span>Delete</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="role === 'hr'" class="btn btn-secondary btn-outline mr-sm" [disabled]="isProcessing"
+      [ngClass]="isProcessing ? 'spinning' : ''" (click)="verifyChanges()">
+      <span>Verify Changes</span>
+      <i class="fas fa-spinner spinner"></i>
+    </button>
+
+    <!-- <button class="btn btn-primary" (click)="updateEmployeeEducations()" [disabled]="isProcessing || !canEdit"
+      [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Education Information</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button> -->
+  </div>
+
+  <app-custom-modal #educationModal [title]="isUpdating ? 'Update Education Details' : 'Add New Education'"
+    [subTitle]="'Enter the details for the education to add or update the information.'" [modalSize]="'lg'">
+    <div class="new-education">
+      <form #educationForm="ngForm" class="form show-character-count row no-x-m">
+
+        <div *ngIf="!isYearAllowed" class="mt-sm mb-sm alert alert-danger alert-sm col-12">
+          The start year cannot be greater than completed year.
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title required">Course Type</label>
+          <label class="form-explanation">Enter the name of the course eg, 10th, 12th, Diploma, B-Tech etc.</label>
+          <input #courseNameVar="ngModel" class="form-control" name="courseNameVar" [(ngModel)]="education.courseName"
+            type="text" required placeholder="Enter the type of course" [disabled]="!canEdit" />
+          <app-custom-validation [model]="courseNameVar" [required]="'Enter the name for the education.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title required">Institute</label>
+          <label class="form-explanation">Enter the name of the institute.</label>
+          <input #instituteVar="ngModel" class="form-control" name="instituteVar" [(ngModel)]="education.institute"
+            type="text" required placeholder="Enter the institute name" [disabled]="!canEdit" />
+          <app-custom-validation [model]="instituteVar" [required]="'Enter the name for the institute.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="row no-x-m col-6">
+          <div class="form-group col-6 pl-0">
+            <label class="form-title required">Started Year</label>
+            <label class="form-explanation">Year of starting.</label>
+            <input #startYearVar="ngModel" class="form-control" name="startYearVar" [(ngModel)]="education.startedYear"
+              type="number" required placeholder="Enter start year" [min]="1920" [max]="currentYear"
+              (change)="checkYear()" [disabled]="!canEdit" />
+            <app-custom-validation [model]="startYearVar" [required]="'Enter the start year of the course.'">
+            </app-custom-validation>
+          </div>
+          <div class="form-group col-6 pr-0">
+            <label class="form-title required">Completed Year</label>
+            <label class="form-explanation">Year of completion.</label>
+            <input #completionYearVar="ngModel" class="form-control" name="completionYearVar"
+              [(ngModel)]="education.completedYear" type="number" required placeholder="Enter end year" [min]="1920"
+              [max]="currentYear" (change)="checkYear()" [disabled]="!canEdit" />
+            <app-custom-validation [model]="completionYearVar" [required]="'Enter the completed year of the course.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title required">Major Subject</label>
+          <label class="form-explanation">Enter the name of the major subject in the course.</label>
+          <input #majorVar="ngModel" class="form-control" name="majorVar" [(ngModel)]="education.majorSubject"
+            type="text" required placeholder="Ente the major subject" [disabled]="!canEdit" />
+          <app-custom-validation [model]="majorVar" [required]="'Enter the name for the major subject.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group col-6">
+          <label class="form-title">Course Type</label>
+          <label class="form-explanation">Choose the course type.</label>
+          <ng-select #courseTypeVar="ngModel" name="roleOptions" [(ngModel)]="education.courseTypeSelection"
+            (change)="education.courseType = $event.value" [items]="courseTypeOptions" [multiple]="false"
+            placeholder="Choose course type" [clearable]="false" [disabled]="!canEdit">
+          </ng-select>
+        </div>
+
+        <div class="row no-x-m col-6">
+          <div class="form-group col-6 pl-0">
+            <label class="form-title">Grade</label>
+            <label class="form-explanation">Enter the grade obtained in the course.</label>
+            <input #gradeVar="ngModel" class="form-control" name="gradeVar" [(ngModel)]="education.grade" type="text"
+              placeholder="Enter grade obtained" [disabled]="!canEdit" />
+          </div>
+
+          <div class="form-group col-6 pr-0">
+            <label class="form-title">Percentage</label>
+            <label class="form-explanation">Enter the percentage obtained in the course.</label>
+            <input #percentageVar="ngModel" class="form-control" name="percentageVar" [min]="0" [max]="100"
+              [(ngModel)]="education.percentage" placeholder="Enter percentage obtained" type="number"
+              [disabled]="!canEdit" />
+            <app-custom-validation [model]="percentageVar" [min]="'Enter percentage between 1 and 100.'"
+              [max]="'Enter percentage between 1 and 100.'">
+            </app-custom-validation>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()"
+        [disabled]="!educationForm.valid || !isYearAllowed || !canEdit">
+        <span>{{ isUpdating ? 'Update Education' : 'Add Education' }}</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+</div>

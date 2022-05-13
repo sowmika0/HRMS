@@ -1,0 +1,141 @@
+.bs-datepicker {
+  .bs-datepicker-container {
+    padding: 0;
+
+    .bs-datepicker-head {
+      background: $primary;
+      color: $white;
+
+      bs-datepicker-navigation-view {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    .bs-datepicker-body {
+      table {
+        thead {
+          tr {
+            th {
+              font-weight: 500;
+              color: $mid-grey;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            td {
+              border: none;
+
+              span {
+                border-radius: 5px;
+
+                &.today-class-secondary {
+                  background-color: $secondary;
+                  color: $white;
+                }
+
+                &.selected {
+                  background-color: $primary;
+                  font-weight: 500;
+                }
+
+                &.in-range {
+                  &:before {
+                    left: -5px;
+                    right: -5px;
+                    top: 0;
+                    bottom: 0;
+                    height: 100%;
+                    background: $very-light-grey;
+                  }
+                }
+
+                &.select-start {
+                  &:before {
+                    right: -5px;
+                    left: 100%;
+                    top: 0;
+                    bottom: 0;
+                    height: 100%;
+                    background: $very-light-grey;
+                  }
+                }
+
+                &.select-end {
+                  &:before {
+                    left: -5px;
+                    right: 100%;
+                    top: 0;
+                    bottom: 0;
+                    height: 100%;
+                    background: $very-light-grey;
+                  }
+                }
+
+                &.is-highlighted {
+                  border-radius: 5px;
+                }
+              }
+
+              &.week {
+                span {
+                  font-weight: 500;
+                  color: $primary;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@mixin datepicker-colors {
+
+  @each $c,
+  $value in $button-colors {
+    .bs-datepicker {
+      &.datepicker-#{$c} {
+        .bs-datepicker-container {
+          .bs-datepicker-head {
+            background: map-deep-get($button-colors, $c, 'back');
+            color: map-deep-get($button-colors, $c, 'fore');
+          }
+
+          .bs-datepicker-body {
+            tbody {
+              tr {
+                td {
+
+                  &.week {
+                    span {
+                      color: map-deep-get($button-colors, $c, 'back');
+                    }
+                  }
+
+                  span {
+                    &.selected {
+                      background-color: map-deep-get($button-colors, $c, 'back');
+                      font-weight: 500;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@include datepicker-colors();
+
+.datepicker-modal {
+  .datepicker-container {
+    text-align: center;
+  }
+}

@@ -1,0 +1,28 @@
+.character-count {
+  display: none;
+}
+
+.show-character-count {
+  .form-group {
+    .form-control {
+      ~.character-count {
+        text-align: right;
+        font-size: $font-size-xs;
+        margin-top: 4px;
+        font-weight: 400;
+        color: $mid-grey;
+        display: block;
+
+        &.limit-reached {
+          color: $danger;
+        }
+      }
+
+      &.ng-invalid {
+        ~.character-count {
+          display: none;
+        }
+      }
+    }
+  }
+}

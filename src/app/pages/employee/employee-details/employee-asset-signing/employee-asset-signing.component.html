@@ -1,0 +1,133 @@
+<div *ngIf="!haveAccess" class="empty-state p-md text-center">
+  <div class="empty-icon">
+    <i [ngClass]="icon"></i>
+  </div>
+  <h4>Cannot view the Assets Signing details.</h4>
+  <div class="text-sm text-grey">You cannot view the assets signing details for this employee.</div>
+</div>
+<div class="employee-container employee-assets-container p-sm" *ngIf="haveAccess">
+
+  <div *ngIf="ownedAssets.length === 0" class="empty-state p-md text-center">
+    <div class="empty-icon">
+      <i [ngClass]="icon"></i>
+    </div>
+    <h4>No owned assets added to employees yet.</h4>
+    <div class="text-sm text-grey">There are no employees who have been assigned the assets you own.
+    </div>
+  </div>
+
+  <div *ngIf="ownedAssets.length > 0" class="added-asset-container mt-md">
+    <table class="table table-responsive table-striped">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Employee Name</th>
+          <th style="width: 10%;">Asset Category</th>
+          <th style="width: 10%;">Asset Unique Code</th>
+          <th style="width: 20%;">Description</th>
+          <th style="width: 10%;">Given On</th>
+          <th style="width: 20%;">Last Updated By</th>
+          <th style="width: 10%;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of ownedAssets">
+          <td>
+            <div>{{ item.employeeName }}</div>
+            <div *ngIf="item.employeeCode && item.employeeCode !== ''" class="text-xxs mt-xxs text-primary">
+              <b>{{ item.employeeCode }}</b>
+            </div>
+            <div *ngIf="!item.employeeCode || item.employeeCode === ''" class="text-xxs mt-xxs text-danger"><b>NOT
+                SET</b>
+            </div>
+          </td>
+          <td>
+            <span>{{ item.assetIdSelection ? item.assetIdSelection.label : '' }}</span>
+          </td>
+          <td>
+            <span>{{ item.assetUniqueId }}</span>
+          </td>
+          <td>
+            <span>{{ item.description }}</span>
+          </td>
+          <td>
+            <span>{{ item.givenOnText }}</span>
+          </td>
+          <td>
+            <span>{{ item.lastUpdatedBy }}</span>
+          </td>
+          <td>
+            <button class="btn btn-primary btn-outline btn-xs mr-sm" [tooltip]="'Edit asset information'"
+              (click)="edit(item)">
+              <i class="fas fa-pen"></i>
+              <!-- <span>Edit</span> -->
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- <div class="text-center mt-lg pt-lg b-t">
+    <button *ngIf="ownedAssets.length > 0" class="btn btn-primary" (click)="updateEmployeeAssets()"
+      [disabled]="isProcessing" [ngClass]="isProcessing ? 'spinning' : ''">
+      <span>Save Assets</span>
+      <i class="fas fa-spinner spinner ml-xs"></i>
+    </button>
+  </div> -->
+
+  <app-custom-modal #assetModal [title]="isUpdating ? 'Update Asset Details' : 'Add New Asset'"
+    [subTitle]="'Enter the details for the asset to add or update the information.'">
+    <div class="new-asset">
+      <form #assetForm="ngForm" class="form show-character-count">
+
+        <div *ngIf="assetUniqueId !== ''" class="alert alert-sm alert-danger alert-outline">
+          <span>Asset Id <b>{{assetUniqueId}}</b> is already used. Please try with a different asset id.</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Asset Category</label>
+          <label class="form-explanation">Choose the asset from the options below.</label>
+          <ng-select #assetNameVar="ngModel" [disabled]="true" name="assetNameVar" [(ngModel)]="asset.assetIdSelection"
+            (change)="asset.assetId = $event.value" placeholder="Choose the asset type" [items]="assetTypes"
+            [multiple]="false" [clearable]="false">
+          </ng-select>
+          <app-custom-validation [model]="assetNameVar" [required]="'Choose the asset type.'">
+          </app-custom-validation>
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Description</label>
+          <label class="form-explanation">Enter a description for the asset given.</label>
+          <input #descriptionVar="ngModel" class="form-control" name="descriptionVar"
+            placeholder="Enter the description" [(ngModel)]="asset.description" type="text" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title">Asset Unique Id</label>
+          <label class="form-explanation">Enter a unique id for the asset to track.</label>
+          <input #assetUniqueVar="ngModel" class="form-control" name="assetUniqueVar"
+            placeholder="Enter the asset unique id" [(ngModel)]="asset.assetUniqueId" type="text" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-title required">Given On</label>
+          <label class="form-explanation">Choose the date at which the asset was given to the employee.</label>
+          <input #givenDateVar="ngModel" [(ngModel)]="asset.givenOn" name="givenDateVar" type="text"
+            placeholder="Select a date" [minDate]="asset.doj" [maxDate]="asset.maxDate" class="form-control" bsDatepicker
+            [bsConfig]="datePickerOptions" required>
+          <app-custom-validation [model]="givenDateVar" [required]="'Choose the date the asset was given.'">
+          </app-custom-validation>
+        </div>
+
+      </form>
+    </div>
+
+    <div footer-buttons class="footer-buttons">
+      <button class="btn btn-primary" (click)="addOrUpdate()" [disabled]="!assetForm.valid">
+        <span>Update Asset</span>
+      </button>
+    </div>
+
+  </app-custom-modal>
+
+</div>

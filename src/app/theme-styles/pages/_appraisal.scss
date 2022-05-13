@@ -1,0 +1,54 @@
+.appraisal-container {
+  .empty-state {
+    opacity: 0.7;
+
+    .empty-icon {
+      width: 75px;
+      margin: auto;
+      margin-bottom: 30px;
+      height: 75px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: $lighter-grey;
+      border-radius: 100px;
+      font-size: 20px;
+    }
+  }
+}
+
+
+@mixin widget-box {
+
+  @each $c,
+  $value in $button-colors {
+    .appraisal-container {
+      .widget-box-#{$c} {
+
+        padding: 15px;
+        border: 1px solid;
+        border-radius: 5px;
+        border-color: map-deep-get($button-colors, $c, 'back');
+
+        h2 {
+          color: map-deep-get($button-colors, $c, 'back');
+        }
+
+        .percentage {
+          font-size: $font-size-xs;
+          color: map-deep-get($button-colors, $c, 'back');
+          font-weight: 500;
+        }
+
+        .label {
+          color: map-deep-get($button-colors, $c, 'back');
+          font-weight: 500;
+          font-size: $font-size-sm;
+          text-transform: uppercase;
+        }
+      }
+    }
+  }
+}
+
+@include widget-box();
